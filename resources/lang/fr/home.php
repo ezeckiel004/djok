@@ -163,4 +163,14 @@ return [
     // Section PDF
     'view_arrete_pdf' => 'Voir l\'arrêté modifié du 07/11/2025',
     'pdf_label' => 'Document officiel',
+
+    // Statistics Section - Nouvelles valeurs
+'experts_network' => 'Un réseau d\'experts engagés',
+'experts_network_desc' => 'Des professionnels passionnés à votre service',
+'practical_trainings' => 'Des formations pratiques et accessibles',
+'practical_trainings_desc' => 'Apprenez par la pratique avec des cas concrets',
+'tailored_support' => 'Un accompagnement sur mesure',
+'tailored_support_desc' => 'Un suivi personnalisé pour chaque projet',
+'growing_community' => 'Une communauté en développement',
+'growing_community_desc' => 'Rejoignez un réseau dynamique et en expansion',
 ];

@@ -11,12 +11,12 @@ return [
     'contact_soon' => 'Nuestro equipo se pondrá en contacto con usted en breve.',
 
     // Sección Hero
-    'hero_title' => 'Formación internacional – Vive la experiencia DJOK PRESTIGE en Francia',
-    'hero_description' => '¿Sueñas con venir a Francia para desarrollar tus habilidades, obtener una cualificación reconocida y descubrir un entorno de excelencia profesional? DJOK PRESTIGE, centro de formación certificado Qualiopi, te recibe en un marco ideal en París y la región de Île-de-France.',
+    'hero_title' => 'Formación internacional – Viva la experiencia DJOK PRESTIGE en todo el mundo',
+    'hero_description' => 'DJOK PRESTIGE acompaña a empresas, directivos y organizaciones en la creación de programas de formación y eventos de negocios en los principales destinos del mundo: Dubái, Estados Unidos, Europa, África y Asia.',
 
     // Botones Hero
-    'discover_formations' => 'Descubrir las formaciones',
-    'visa_accompaniment' => 'Acompañamiento Visa',
+    'discover_formations' => 'Descubrir los programas internacionales',
+    'visa_accompaniment' => 'Organizar un seminario',
 
     // Secciones
     'formation_domains' => 'Dominios de formación disponibles',

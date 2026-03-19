@@ -1,9 +1,9 @@
 <?php
+// app/Http/Controllers/FormationInternationaleController.php
 
 namespace App\Http\Controllers;
 
 use App\Models\DemandeFormationInternationale;
-use App\Models\Formation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -15,34 +15,25 @@ class FormationInternationaleController extends Controller
 {
     public function store(Request $request)
     {
-        // Validation des données
+        // Validation adaptée - certains champs optionnels
         $validator = Validator::make($request->all(), [
-            'nom' => 'required|string|max:255',
-            'nationalite' => 'required|string|max:100',
+            'nom_entreprise' => 'nullable|string|max:255',
+            'nom_responsable' => 'required|string|max:255', // On garde nom_complet
             'email' => 'required|email|max:255',
             'telephone' => 'required|string|max:20',
-            'whatsapp' => 'nullable|string|max:20',
-            'formation' => 'required|string',
-            'message' => 'required|string|min:10|max:2000',
-            'services' => 'nullable|array',
-            'services.*' => 'string|max:100',
-            'date_debut' => 'nullable|date|after_or_equal:today',
-            'duree' => 'nullable|string|max:50'
+            'destination_souhaitee' => 'nullable|string|in:dubai,usa,europe,afrique,autre',
+            'nombre_participants' => 'nullable|integer|min:1|max:999',
+            'type_evenement' => 'nullable|array',
+            'type_evenement.*' => 'string|in:formation,seminaire,voyage_business,team_building',
+            'message' => 'required|string|min:10|max:5000', // Gardé pour compatibilité
+            'objectifs_projet' => 'nullable|string|max:5000',
         ], [
-            'nom.required' => 'Le nom complet est obligatoire.',
-            'nom.max' => 'Le nom ne doit pas dépasser 255 caractères.',
-            'nationalite.required' => 'La nationalité est obligatoire.',
+            'nom_responsable.required' => 'Le nom du responsable est obligatoire.',
             'email.required' => 'L\'email est obligatoire.',
             'email.email' => 'Veuillez entrer une adresse email valide.',
             'telephone.required' => 'Le téléphone est obligatoire.',
-            'whatsapp.max' => 'Le numéro WhatsApp ne doit pas dépasser 20 caractères.',
-            'formation.required' => 'Veuillez sélectionner une formation.',
             'message.required' => 'Veuillez décrire votre projet.',
-            'message.min' => 'Veuillez donner plus de détails sur votre projet (minimum 10 caractères).',
-            'message.max' => 'Le message ne doit pas dépasser 2000 caractères.',
-            'date_debut.date' => 'La date de début doit être une date valide.',
-            'date_debut.after_or_equal' => 'La date de début doit être aujourd\'hui ou une date future.',
-            'duree.max' => 'La durée ne doit pas dépasser 50 caractères.'
+            'message.min' => 'Veuillez donner plus de détails sur votre projet.',
         ]);
 
         if ($validator->fails()) {
@@ -54,81 +45,62 @@ class FormationInternationaleController extends Controller
         }
 
         try {
-            // Déterminer si c'est une formation existante ou personnalisée
-            $formationId = null;
-            $formationPersonnalisee = null;
-            $formationTitre = null;
+            // Préparer les données
+            $data = [
+                'nom_complet' => $request->nom_responsable,
+                'email' => $request->email,
+                'telephone' => $request->telephone,
+                'message' => $request->message ?? $request->objectifs_projet,
+                'statut' => 'nouveau',
+                'notes_admin' => 'Demande créée via formulaire public'
+            ];
 
-            if (is_numeric($request->formation)) {
-                $formation = Formation::find($request->formation);
-                if ($formation) {
-                    $formationId = $formation->id;
-                    $formationTitre = $formation->title;
-                } else {
-                    return redirect()
-                        ->route('formation.international')
-                        ->withInput()
-                        ->with('error', 'La formation sélectionnée n\'existe pas.');
-                }
-            } else {
-                $formationPersonnalisee = $request->formation;
-                $formationTitre = $formationPersonnalisee;
+            // Ajouter les nouveaux champs s'ils existent
+            if ($request->has('nom_entreprise')) {
+                $data['nom_entreprise'] = $request->nom_entreprise;
             }
 
-            // Nettoyer les services
-            $services = [];
-            if ($request->has('services') && is_array($request->services)) {
-                $services = array_filter(array_unique($request->services));
+            if ($request->has('destination_souhaitee')) {
+                $data['destination_souhaitee'] = $request->destination_souhaitee;
+            }
+
+            if ($request->has('nombre_participants')) {
+                $data['nombre_participants'] = $request->nombre_participants;
+            }
+
+            if ($request->has('type_evenement')) {
+                $data['type_evenement'] = $request->type_evenement;
+            }
+
+            if ($request->has('objectifs_projet')) {
+                $data['objectifs_projet'] = strip_tags($request->objectifs_projet);
             }
 
             // Création de la demande
-            $demande = DemandeFormationInternationale::create([
-                'formation_id' => $formationId,
-                'formation_personnalisee' => $formationPersonnalisee,
-                'nom_complet' => $request->nom,
-                'nationalite' => $request->nationalite,
-                'email' => $request->email,
-                'telephone' => $request->telephone,
-                'whatsapp' => $request->whatsapp ?? $request->telephone,
-                'message' => strip_tags($request->message),
-                'services' => $services,
-                'date_debut' => $request->date_debut,
-                'duree' => $request->duree,
-                'statut' => 'nouveau',
-                'notes_admin' => 'Demande créée via formulaire public'
-            ]);
+            $demande = DemandeFormationInternationale::create($data);
 
-            // Charger les relations nécessaires
-            $demande->load('formation');
-
-            // CORRECTION 1 : Envoyer email de confirmation AU DEMANDEUR (son email)
+            // Envoyer emails...
             Mail::to($request->email)->send(new FormationInternationaleConfirmation($demande));
-
-            // CORRECTION 2 : Envoyer email de notification À L'ADMIN
             $this->sendNotificationEmail($demande);
 
-            // Log de succès
-            Log::info('Nouvelle demande formation internationale créée et emails envoyés', [
+            Log::info('Nouvelle demande de séminaire/formation internationale créée', [
                 'id' => $demande->id,
-                'nom' => $request->nom,
-                'email' => $request->email,
-                'formation' => $formationTitre
+                'responsable' => $request->nom_responsable,
+                'email' => $request->email
             ]);
 
             return redirect()
                 ->route('formation.international')
-                ->with('success', 'Votre demande a été envoyée avec succès ! Nous vous contacterons dans les plus brefs délais. Un email de confirmation vous a été envoyé.')
+                ->with('success', 'Votre demande a été envoyée avec succès ! Nous vous contacterons dans les plus brefs délais.')
                 ->with('email', $request->email);
+
         } catch (\Exception $e) {
-            Log::error('Erreur lors de la création de la demande formation internationale: ' . $e->getMessage(), [
-                'request' => $request->all(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            Log::error('Erreur lors de la création de la demande: ' . $e->getMessage());
 
             return redirect()
                 ->route('formation.international')
                 ->withInput()
-                ->with('error', 'Une erreur technique est survenue lors de l\'envoi de votre demande. Veuillez réessayer ou nous contacter directement.');
+                ->with('error', 'Une erreur technique est survenue. Veuillez réessayer.');
         }
     }
 
@@ -144,12 +116,7 @@ class FormationInternationaleController extends Controller
                 Mail::to($email)->send(new FormationInternationaleNotificationAdmin($demande));
             }
         } catch (\Exception $e) {
-            Log::error('Erreur lors de l\'envoi de l\'email de notification: ' . $e->getMessage());
+            Log::error('Erreur envoi email notification: ' . $e->getMessage());
         }
-    }
-
-    public static function getPendingCount()
-    {
-        return DemandeFormationInternationale::where('statut', 'nouveau')->count();
     }
 }

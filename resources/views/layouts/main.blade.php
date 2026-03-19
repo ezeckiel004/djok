@@ -311,8 +311,8 @@
 
     <!-- Bouton flottant unique - Caché sur mobile avec hidden md:flex -->
     <div class="floating-buttons-container hidden md:flex">
-        <!-- Bouton Certification unique avec lien PDF -->
-        <a href="{{ route('pdf.arrete-modificatif') }}" target="_blank" class="certification-btn"
+        <!-- Bouton Certification unique avec lien PDF Qualiopi -->
+        <a href="{{ asset('Agrément_Qualiopi.pdf') }}" target="_blank" class="certification-btn"
             title="{{ trans('main.certification_button_title') }}">
             <i class="fas fa-download"></i>
             <div class="certification-text" id="certificationText">

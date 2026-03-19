@@ -89,7 +89,7 @@
 <!-- Hero Section - Style sobre -->
 <header class="relative min-h-screen flex items-center" style="background: #000;">
     <div class="absolute inset-0 bg-black">
-        <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+        <img src="{{ asset('VAN_Mercedes.jpg') }}"
             alt="{{ trans('location.hero_title') }}" class="w-full h-full object-cover opacity-40">
         <div class="absolute inset-0" style="background: rgba(0, 0, 0, 0.8);"></div>
     </div>
@@ -741,16 +741,16 @@
                                 <p class="text-gray-300">
                                     <i class="fas fa-phone-alt mr-2" style="color: var(--gold);"></i>
                                     {{ trans('location.phone_label') }}
-                                    <a href="tel:0176380017"
+                                    <a href="tel:06 99 16 44 55"
                                         class="font-semibold hover:text-yellow-400 transition duration-300"
-                                        style="color: var(--gold);">01 76 38 00 17</a>
+                                        style="color: var(--gold);">06 99 16 44 55</a>
                                 </p>
                                 <p class="text-gray-300 mt-2">
                                     <i class="fas fa-envelope mr-2" style="color: var(--gold);"></i>
                                     {{ trans('location.email_label') }}
-                                    <a href="mailto:location@djokprestige.com"
+                                    <a href="mailto:contact@djokprestige.com"
                                         class="font-semibold hover:text-yellow-400 transition duration-300"
-                                        style="color: var(--gold);">location@djokprestige.com</a>
+                                        style="color: var(--gold);">contact@djokprestige.com</a>
                                 </p>
                             </div>
 
@@ -917,7 +917,7 @@
                 class="inline-flex items-center px-6 md:px-8 py-3 font-semibold transition-all duration-300"
                 style="background: #1a1a1a; color: white; border: 1px solid #333;">
                 <i class="fas fa-phone mr-3"></i>
-                {{ trans('location.call_us', ['phone' => '01 76 38 00 17']) }}
+                {{ trans('location.call_us', ['phone' => '06 99 16 44 55']) }}
             </a>
         </div>
 
@@ -1079,7 +1079,7 @@
 
                         // Déterminer le mot jour/jours en fonction de la durée
                         const dayWord = data.duree_jours > 1 ? '{{ trans('location.days') }}' : '{{ trans('location.day') }}';
-                        
+
                         // Afficher l'estimation de prix
                         priceResult.innerHTML = `
                             <div class="space-y-2">

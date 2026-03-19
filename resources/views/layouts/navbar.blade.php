@@ -13,7 +13,7 @@
             <i class="fa-brands fa-tiktok"></i>
 
             <!-- Sélecteur de langue -->
-            <div class="language-selector">
+            {{-- <div class="language-selector">
                 <form action="{{ route('language.switch') }}" method="POST" id="language-form">
                     @csrf
                     <select name="locale" id="language-switcher" class="language-select">
@@ -29,7 +29,7 @@
                     </select>
                     <i class="fa-solid fa-chevron-down language-selector-icon"></i>
                 </form>
-            </div>
+            </div> --}}
         </div>
     </div>
 
@@ -86,12 +86,13 @@
         </a>
     </nav>
 
-    <!-- Auth -->
+    <!-- Auth Section - CORRIGÉ -->
     <div class="auth-section">
         @if (Route::has('login'))
         <div class="auth-links">
             @auth
-            <a href="{{ url('/user/dashboard') }}" class="dashboard-link">
+            {{-- CORRECTION: Utilisation de la route correcte pour le dashboard client --}}
+            <a href="{{ route('client.dashboard') }}" class="dashboard-link">
                 <i class="fa-solid fa-tachometer-alt"></i> {{ __('navbar.dashboard') }}
             </a>
             @else
@@ -169,10 +170,11 @@
             <a href="{{ route('contact') }}" class="mobile-link">{{ __('navbar.contact') }}</a>
             <a href="{{ route('blog') }}" class="mobile-link">{{ __('navbar.blog') }}</a>
 
-            <!-- Auth Mobile -->
+            <!-- Auth Mobile - CORRIGÉ -->
             <div class="mobile-auth">
                 @auth
-                <a href="{{ url('/user/dashboard') }}" class="mobile-dashboard">
+                {{-- CORRECTION: Utilisation de la route correcte pour le dashboard client --}}
+                <a href="{{ route('client.dashboard') }}" class="mobile-dashboard">
                     <i class="fa-solid fa-tachometer-alt"></i> {{ __('navbar.dashboard') }}
                 </a>
                 @else

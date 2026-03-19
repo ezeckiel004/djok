@@ -15,5 +15,5 @@ return [
     'blog' => 'BLOG',
     'dashboard' => 'DASHBOARD',
     'client_space' => 'ESPACE CLIENT',
-    'phone' => '06.99.16.44.55',
+    'phone' => '06 99 16 44 55',
 ];

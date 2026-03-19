@@ -22,7 +22,7 @@ return [
     'action' => 'Action',
 
     // Rental Offers Data
-    'short_term_rental' => 'Location courte durée',
+    'short_term_rental' => 'Mise a disposition',
     'short_term_duration' => '1 à 7 jours',
     'short_term_audience' => 'Particuliers / Chauffeurs VTC occasionnels',
     'short_term_includes' => 'Assurance + Entretien + Assistance',
@@ -40,7 +40,7 @@ return [
     'long_term_includes' => 'Assurance, révision, pneus, véhicule de prêt',
     'long_term_price' => 'Dès 790 €/mois',
 
-    'driver_rental' => 'Location avec chauffeur',
+    'driver_rental' => 'Transfert',
     'driver_duration' => 'Sur demande',
     'driver_audience' => 'Événements / Transferts / VIP',
     'driver_includes' => 'Véhicule + Chauffeur professionnel + Service personnalisé',

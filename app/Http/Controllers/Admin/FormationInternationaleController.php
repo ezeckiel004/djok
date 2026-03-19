@@ -1,4 +1,5 @@
 <?php
+// app/Http/Controllers/Admin/FormationInternationaleController.php
 
 namespace App\Http\Controllers\Admin;
 
@@ -16,12 +17,17 @@ class FormationInternationaleController extends Controller
      */
     public function index(Request $request)
     {
-        $query = DemandeFormationInternationale::with('formation')
+        $query = DemandeFormationInternationale::query()
             ->orderBy('created_at', 'desc');
 
         // Filtre par statut
         if ($request->has('statut') && $request->statut != '') {
             $query->where('statut', $request->statut);
+        }
+
+        // Filtre par destination
+        if ($request->has('destination') && $request->destination != '') {
+            $query->where('destination_souhaitee', $request->destination);
         }
 
         $demandes = $query->paginate(20);
@@ -34,12 +40,7 @@ class FormationInternationaleController extends Controller
      */
     public function create()
     {
-        $formations = Formation::where('is_active', true)
-            ->whereIn('categorie', ['vtc_theorique', 'vtc_pratique', 'e_learning'])
-            ->orderBy('title')
-            ->get();
-
-        return view('admin.formation-internationale.create', compact('formations'));
+        return view('admin.formation-internationale.create');
     }
 
     /**
@@ -48,40 +49,30 @@ class FormationInternationaleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nom_complet' => 'required|string|max:255',
-            'nationalite' => 'required|string|max:100',
+            'nom_entreprise' => 'nullable|string|max:255',
+            'nom_responsable' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'telephone' => 'required|string|max:20',
-            'whatsapp' => 'nullable|string|max:20',
-            'formation_id' => 'nullable|exists:formations,id',
-            'formation_personnalisee' => 'nullable|string|max:255',
+            'destination_souhaitee' => 'nullable|string|in:dubai,usa,europe,afrique,autre',
+            'nombre_participants' => 'nullable|integer|min:1',
+            'type_evenement' => 'nullable|array',
+            'type_evenement.*' => 'string|in:formation,seminaire,voyage_business,team_building',
             'message' => 'required|string|min:10',
-            'services' => 'nullable|array',
-            'date_debut' => 'nullable|date',
-            'duree' => 'nullable|string|max:50',
             'statut' => 'required|in:nouveau,en_cours,traite,annule',
             'notes_admin' => 'nullable|string'
         ]);
 
-        // Validation : au moins formation_id ou formation_personnalisee doit être rempli
-        if (empty($request->formation_id) && empty($request->formation_personnalisee)) {
-            return back()
-                ->withInput()
-                ->withErrors(['formation_id' => 'Veuillez sélectionner une formation ou saisir une formation personnalisée.']);
-        }
-
-        DemandeFormationInternationale::create([
-            'nom_complet' => $request->nom_complet,
-            'nationalite' => $request->nationalite,
+        $demande = DemandeFormationInternationale::create([
+            'nom_complet' => $request->nom_responsable,
+            'nom_entreprise' => $request->nom_entreprise,
+            'nom_responsable' => $request->nom_responsable,
             'email' => $request->email,
             'telephone' => $request->telephone,
-            'whatsapp' => $request->whatsapp,
-            'formation_id' => $request->formation_id,
-            'formation_personnalisee' => $request->formation_personnalisee,
+            'destination_souhaitee' => $request->destination_souhaitee,
+            'nombre_participants' => $request->nombre_participants,
+            'type_evenement' => $request->type_evenement ?? [],
             'message' => strip_tags($request->message),
-            'services' => $request->services ?? [],
-            'date_debut' => $request->date_debut,
-            'duree' => $request->duree,
+            'objectifs_projet' => strip_tags($request->message),
             'statut' => $request->statut,
             'notes_admin' => $request->notes_admin
         ]);
@@ -104,63 +95,45 @@ class FormationInternationaleController extends Controller
      */
     public function edit(DemandeFormationInternationale $demande)
     {
-        $formations = Formation::where('is_active', true)
-            ->whereIn('categorie', ['vtc_theorique', 'vtc_pratique', 'e_learning'])
-            ->orderBy('title')
-            ->get();
-
-        return view('admin.formation-internationale.edit', compact('demande', 'formations'));
+        return view('admin.formation-internationale.edit', compact('demande'));
     }
 
     /**
-     * Update the specified resource in storage (FORMULAIRE COMPLET d'edit).
+     * Update the specified resource in storage.
      */
     public function update(Request $request, DemandeFormationInternationale $demande)
     {
-        // Cette méthode est UNIQUEMENT pour le formulaire COMPLET d'edit.blade.php
         $request->validate([
-            'nom_complet' => 'required|string|max:255',
-            'nationalite' => 'required|string|max:100',
+            'nom_entreprise' => 'nullable|string|max:255',
+            'nom_responsable' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'telephone' => 'required|string|max:20',
-            'whatsapp' => 'nullable|string|max:20',
-            'formation_id' => 'nullable|exists:formations,id',
-            'formation_personnalisee' => 'nullable|string|max:255',
+            'destination_souhaitee' => 'nullable|string|in:dubai,usa,europe,afrique,autre',
+            'nombre_participants' => 'nullable|integer|min:1',
+            'type_evenement' => 'nullable|array',
+            'type_evenement.*' => 'string|in:formation,seminaire,voyage_business,team_building',
             'message' => 'required|string|min:10',
-            'services' => 'nullable|array',
-            'date_debut' => 'nullable|date',
-            'duree' => 'nullable|string|max:50',
             'statut' => 'required|in:nouveau,en_cours,traite,annule',
             'notes_admin' => 'nullable|string'
         ]);
 
-        // Validation : au moins formation_id ou formation_personnalisee doit être rempli
-        if (empty($request->formation_id) && empty($request->formation_personnalisee)) {
-            return back()
-                ->withInput()
-                ->withErrors(['formation_id' => 'Veuillez sélectionner une formation ou saisir une formation personnalisée.']);
-        }
-
-        // Sauvegarde de l'ancien statut
         $ancienStatut = $demande->statut;
 
         $demande->update([
-            'nom_complet' => $request->nom_complet,
-            'nationalite' => $request->nationalite,
+            'nom_complet' => $request->nom_responsable,
+            'nom_entreprise' => $request->nom_entreprise,
+            'nom_responsable' => $request->nom_responsable,
             'email' => $request->email,
             'telephone' => $request->telephone,
-            'whatsapp' => $request->whatsapp,
-            'formation_id' => $request->formation_id,
-            'formation_personnalisee' => $request->formation_personnalisee,
+            'destination_souhaitee' => $request->destination_souhaitee,
+            'nombre_participants' => $request->nombre_participants,
+            'type_evenement' => $request->type_evenement ?? [],
             'message' => strip_tags($request->message),
-            'services' => $request->services ?? [],
-            'date_debut' => $request->date_debut,
-            'duree' => $request->duree,
+            'objectifs_projet' => strip_tags($request->message),
             'statut' => $request->statut,
             'notes_admin' => $request->notes_admin
         ]);
 
-        // Envoyer un email si le statut a changé
         if ($ancienStatut !== $request->statut) {
             try {
                 Mail::to($demande->email)->send(new DemandeStatutChangedMail($demande, $ancienStatut));
@@ -175,26 +148,22 @@ class FormationInternationaleController extends Controller
     }
 
     /**
-     * Mettre à jour seulement le statut (depuis show.blade.php)
+     * Mettre à jour seulement le statut
      */
     public function updateStatut(Request $request, DemandeFormationInternationale $demande)
     {
-        // Validation uniquement pour le statut et notes
         $request->validate([
             'statut' => 'required|in:nouveau,en_cours,traite,annule',
             'notes_admin' => 'nullable|string'
         ]);
 
-        // Sauvegarde de l'ancien statut
         $ancienStatut = $demande->statut;
 
-        // Mettre à jour seulement le statut et les notes
         $demande->update([
             'statut' => $request->statut,
             'notes_admin' => $request->notes_admin
         ]);
 
-        // Envoyer un email si le statut a changé
         if ($ancienStatut !== $request->statut) {
             try {
                 Mail::to($demande->email)->send(new DemandeStatutChangedMail($demande, $ancienStatut));
@@ -205,7 +174,7 @@ class FormationInternationaleController extends Controller
 
         return redirect()
             ->route('admin.demandes-formation-internationale.show', $demande)
-            ->with('success', 'Statut mis à jour avec succès.' . ($ancienStatut !== $request->statut ? ' Un email a été envoyé au client.' : ''));
+            ->with('success', 'Statut mis à jour avec succès.');
     }
 
     /**
@@ -220,39 +189,6 @@ class FormationInternationaleController extends Controller
             ->with('success', 'Demande supprimée avec succès.');
     }
 
-    /**
-     * Mettre à jour rapidement le statut (depuis la page index)
-     */
-    public function updateStatus(Request $request, DemandeFormationInternationale $demande)
-    {
-        $request->validate([
-            'statut' => 'required|in:nouveau,en_cours,traite,annule'
-        ]);
-
-        // Sauvegarde de l'ancien statut
-        $ancienStatut = $demande->statut;
-
-        $demande->update([
-            'statut' => $request->statut
-        ]);
-
-        // Envoyer un email si le statut a changé
-        if ($ancienStatut !== $request->statut) {
-            try {
-                Mail::to($demande->email)->send(new DemandeStatutChangedMail($demande, $ancienStatut));
-            } catch (\Exception $e) {
-                \Log::error('Erreur envoi email statut: ' . $e->getMessage());
-            }
-        }
-
-        return redirect()
-            ->route('admin.demandes-formation-internationale.index')
-            ->with('success', 'Statut mis à jour avec succès.');
-    }
-
-    /**
-     * Récupérer les statistiques pour le tableau de bord
-     */
     public static function getStatistics()
     {
         return [
@@ -264,14 +200,9 @@ class FormationInternationaleController extends Controller
         ];
     }
 
-    /**
-     * Récupérer les demandes récentes (7 derniers jours)
-     */
     public static function getRecentDemandes($limit = 5)
     {
-        return DemandeFormationInternationale::with('formation')
-            ->where('created_at', '>=', now()->subDays(7))
-            ->orderBy('created_at', 'desc')
+        return DemandeFormationInternationale::orderBy('created_at', 'desc')
             ->limit($limit)
             ->get();
     }

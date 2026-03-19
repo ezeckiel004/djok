@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'QCM - DJOK PRESTIGE')
+@section('title', __('qcm.page_title'))
 
 @section('content')
 <!-- Header -->
@@ -20,7 +20,8 @@
             <div class="flex items-center space-x-4">
                 <div class="hidden text-right md:block">
                     <div class="text-sm font-medium text-white">{{ $acces->prenom }} {{ $acces->nom }}</div>
-                    <div class="text-xs text-gray-400">Salle: {{ $acces->virtual_room_code }}</div>
+                    <div class="text-xs text-gray-400">{{ __('qcm.virtual_room') }}: {{ $acces->virtual_room_code }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -40,14 +41,14 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
         <div class="flex items-center">
             <i class="mr-3 fas fa-info-circle" style="color: #60a5fa;"></i>
             <div>
-                <h4 class="mb-1 font-bold text-white">Note importante</h4>
+                <h4 class="mb-1 font-bold text-white">{{ __('qcm.important_note') }}</h4>
                 <p class="text-blue-100">
-                    Vous avez déjà complété ce QCM. Votre précédent score était de
+                    {{ __('qcm.previous_score') }}
                     <strong>{{ $progression->qcm_score }}%</strong>
                     ({{ $progression->qcm_attempts }}/{{ $qcm->attempts_allowed == 0 ? '∞' : $qcm->attempts_allowed }}
-                    tentatives).
+                    {{ __('qcm.attempts') }}).
                     @if($qcm->attempts_allowed > 0 && $progression->qcm_attempts >= $qcm->attempts_allowed)
-                    <br><strong class="text-red-400">Ceci est votre dernière tentative autorisée.</strong>
+                    <br><strong class="text-red-400">{{ __('qcm.last_attempt_warning') }}</strong>
                     @endif
                 </p>
             </div>
@@ -74,12 +75,12 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
                     <div class="flex items-center flex-shrink-0 mt-4 space-x-4 md:mt-0">
                         <div class="text-center">
                             <div class="text-lg font-bold" style="color: #b89449;">{{ $qcm->questions_count }}</div>
-                            <div class="text-xs text-gray-400">questions</div>
+                            <div class="text-xs text-gray-400">{{ __('qcm.questions') }}</div>
                         </div>
                         @if($qcm->is_examen_blanc)
                         <span class="px-3 py-1 text-sm font-semibold rounded-full whitespace-nowrap"
                             style="background: #7f1d1d; color: #fca5a5;">
-                            Examen blanc
+                            {{ __('qcm.white_exam') }}
                         </span>
                         @endif
                     </div>
@@ -87,17 +88,17 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
 
                 <div class="grid grid-cols-1 gap-4 pt-4 border-t border-gray-800 md:grid-cols-4">
                     <div class="text-center">
-                        <div class="mb-1 text-sm font-medium text-gray-400">Note minimale</div>
+                        <div class="mb-1 text-sm font-medium text-gray-400">{{ __('qcm.minimum_score') }}</div>
                         <div class="text-lg font-bold" style="color: #60a5fa;">{{ $qcm->passing_score }}%</div>
                     </div>
                     @if($qcm->time_limit_minutes)
                     <div class="text-center">
-                        <div class="mb-1 text-sm font-medium text-gray-400">Temps limite</div>
+                        <div class="mb-1 text-sm font-medium text-gray-400">{{ __('qcm.time_limit') }}</div>
                         <div class="text-lg font-bold" style="color: #10b981;">{{ $qcm->time_limit_minutes }} min</div>
                     </div>
                     @endif
                     <div class="text-center">
-                        <div class="mb-1 text-sm font-medium text-gray-400">Tentatives</div>
+                        <div class="mb-1 text-sm font-medium text-gray-400">{{ __('qcm.attempts_allowed') }}</div>
                         <div class="text-lg font-bold" style="color: #ddd;">
                             @if($progression)
                             {{ $progression->qcm_attempts }}/{{ $qcm->attempts_allowed == 0 ? '∞' :
@@ -109,9 +110,9 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
                     </div>
                     @if($qcm->allow_multiple_correct)
                     <div class="text-center">
-                        <div class="mb-1 text-sm font-medium text-gray-400">Type de QCM</div>
+                        <div class="mb-1 text-sm font-medium text-gray-400">{{ __('qcm.qcm_type') }}</div>
                         <div class="text-lg font-bold" style="color: #a855f7;">
-                            <i class="mr-1 fas fa-check-double"></i> Multi-réponses
+                            <i class="mr-1 fas fa-check-double"></i> {{ __('qcm.multiple_answers') }}
                         </div>
                     </div>
                     @endif
@@ -124,13 +125,10 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
                 <div class="flex items-start">
                     <i class="mt-1 mr-3 fas fa-exclamation-triangle" style="color: #f56565;"></i>
                     <div class="flex-1 min-w-0">
-                        <h3 class="mb-2 font-bold text-white break-words">Instructions pour l'examen blanc</h3>
+                        <h3 class="mb-2 font-bold text-white break-words">{{ __('qcm.white_exam_instructions') }}</h3>
                         <p class="text-sm text-gray-300 break-words whitespace-normal">
-                            Cet examen blanc simule les conditions réelles de l'examen.
-                            Vous avez <strong>{{ $qcm->time_limit_minutes ?? 'illimité' }} minutes</strong> pour
-                            répondre
-                            à toutes les questions. Une fois terminé, vous verrez votre score et pourrez
-                            revoir vos réponses.
+                            {!! __('qcm.white_exam_description', ['minutes' => $qcm->time_limit_minutes ??
+                            __('qcm.unlimited')]) !!}
                         </p>
                     </div>
                 </div>
@@ -143,18 +141,15 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
                 <div class="flex items-start">
                     <i class="mt-1 mr-3 fas fa-info-circle" style="color: #a855f7;"></i>
                     <div class="flex-1 min-w-0">
-                        <h3 class="mb-2 font-bold text-white break-words">Instructions pour le QCM multi-réponses</h3>
+                        <h3 class="mb-2 font-bold text-white break-words">{{ __('qcm.multiple_answers_instructions') }}
+                        </h3>
                         <p class="text-sm text-gray-300 break-words whitespace-normal">
-                            <strong>Ce QCM autorise plusieurs réponses correctes par question.</strong>
-                            Certaines questions peuvent avoir une ou plusieurs réponses correctes.
-                            Cochez toutes les réponses qui vous semblent correctes pour chaque question.
+                            {!! __('qcm.multiple_answers_description') !!}
                         </p>
                         <div class="mt-2 text-xs text-gray-400 break-words whitespace-normal">
-                            <i class="mr-1 fas fa-check-circle"></i> Points complets si toutes les réponses correctes
-                            sont cochées
+                            <i class="mr-1 fas fa-check-circle"></i> {{ __('qcm.full_points') }}
                             <br>
-                            <i class="mr-1 fas fa-exclamation-circle"></i> Points partiels selon le nombre de réponses
-                            correctement identifiées
+                            <i class="mr-1 fas fa-exclamation-circle"></i> {{ __('qcm.partial_points') }}
                         </div>
                     </div>
                 </div>
@@ -166,7 +161,7 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
             <div class="mb-6">
                 <div class="flex items-center justify-center">
                     <div class="p-4 text-center rounded-lg" style="background: #111; border: 1px solid #333;">
-                        <div class="mb-1 text-sm font-medium text-gray-400">Temps restant</div>
+                        <div class="mb-1 text-sm font-medium text-gray-400">{{ __('qcm.time_remaining') }}</div>
                         <div id="timer" class="text-3xl font-bold" style="color: #b89449;">
                             {{ sprintf('%02d:00', $qcm->time_limit_minutes) }}
                         </div>
@@ -225,7 +220,7 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
                             @if($qcm->allow_multiple_correct)
                             <div class="mt-4 text-sm text-gray-400 break-words whitespace-normal">
                                 <i class="mr-1 fas fa-check-double"></i>
-                                Sélectionnez toutes les réponses correctes
+                                {{ __('qcm.select_all_correct_answers') }}
                             </div>
                             @endif
                         </div>
@@ -236,8 +231,8 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
                 <div class="p-6 rounded-lg" style="background: #111; border: 1px solid #333;">
                     <div class="text-center">
                         <i class="mb-4 text-3xl text-yellow-500 fas fa-exclamation-triangle"></i>
-                        <h3 class="mb-2 text-lg font-medium text-white">Aucune question disponible</h3>
-                        <p class="text-gray-400">Ce QCM ne contient aucune question pour le moment.</p>
+                        <h3 class="mb-2 text-lg font-medium text-white">{{ __('qcm.no_questions_available') }}</h3>
+                        <p class="text-gray-400">{{ __('qcm.no_questions_message') }}</p>
                     </div>
                 </div>
                 @endif
@@ -248,15 +243,15 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
                         <div class="flex flex-col justify-between md:flex-row md:items-center">
                             <div class="flex-1 min-w-0 mb-4 mr-4 md:mb-0">
                                 <p class="text-sm text-gray-400 break-words whitespace-normal">
-                                    Vous avez répondu à <span id="answeredCount">0</span> sur <span
-                                        id="totalQuestions">{{ $questionsCount }}</span>
-                                    questions
+                                    {{ __('qcm.answered') }} <span id="answeredCount">0</span> {{ __('qcm.out_of') }}
+                                    <span id="totalQuestions">{{ $questionsCount }}</span>
+                                    {{ __('qcm.questions_answered') }}
                                 </p>
                                 <div class="flex items-center mt-1 space-x-4">
                                     @if($qcm->time_limit_minutes)
                                     <div class="flex items-center">
                                         <i class="mr-2 text-xs text-gray-500 fas fa-clock"></i>
-                                        <span class="text-xs text-gray-500">Temps restant : </span>
+                                        <span class="text-xs text-gray-500">{{ __('qcm.time_remaining') }} : </span>
                                         <span id="timerDisplay" class="ml-1 text-xs font-bold" style="color: #b89449;">
                                             {{ sprintf('%02d:00', $qcm->time_limit_minutes) }}
                                         </span>
@@ -265,7 +260,7 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
                                     @if($qcm->allow_multiple_correct)
                                     <div class="flex items-center">
                                         <i class="mr-2 text-xs text-purple-500 fas fa-check-double"></i>
-                                        <span class="text-xs text-gray-500">QCM multi-réponses</span>
+                                        <span class="text-xs text-gray-500">{{ __('qcm.multiple_answers_qcm') }}</span>
                                     </div>
                                     @endif
                                 </div>
@@ -274,13 +269,13 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
                                 <a href="{{ route('elearning.virtual-room') }}" onclick="return confirmNavigation()"
                                     class="px-6 py-3 font-medium transition-colors rounded whitespace-nowrap"
                                     style="background: #333; color: white;">
-                                    <i class="mr-2 fas fa-arrow-left"></i> Retour
+                                    <i class="mr-2 fas fa-arrow-left"></i> {{ __('qcm.back') }}
                                 </a>
                                 @if($questionsCount > 0)
                                 <button type="button" id="submitQcmBtn"
                                     class="px-6 py-3 font-medium transition-colors rounded whitespace-nowrap"
                                     style="background: #b89449; color: black;">
-                                    <i class="mr-2 fas fa-paper-plane"></i> Terminer le QCM
+                                    <i class="mr-2 fas fa-paper-plane"></i> {{ __('qcm.finish_qcm') }}
                                 </button>
                                 @endif
                             </div>
@@ -297,23 +292,23 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="w-full max-w-2xl rounded-lg" style="background: #111; border: 1px solid #333;">
             <div class="p-6">
-                <h2 class="mb-2 text-2xl font-bold text-white">Résultats du QCM</h2>
+                <h2 class="mb-2 text-2xl font-bold text-white">{{ __('qcm.qcm_results') }}</h2>
                 <p class="mb-6 text-gray-400">{{ $qcm->title }}</p>
 
                 <div class="grid grid-cols-2 gap-6 mb-8">
                     <div class="p-4 text-center rounded-lg" style="background: #1a1a1a;">
                         <div class="mb-2 text-5xl font-bold" id="resultScore" style="color: #b89449;">0%</div>
-                        <div class="text-sm text-gray-400">Votre score</div>
+                        <div class="text-sm text-gray-400">{{ __('qcm.your_score') }}</div>
                     </div>
                     <div class="p-4 text-center rounded-lg" style="background: #1a1a1a;">
                         <div class="mb-2 text-5xl font-bold" style="color: #60a5fa;">{{ $qcm->passing_score }}%</div>
-                        <div class="text-sm text-gray-400">Note minimale</div>
+                        <div class="text-sm text-gray-400">{{ __('qcm.minimum_required') }}</div>
                     </div>
                 </div>
 
                 <!-- Détails des réponses -->
                 <div class="mb-6" id="resultsDetails" style="display: none;">
-                    <h3 class="mb-3 font-bold text-white">Détail des réponses</h3>
+                    <h3 class="mb-3 font-bold text-white">{{ __('qcm.answer_details') }}</h3>
                     <div class="pr-2 space-y-3 overflow-y-auto max-h-64" id="questionsDetails">
                         <!-- Les détails seront ajoutés dynamiquement ici -->
                     </div>
@@ -324,8 +319,9 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
                     <div class="flex items-center">
                         <i class="mr-3 fas fa-check-circle" style="color: #a7f3d0;"></i>
                         <div>
-                            <h4 class="mb-1 font-bold text-white" id="statusTitle">Félicitations !</h4>
-                            <p class="text-sm text-gray-200" id="statusMessage">Vous avez réussi le QCM.</p>
+                            <h4 class="mb-1 font-bold text-white" id="statusTitle">{{ __('qcm.congratulations') }}</h4>
+                            <p class="text-sm text-gray-200" id="statusMessage">{{ __('qcm.success_message', ['score' =>
+                                '__SCORE__']) }}</p>
                         </div>
                     </div>
                 </div>
@@ -333,13 +329,19 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
                 <div class="flex justify-end pt-6 space-x-3 border-t border-gray-800">
                     <button type="button" onclick="toggleResultsDetails()"
                         class="px-4 py-2 font-medium transition-colors rounded" style="background: #333; color: white;">
-                        <i class="mr-2 fas fa-list"></i> Voir détails
+                        <i class="mr-2 fas fa-list"></i> {{ __('qcm.view_details') }}
                     </button>
                     <a href="{{ route('elearning.virtual-room') }}"
                         class="px-6 py-2 font-medium transition-colors rounded"
                         style="background: #b89449; color: black;">
-                        <i class="mr-2 fas fa-home"></i> Retour à la salle
+                        <i class="mr-2 fas fa-home"></i> {{ __('qcm.back_to_room') }}
                     </a>
+                </div>
+
+                <!-- Message de redirection automatique -->
+                <div class="mt-4 text-center text-gray-400">
+                    <i class="mr-1 fas fa-redo-alt fa-spin"></i>
+                    {{ __('qcm.redirecting_in_seconds') }}
                 </div>
             </div>
         </div>
@@ -353,20 +355,20 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
             <div class="p-6">
                 <div class="flex items-center mb-4">
                     <i class="mr-3 text-2xl fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
-                    <h3 class="text-xl font-bold text-white">Attention ! Fraude détectée</h3>
+                    <h3 class="text-xl font-bold text-white">{{ __('qcm.fraud_detected') }}</h3>
                 </div>
 
                 <div class="mb-6">
                     <p class="mb-3 text-gray-300">
-                        Vous avez tenté de recharger la page pendant le QCM.
+                        {{ __('qcm.fraud_warning') }}
                     </p>
                     <p class="text-gray-300">
-                        <strong>Cette action est considérée comme une tentative de fraude.</strong>
+                        <strong>{{ __('qcm.fraud_action') }}</strong>
                     </p>
                     <div class="p-3 mt-4 rounded" style="background: #1a1a1a; border: 1px solid #7f1d1d;">
                         <p class="text-sm text-red-400">
                             <i class="mr-2 fas fa-exclamation-circle"></i>
-                            Vous serez immédiatement redirigé vers la salle virtuelle.
+                            {{ __('qcm.fraud_redirect') }}
                         </p>
                     </div>
                 </div>
@@ -374,11 +376,11 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
                 <div class="flex justify-end pt-4 space-x-3 border-t border-gray-800">
                     <button type="button" id="cancelReloadBtn" class="px-6 py-2 font-medium transition-colors rounded"
                         style="background: #333; color: white;">
-                        Annuler
+                        {{ __('qcm.cancel') }}
                     </button>
                     <button type="button" id="confirmReloadBtn" class="px-6 py-2 font-medium transition-colors rounded"
                         style="background: #dc2626; color: white;">
-                        <i class="mr-2 fas fa-redo"></i> Confirmer
+                        <i class="mr-2 fas fa-redo"></i> {{ __('qcm.confirm') }}
                     </button>
                 </div>
             </div>
@@ -394,7 +396,7 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
     let reloadConfirmed = false;
     let allowMultipleCorrect = {{ $qcm->allow_multiple_correct ? 'true' : 'false' }};
     let qcmId = {{ $qcm->id }};
-    
+
     // Vérifier IMMÉDIATEMENT si on vient de confirmer un rechargement
     if (sessionStorage.getItem('qcm_reload_confirmed_' + qcmId)) {
         console.log('🚨 REDIRECTION POUR FRAUDE CONFIRMÉE');
@@ -407,7 +409,7 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
     // Fonction pour confirmer la navigation
     function confirmNavigation() {
         if (hasAnswers && !formSubmitted) {
-            return confirm('Vous avez des réponses non sauvegardées. Êtes-vous sûr de vouloir quitter cette page ?');
+            return confirm('{{ __("qcm.confirm_navigation") }}');
         }
         return true;
     }
@@ -435,7 +437,7 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
 
         // Marquer dans sessionStorage que le rechargement a été confirmé
         sessionStorage.setItem('qcm_reload_confirmed_' + qcmId, 'true');
-        
+
         // Rediriger IMMÉDIATEMENT vers la salle virtuelle
         console.log('🚨 CONFIRMATION DE RECHARGEMENT - REDIRECTION');
         window.location.href = '{{ route("elearning.virtual-room") }}';
@@ -462,7 +464,7 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
     window.addEventListener('beforeunload', function(e) {
         if (hasAnswers && !formSubmitted && !reloadConfirmed) {
             e.preventDefault();
-            e.returnValue = 'Vous avez des réponses non sauvegardées. Êtes-vous sûr de vouloir quitter ?';
+            e.returnValue = '{{ __("qcm.confirm_navigation") }}';
             return e.returnValue;
         }
     });
@@ -602,10 +604,10 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
             console.log('Réponses:', answered, '/', totalQuestions, 'hasAnswers:', hasAnswers);
 
             if (answered === totalQuestions) {
-                submitBtn.innerHTML = '<i class="mr-2 fas fa-check"></i> Toutes questions répondues - Terminer';
+                submitBtn.innerHTML = '<i class="mr-2 fas fa-check"></i> {{ __("qcm.all_questions_answered") }}';
                 submitBtn.style.background = '#10b981';
             } else {
-                submitBtn.innerHTML = '<i class="mr-2 fas fa-paper-plane"></i> Terminer le QCM';
+                submitBtn.innerHTML = '<i class="mr-2 fas fa-paper-plane"></i> {{ __("qcm.finish_qcm") }}';
                 submitBtn.style.background = '#b89449';
             }
         }
@@ -626,12 +628,16 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
                 console.log('Questions avec réponses:', answered);
 
                 if (answered === 0) {
-                    alert('Veuillez répondre au moins à une question avant de soumettre.');
+                    alert('{{ __("qcm.alert_no_answers") }}');
                     return;
                 }
 
                 if (answered < totalQuestions) {
-                    if (!confirm(`Vous avez répondu à ${answered} sur ${totalQuestions} questions. Souhaitez-vous quand même soumettre vos réponses ?`)) {
+                    const confirmMessage = '{{ __("qcm.confirm_submit", ["answered" => "__ANSWERED__", "total" => "__TOTAL__"]) }}'
+                        .replace('__ANSWERED__', answered)
+                        .replace('__TOTAL__', totalQuestions);
+
+                    if (!confirm(confirmMessage)) {
                         return;
                     }
                 }
@@ -677,7 +683,7 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
             console.log('Réponses collectées:', answers);
 
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="mr-2 fas fa-spinner fa-spin"></i> Calcul du score...';
+            submitBtn.innerHTML = '<i class="mr-2 fas fa-spinner fa-spin"></i> {{ __("qcm.calculating_score") }}';
 
             const csrfToken = document.querySelector('input[name="_token"]').value;
             console.log('CSRF Token:', csrfToken);
@@ -726,12 +732,12 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
                         if (response.status === 422) {
                             try {
                                 const errorData = JSON.parse(errorText);
-                                throw new Error(`Erreur de validation: ${JSON.stringify(errorData.errors)}`);
+                                throw new Error(`{{ __("qcm.validation_error") }}: ${JSON.stringify(errorData.errors)}`);
                             } catch {
-                                throw new Error(`Erreur serveur (${response.status}): ${errorText.substring(0, 200)}`);
+                                throw new Error(`{{ __("qcm.server_error") }} (${response.status}): ${errorText.substring(0, 200)}`);
                             }
                         } else if (response.status === 500) {
-                            throw new Error(`Erreur serveur interne (500). Vérifiez les logs Laravel.`);
+                            throw new Error(`{{ __("qcm.server_error") }} (500). {{ __("qcm.check_logs") }}`);
                         } else {
                             throw new Error(`Erreur HTTP ${response.status}: ${errorText.substring(0, 200)}`);
                         }
@@ -743,7 +749,7 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
                     if (data.success) {
                         showResults(data);
                     } else {
-                        throw new Error(data.error || data.message || 'Erreur inconnue du serveur');
+                        throw new Error(data.error || data.message || '{{ __("qcm.submit_error") }}');
                     }
 
                 } catch (error) {
@@ -752,28 +758,28 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
 
                     // Réactiver le bouton
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="mr-2 fas fa-paper-plane"></i> Terminer le QCM';
+                    submitBtn.innerHTML = '<i class="mr-2 fas fa-paper-plane"></i> {{ __("qcm.finish_qcm") }}';
                     formSubmitted = false;
 
-                    let errorMessage = 'Erreur lors de la soumission.\n\n';
+                    let errorMessage = '{{ __("qcm.submit_error") }}\n\n';
 
-                    if (error.message.includes('Erreur serveur interne (500)')) {
-                        errorMessage += 'Le serveur a rencontré une erreur interne.\n';
-                        errorMessage += 'Veuillez vérifier les logs Laravel (storage/logs/laravel.log).\n\n';
-                        errorMessage += 'Détails techniques: ' + error.message;
-                    } else if (error.message.includes('Erreur de validation')) {
-                        errorMessage += 'Il y a un problème avec les données envoyées.\n';
-                        errorMessage += 'Détails: ' + error.message;
+                    if (error.message.includes('{{ __("qcm.server_error") }}')) {
+                        errorMessage += '{{ __("qcm.server_error") }}\n';
+                        errorMessage += '{{ __("qcm.check_logs") }}\n\n';
+                        errorMessage += '{{ __("qcm.technical_details") }}: ' + error.message;
+                    } else if (error.message.includes('{{ __("qcm.validation_error") }}')) {
+                        errorMessage += '{{ __("qcm.validation_error") }}\n';
+                        errorMessage += '{{ __("qcm.technical_details") }}: ' + error.message;
                     } else if (error.message.includes('Failed to fetch')) {
-                        errorMessage += 'Impossible de se connecter au serveur.\n';
-                        errorMessage += 'Vérifiez votre connexion internet.';
+                        errorMessage += '{{ __("qcm.connection_error") }}\n';
+                        errorMessage += '{{ __("qcm.technical_details") }}: ' + error.message;
                     } else {
-                        errorMessage += 'Détails: ' + error.message;
+                        errorMessage += '{{ __("qcm.technical_details") }}: ' + error.message;
                     }
 
                     alert(errorMessage);
 
-                    console.log('=== DEBUG INFO ===');
+                    console.log('{{ __("qcm.complete_debug_info") }}');
                     console.log('URL complète:', window.location.origin + '/elearning/qcm/' + qcmId + '/submit');
                     console.log('Méthode: POST');
                     console.log('Headers envoyés:', {
@@ -788,6 +794,7 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
             submitData();
         }
 
+        // FONCTION showResults CORRIGÉE AVEC REDIRECTION AUTOMATIQUE
         function showResults(data) {
             console.log('🎯 Affichage des résultats:', data);
 
@@ -803,13 +810,15 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
             if (passed) {
                 resultStatus.style.background = '#064e3b';
                 resultStatus.style.borderColor = '#047857';
-                statusTitle.textContent = 'Félicitations !';
-                statusMessage.textContent = `Vous avez réussi le QCM avec ${score}%.`;
+                statusTitle.textContent = '{{ __("qcm.congratulations") }}';
+                statusMessage.textContent = '{{ __("qcm.success_message", ["score" => ":score"]) }}'.replace(':score', score + '%');
             } else {
                 resultStatus.style.background = '#7f1d1d';
                 resultStatus.style.borderColor = '#ef4444';
-                statusTitle.textContent = 'Non réussite';
-                statusMessage.textContent = `Votre score de ${score}% est inférieur à la note minimale requise ({{ $qcm->passing_score }}%).`;
+                statusTitle.textContent = '{{ __("qcm.failure_title") }}';
+                statusMessage.textContent = '{{ __("qcm.failure_message", ["score" => ":score", "required_score" => ":required_score"]) }}'
+                    .replace(':score', score + '%')
+                    .replace(':required_score', '{{ $qcm->passing_score }}%');
             }
 
             if (data.details) {
@@ -827,13 +836,13 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
                         '<i class="mr-2 fas fa-times-circle" style="color: #fca5a5;"></i>';
 
                     const points = detail.points !== undefined ?
-                        ` (${detail.points}/${detail.maxPoints} points)` : '';
+                        ` (${detail.points}/${detail.maxPoints} {{ __("qcm.points") }})` : '';
 
                     detailDiv.innerHTML = `
                         <div class="flex items-start">
                             ${icon}
                             <div class="flex-1">
-                                <div class="mb-1 font-medium text-white">Question ${index + 1}: ${detail.correct ? 'Correcte' : 'Incorrecte'}${points}</div>
+                                <div class="mb-1 font-medium text-white">{{ __("qcm.question") }} ${index + 1}: ${detail.correct ? '{{ __("qcm.correct") }}' : '{{ __("qcm.incorrect") }}'}${points}</div>
                                 ${detail.feedback ? `<div class="text-sm text-gray-300">${detail.feedback}</div>` : ''}
                             </div>
                         </div>
@@ -858,9 +867,18 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
 
             hasAnswers = false;
             reloadConfirmed = true;
-            
+
             // Nettoyer le sessionStorage après soumission réussie
             sessionStorage.removeItem('qcm_reload_confirmed_' + qcmId);
+
+            // REDIRECTION AUTOMATIQUE après 3 secondes
+            setTimeout(function() {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    window.location.href = '{{ route("elearning.virtual-room") }}';
+                }
+            }, 3000); // Redirection après 3 secondes
         }
 
         // Empêcher la soumission du formulaire avec Enter

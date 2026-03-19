@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Connexion salle virtuelle - DJOK PRESTIGE')
+@section('title', __('salle.page_title'))
 
 @section('content')
 <!-- Hero Section -->
@@ -8,9 +8,11 @@
     <div class="container px-4 mx-auto md:px-6">
         <div class="max-w-2xl mx-auto text-center">
             <img src="{{ asset('DP2.webp') }}" alt="DJOK PRESTIGE" class="h-20 mx-auto mb-6">
-            <h1 class="mb-4 text-2xl font-bold md:text-3xl" style="color: #b89449;">Salle virtuelle e-learning</h1>
+            <h1 class="mb-4 text-2xl font-bold md:text-3xl" style="color: #b89449;">
+                {{ __('salle.virtual_room_title') }}
+            </h1>
             <p class="text-gray-400">
-                Connectez-vous avec votre code d'accès reçu par email
+                {{ __('salle.virtual_room_subtitle') }}
             </p>
         </div>
     </div>
@@ -39,33 +41,40 @@
             @endif
 
             <div class="p-6 rounded-lg" style="background: #1a1a1a; border: 1px solid #333;">
-                <h2 class="mb-6 text-lg font-bold text-white md:text-xl">Connexion</h2>
+                <h2 class="mb-6 text-lg font-bold text-white md:text-xl">{{ __('salle.login') }}</h2>
 
                 <form class="space-y-6" action="{{ route('elearning.login') }}" method="POST">
                     @csrf
 
                     <div>
                         <label for="access_code" class="block mb-2 text-sm font-medium" style="color: #ddd;">
-                            Code d'accès
+                            {{ __('salle.access_code') }}
                         </label>
-                        <input id="access_code" name="access_code" type="text" required
-                            class="w-full px-4 py-2 {{ $errors->has('access_code') ? 'border-red-500' : 'border-gray-600' }}"
-                            style="background: #111; border: 1px solid #444; color: white;"
-                            placeholder="Ex: ABC123DEF4">
+                        <div class="relative">
+                            <input id="access_code" name="access_code" type="password" required
+                                class="w-full px-4 py-2 pr-10 {{ $errors->has('access_code') ? 'border-red-500' : 'border-gray-600' }}"
+                                style="background: #111; border: 1px solid #444; color: white;"
+                                placeholder="{{ __('salle.access_code_placeholder') }}">
+                            <button type="button"
+                                class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-white focus:outline-none"
+                                onclick="togglePasswordVisibility()">
+                                <i id="togglePasswordIcon" class="fas fa-eye"></i>
+                            </button>
+                        </div>
                         @error('access_code')
                         <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                         @enderror
-                        <p class="mt-1 text-xs text-gray-500">Code à 10 caractères reçu par email</p>
+                        <p class="mt-1 text-xs text-gray-500">{{ __('salle.access_code_hint') }}</p>
                     </div>
 
                     <div>
                         <label for="email" class="block mb-2 text-sm font-medium" style="color: #ddd;">
-                            Email
+                            {{ __('salle.email') }}
                         </label>
                         <input id="email" name="email" type="email" autocomplete="email" required
                             class="w-full px-4 py-2 {{ $errors->has('email') ? 'border-red-500' : 'border-gray-600' }}"
                             style="background: #111; border: 1px solid #444; color: white;"
-                            placeholder="votre@email.com">
+                            placeholder="{{ __('salle.email_placeholder') }}">
                         @error('email')
                         <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                         @enderror
@@ -76,7 +85,7 @@
                             class="w-full py-2 font-medium transition-all duration-300 flex items-center justify-center"
                             style="background: #b89449; color: black;">
                             <i class="fas fa-sign-in-alt mr-2"></i>
-                            Se connecter
+                            {{ __('salle.login_button') }}
                         </button>
                     </div>
                 </form>
@@ -86,15 +95,15 @@
                         <div class="flex items-start">
                             <i class="mt-1 mr-3 fas fa-exclamation-triangle" style="color: #b89449;"></i>
                             <p class="text-sm text-gray-400">
-                                <strong>Attention :</strong> Une seule connexion active à la fois par code d'accès.
+                                <strong>{{ __('salle.warning') }}</strong> {{ __('salle.single_connection_warning') }}
                             </p>
                         </div>
                         <div class="flex items-start">
                             <i class="mt-1 mr-3 fas fa-envelope" style="color: #b89449;"></i>
                             <p class="text-sm text-gray-400">
-                                Vous avez perdu votre code ? Contactez-nous à
+                                {{ __('salle.lost_code') }} {{ __('salle.contact_support') }}
                                 <a href="mailto:support@djokprestige.com"
-                                    class="font-semibold text-white hover:underline">support@djokprestige.com</a>
+                                    class="font-semibold text-white hover:underline">{{ __('salle.support_email') }}</a>
                             </p>
                         </div>
                     </div>
@@ -104,10 +113,27 @@
             <div class="mt-8 text-center">
                 <a href="{{ route('elearning.index') }}" class="text-gray-400 hover:text-white">
                     <i class="mr-2 fas fa-arrow-left"></i>
-                    Retour aux forfaits e-learning
+                    {{ __('salle.back_to_packages') }}
                 </a>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function togglePasswordVisibility() {
+    const passwordInput = document.getElementById('access_code');
+    const toggleIcon = document.getElementById('togglePasswordIcon');
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+    }
+}
+</script>
 @endsection

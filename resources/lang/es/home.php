@@ -163,4 +163,14 @@ return [
     // Sección PDF
     'view_arrete_pdf' => 'Ver el decreto modificado del 07/11/2025',
     'pdf_label' => 'Documento oficial',
+
+    // Statistics Section - Nuevos valores
+'experts_network' => 'Una red de expertos comprometidos',
+'experts_network_desc' => 'Profesionales apasionados a su servicio',
+'practical_trainings' => 'Formaciones prácticas y accesibles',
+'practical_trainings_desc' => 'Aprenda haciendo con casos concretos',
+'tailored_support' => 'Acompañamiento personalizado',
+'tailored_support_desc' => 'Seguimiento personalizado para cada proyecto',
+'growing_community' => 'Una comunidad en desarrollo',
+'growing_community_desc' => 'Únase a una red dinámica y en expansión',
 ];

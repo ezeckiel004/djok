@@ -163,4 +163,14 @@ return [
     // PDF Section
     'view_arrete_pdf' => 'View the amended decree of 07/11/2025',
     'pdf_label' => 'Official document',
+
+    // Statistics Section - New values
+'experts_network' => 'A network of committed experts',
+'experts_network_desc' => 'Passionate professionals at your service',
+'practical_trainings' => 'Practical and accessible training',
+'practical_trainings_desc' => 'Learn by doing with real-world cases',
+'tailored_support' => 'Tailored support',
+'tailored_support_desc' => 'Personalized follow-up for each project',
+'growing_community' => 'A growing community',
+'growing_community_desc' => 'Join a dynamic and expanding network',
 ];

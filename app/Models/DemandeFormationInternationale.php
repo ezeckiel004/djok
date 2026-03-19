@@ -4,62 +4,68 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DemandeFormationInternationale extends Model
 {
+    protected $table = 'demande_formation_internationales';
+
     protected $fillable = [
-        'formation_id',
         'nom_complet',
+        'nom_entreprise',
         'nationalite',
         'email',
         'telephone',
         'whatsapp',
+        'formation_id',
         'formation_personnalisee',
         'message',
         'services',
         'date_debut',
         'duree',
+        'destination_souhaitee',
+        'nombre_participants',
+        'type_evenement',
+        'objectifs_projet',
         'statut',
         'notes_admin'
     ];
 
     protected $casts = [
         'services' => 'array',
+        'type_evenement' => 'array',
         'date_debut' => 'date'
     ];
 
-    /**
-     * Relation avec la formation
-     */
-    public function formation(): BelongsTo
+    // Accesseurs pour les nouveaux champs
+    public function getDestinationLabelAttribute()
     {
-        return $this->belongsTo(Formation::class);
+        $destinations = [
+            'dubai' => 'Dubaï',
+            'usa' => 'USA',
+            'europe' => 'Europe',
+            'afrique' => 'Afrique',
+            'autre' => 'Autre'
+        ];
+
+        return $destinations[$this->destination_souhaitee] ?? $this->destination_souhaitee ?? 'Non spécifié';
     }
 
-    // Méthodes utilitaires
-    public function getFormationLabelAttribute()
+    public function getTypeEvenementListAttribute()
     {
-        if ($this->formation_id && $this->formation) {
-            return $this->formation->title;
+        if (empty($this->type_evenement) || !is_array($this->type_evenement)) {
+            return [];
         }
 
-        if ($this->formation_personnalisee) {
-            // Si c'est une clé de formation personnalisée
-            $formations = [
-                'vtc' => 'Formation VTC',
-                'micro_entreprise' => 'Formation Micro-entreprise & gestion',
-                'marketing' => 'Formation Communication & marketing digital',
-                'creation_entreprise' => 'Formation Création d\'entreprise',
-                'bureautique' => 'Formation Bureautique & Excel',
-                'langue' => 'Formation Langue & accueil client',
-                'personnalise' => 'Programme personnalisé'
-            ];
+        $types = [
+            'formation' => 'Formation',
+            'seminaire' => 'Séminaire',
+            'voyage_business' => 'Voyage business',
+            'team_building' => 'Team building'
+        ];
 
-            return $formations[$this->formation_personnalisee] ?? $this->formation_personnalisee;
-        }
-
-        return 'Non spécifié';
+        return array_map(function($type) use ($types) {
+            return $types[$type] ?? $type;
+        }, $this->type_evenement);
     }
 
     public function getStatutLabelAttribute()
@@ -70,7 +76,6 @@ class DemandeFormationInternationale extends Model
             'traite' => 'Traité',
             'annule' => 'Annulé'
         ];
-
         return $statuts[$this->statut] ?? $this->statut;
     }
 
@@ -83,33 +88,5 @@ class DemandeFormationInternationale extends Model
             'annule' => 'bg-red-100 text-red-800',
             default => 'bg-gray-100 text-gray-800'
         };
-    }
-
-    public function getServicesListAttribute()
-    {
-        if (empty($this->services) || !is_array($this->services)) {
-            return 'Aucun service spécifique';
-        }
-
-        return implode(', ', $this->services);
-    }
-
-    /**
-     * Scope pour filtrer par statut
-     */
-    public function scopeFilterByStatut($query, $statut)
-    {
-        if ($statut) {
-            return $query->where('statut', $statut);
-        }
-        return $query;
-    }
-
-    /**
-     * Scope pour les demandes récentes
-     */
-    public function scopeRecent($query, $days = 7)
-    {
-        return $query->where('created_at', '>=', now()->subDays($days));
     }
 }

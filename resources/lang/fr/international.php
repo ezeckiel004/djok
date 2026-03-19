@@ -11,12 +11,12 @@ return [
     'contact_soon' => 'Notre équipe vous contactera dans les plus brefs délais.',
 
     // Hero Section
-    'hero_title' => 'Formation à l\'international – Vivez l\'expérience DJOK PRESTIGE en France',
-    'hero_description' => 'Vous rêvez de venir en France pour développer vos compétences, obtenir une qualification reconnue et découvrir un environnement professionnel d\'excellence ? DJOK PRESTIGE, centre de formation certifié Qualiopi, vous accueille dans un cadre idéal à Paris et en Île-de-France.',
+    'hero_title' => 'Formation à l\'international – Vivez l\'expérience DJOK PRESTIGE partout dans le monde',
+    'hero_description' => 'DJOK PRESTIGE accompagne les entreprises, dirigeants et organisations dans la création de programmes de formation et d’événements business dans les plus grandes destinations du monde : Dubaï, États-Unis, Europe, Afrique et Asie.',
 
     // Boutons Hero
-    'discover_formations' => 'Découvrir les formations',
-    'visa_accompaniment' => 'Accompagnement Visa',
+    'discover_formations' => 'Découvrir les programmes internationaux',
+    'visa_accompaniment' => 'Organiser un séminaire',
 
     // Sections
     'formation_domains' => 'Domaines de formation disponibles',
@@ -149,4 +149,43 @@ return [
     // Accessibilité
     'close_alert' => 'Fermer l\'alerte',
     'scroll_down' => 'Défiler vers le bas',
+
+    // Destinations professionnelles
+'destinations_title' => 'Nos destinations professionnelles',
+'destinations_subtitle' => 'Nous organisons vos formations et séminaires dans les destinations les plus stratégiques',
+'program_custom_title' => 'Chaque programme est unique',
+'program_custom_desc' => 'Chaque programme combine formation, rencontres professionnelles et expériences business adaptées à vos objectifs.',
+'custom_button' => 'Demander un programme sur mesure',
+// Message de personnalisation
+'program_custom_desc' => 'Chaque programme combine formation, rencontres professionnelles et expériences business adaptées à vos objectifs.',
+
+// Types d'événements organisés
+'event_types' => 'Types d\'événements organisés',
+'event_seminars' => 'Séminaires d\'entreprise',
+'event_seminars_desc' => 'Programmes conçus pour renforcer la cohésion d\'équipe et développer la vision stratégique.',
+'event_trainings' => 'Formations professionnelles internationales',
+'event_trainings_desc' => 'Formations intensives animées par des experts dans des hubs économiques mondiaux.',
+'event_networking' => 'Voyages business & networking',
+'event_networking_desc' => 'Rencontres avec des entrepreneurs, investisseurs et entreprises locales.',
+'event_leadership' => 'Programmes leadership & management',
+'event_leadership_desc' => 'Développement des compétences de direction et stratégie internationale.',
+
+// Public visé - Nouvelle version
+'companies' => 'Entreprises',
+'companies_desc' => 'Former leurs équipes dans un environnement international.',
+'leaders' => 'Dirigeants & entrepreneurs',
+'leaders_desc' => 'Développer leur vision business et leur réseau mondial.',
+'organizations' => 'Organisations & institutions',
+'organizations_desc' => 'Programmes de formation internationale pour leurs collaborateurs.',
+'startups' => 'Startups & porteurs de projet',
+'startups_desc' => 'Découvrir les écosystèmes innovants à l\'étranger.',
+
+// Pourquoi choisir DJOK PRESTIGE - Nouvelle version
+'why_seminars' => 'Organisation de séminaires internationaux',
+'why_network' => 'Réseau d\'experts et d\'entreprises partenaires',
+'why_custom' => 'Programmes personnalisés',
+'why_destinations' => 'Destinations business stratégiques',
+'why_turnkey' => 'Organisation clé en main',
+'why_premium' => 'Expérience premium pour dirigeants et équipes',
+
 ];

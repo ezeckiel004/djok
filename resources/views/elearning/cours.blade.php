@@ -81,19 +81,20 @@
                 <img src="{{ asset('DP2.webp') }}" alt="DJOK PRESTIGE" class="h-8">
                 <div class="ml-4">
                     <h1 class="text-sm font-bold text-white">{{ $cours->title }}</h1>
-                    <p class="text-xs text-gray-400">Cours e-learning</p>
+                    <p class="text-xs text-gray-400">{{ __('cours.page_title') }}</p>
                 </div>
             </div>
 
             <div class="flex items-center space-x-4">
                 <div class="hidden text-right md:block">
                     <div class="text-sm font-medium text-white">{{ $acces->prenom }} {{ $acces->nom }}</div>
-                    <div class="text-xs text-gray-400">Progression: {{ $acces->progression_percentage }}%</div>
+                    <div class="text-xs text-gray-400">{{ __('cours.progress') }}: {{ $acces->progression_percentage }}%
+                    </div>
                 </div>
                 <a href="{{ route('elearning.virtual-room') }}"
                     class="px-4 py-2 text-sm font-medium transition-colors rounded"
                     style="background: #333; color: white;">
-                    Retour à la salle
+                    {{ __('cours.back_to_virtual_room') }}
                 </a>
             </div>
         </div>
@@ -114,18 +115,18 @@
                                 <div class="flex flex-wrap items-center gap-3 text-sm text-gray-400">
                                     <span class="flex items-center">
                                         <i class="mr-1 fas fa-clock"></i>
-                                        {{ $cours->duration_formatted ?? 'Non spécifié' }}
+                                        {{ $cours->duration_formatted ?? __('cours.not_specified') }}
                                     </span>
                                     @if($cours->hasVideo())
                                     <span class="flex items-center">
                                         <i class="mr-1 fas fa-video"></i>
-                                        Vidéo incluse
+                                        {{ __('cours.video_included') }}
                                     </span>
                                     @endif
                                     @if($cours->hasPdf())
                                     <span class="flex items-center">
                                         <i class="mr-1 fas fa-file-pdf"></i>
-                                        Document inclus
+                                        {{ __('cours.document_included') }}
                                     </span>
                                     @endif
                                 </div>
@@ -135,25 +136,25 @@
                             <form id="completeForm" action="{{ route('elearning.cours.complete', $cours->id) }}"
                                 method="POST">
                                 @csrf
-                                <button type="submit"
+                                <button type="button" id="markCompleteBtn"
                                     class="px-4 py-2 font-medium transition-colors rounded whitespace-nowrap"
                                     style="background: #b89449; color: black;">
                                     <i class="mr-1 fas fa-check"></i>
-                                    Marquer comme terminé
+                                    {{ __('cours.mark_as_completed') }}
                                 </button>
                             </form>
                             @else
                             <div class="px-4 py-2 rounded whitespace-nowrap"
                                 style="background: #064e3b; color: #a7f3d0;">
                                 <i class="mr-1 fas fa-check-circle"></i>
-                                Terminé le {{ $progression->updated_at->format('d/m/Y') }}
+                                {{ __('cours.completed_on') }} {{ $progression->updated_at->format('d/m/Y') }}
                             </div>
                             @endif
                         </div>
 
                         @if($cours->description)
                         <div class="p-4 mb-6 rounded cours-description" style="background: #1a1a1a;">
-                            <h3 class="mb-2 font-bold text-white">Description</h3>
+                            <h3 class="mb-2 font-bold text-white">{{ __('cours.description') }}</h3>
                             <p class="text-gray-300 description-text">{{ $cours->description }}</p>
                         </div>
                         @endif
@@ -163,7 +164,7 @@
                             <!-- Section Vidéo (si vidéo existe) -->
                             @if($cours->hasVideo())
                             <div class="mb-8">
-                                <h3 class="mb-3 text-lg font-bold text-white">Vidéo du cours</h3>
+                                <h3 class="mb-3 text-lg font-bold text-white">{{ __('cours.course_video') }}</h3>
                                 <div class="overflow-hidden bg-black rounded-lg aspect-video">
                                     @if(str_contains($cours->video_url, 'youtube.com') ||
                                     str_contains($cours->video_url, 'youtu.be'))
@@ -217,13 +218,14 @@
                             @if($cours->hasPdf())
                             <div class="mb-8">
                                 <div class="flex flex-col items-start justify-between mb-3 sm:flex-row sm:items-center">
-                                    <h3 class="mb-2 text-lg font-bold text-white sm:mb-0">Document du cours</h3>
+                                    <h3 class="mb-2 text-lg font-bold text-white sm:mb-0">{{ __('cours.course_document')
+                                        }}</h3>
                                     <div class="flex gap-2">
                                         <a href="{{ $cours->pdf_url }}" target="_blank"
                                             class="px-4 py-2 text-sm font-medium transition-colors rounded whitespace-nowrap"
                                             style="background: #1e40af; color: white;">
                                             <i class="mr-1 fas fa-external-link-alt"></i>
-                                            Lire le document
+                                            {{ __('cours.read_document') }}
                                         </a>
                                     </div>
                                 </div>
@@ -234,8 +236,7 @@
                                         <i class="mt-1 mr-3 fas fa-info-circle" style="color: #b89449;"></i>
                                         <div>
                                             <p class="text-sm text-gray-300">
-                                                Ce cours contient un document que vous pouvez lire en cliquant sur "Lire
-                                                le document".
+                                                {{ __('cours.document_info') }}
                                             </p>
                                         </div>
                                     </div>
@@ -245,22 +246,23 @@
                             @endif
 
                             <!-- Section Contenu texte/HTML (si contenu texte existe) -->
-                           @if($cours->content)
-                        <div class="min-w-0 mb-8">
-                            <h3 class="mb-3 text-lg font-bold text-white break-words">Contenu du cours</h3>
-                            <div class="min-w-0 p-4 overflow-hidden rounded" style="background: #1a1a1a;">
-                                <div class="prose break-words prose-invert max-w-none">
-                                    {!! $cours->content !!}
+                            @if($cours->content)
+                            <div class="min-w-0 mb-8">
+                                <h3 class="mb-3 text-lg font-bold text-white break-words">{{ __('cours.course_content')
+                                    }}</h3>
+                                <div class="min-w-0 p-4 overflow-hidden rounded" style="background: #1a1a1a;">
+                                    <div class="prose break-words prose-invert max-w-none">
+                                        {!! $cours->content !!}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        @endif
+                            @endif
 
                             <!-- Message si aucun contenu -->
                             @if(!$cours->hasVideo() && !$cours->hasPdf() && !$cours->content)
                             <div class="py-12 text-center">
                                 <i class="mb-4 text-4xl fas fa-book-open" style="color: #666;"></i>
-                                <p class="text-gray-400">Contenu du cours à venir</p>
+                                <p class="text-gray-400">{{ __('cours.coming_content') }}</p>
                             </div>
                             @endif
                         </div>
@@ -271,14 +273,14 @@
                                 <a href="{{ route('elearning.virtual-room') }}" class="inline-flex items-center text-sm"
                                     style="color: #b89449;">
                                     <i class="mr-2 fas fa-arrow-left"></i>
-                                    Retour à la salle
+                                    {{ __('cours.back_to_virtual_room') }}
                                 </a>
                             </div>
                             <div>
                                 @if($cours->qcms->isNotEmpty())
                                 <a href="{{ route('elearning.qcm.show', $cours->qcms->first()->id) }}"
                                     class="inline-flex items-center text-sm" style="color: #b89449;">
-                                    Passer le QCM
+                                    {{ __('cours.pass_qcm') }}
                                     <i class="ml-2 fas fa-arrow-right"></i>
                                 </a>
                                 @endif
@@ -295,7 +297,7 @@
                 <div class="overflow-hidden rounded-lg content-card" style="background: #111; border: 1px solid #333;">
                     <div class="p-6">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-bold text-white">QCM associé</h3>
+                            <h3 class="font-bold text-white">{{ __('cours.associated_qcm') }}</h3>
                             @if($progression->qcm_score)
                             <span class="px-3 py-1 text-sm font-semibold rounded-full whitespace-nowrap"
                                 style="{{ $progression->hasPassedQcm() ? 'background: #064e3b; color: #a7f3d0;' : 'background: #7f1d1d; color: #fca5a5;' }}">
@@ -309,9 +311,9 @@
                             <div class="flex-1 min-w-0 mb-3 md:mb-0">
                                 <h4 class="mb-1 font-medium text-white truncate">{{ $coursQcm->title }}</h4>
                                 <div class="mb-2 text-sm text-gray-400">
-                                    {{ $coursQcm->questions_count }} questions
+                                    {{ $coursQcm->questions_count }} {{ __('cours.questions') }}
                                     @if($coursQcm->time_limit_minutes)
-                                    • {{ $coursQcm->time_limit_minutes }} minutes
+                                    • {{ $coursQcm->time_limit_minutes }} {{ __('cours.minutes') }}
                                     @endif
                                 </div>
                                 @if($coursQcm->description)
@@ -327,9 +329,9 @@
                                     class="px-4 py-2 text-sm font-medium transition-colors rounded whitespace-nowrap"
                                     style="background: #1e40af; color: white;">
                                     @if($progression->qcm_completed)
-                                    Repasser le QCM
+                                    {{ __('cours.repass_qcm') }}
                                     @else
-                                    Passer le QCM
+                                    {{ __('cours.take_qcm') }}
                                     @endif
                                 </a>
                             </div>
@@ -344,12 +346,12 @@
                 <!-- Progression -->
                 <div class="mb-6 rounded-lg content-card" style="background: #111; border: 1px solid #333;">
                     <div class="p-6">
-                        <h3 class="mb-4 font-bold text-white">Votre progression</h3>
+                        <h3 class="mb-4 font-bold text-white">{{ __('cours.your_progression') }}</h3>
 
                         <div class="space-y-4">
                             <div>
                                 <div class="flex justify-between mb-1 text-sm text-gray-400">
-                                    <span>Cours terminé</span>
+                                    <span>{{ __('cours.course_completed') }}</span>
                                     <span>
                                         @if($progression->cours_completed)
                                         <i class="fas fa-check" style="color: #10b981;"></i>
@@ -371,7 +373,7 @@
                             @endphp
                             <div>
                                 <div class="flex justify-between mb-1 text-sm text-gray-400">
-                                    <span>QCM complété</span>
+                                    <span>{{ __('cours.qcm_completed') }}</span>
                                     <span>
                                         @if($progression->qcm_completed)
                                         <i class="fas fa-check" style="color: #10b981;"></i>
@@ -390,14 +392,14 @@
                             @if($progression->qcm_completed)
                             <div>
                                 <div class="flex justify-between mb-1 text-sm text-gray-400">
-                                    <span>Score obtenu</span>
+                                    <span>{{ __('cours.score_obtained') }}</span>
                                     <span
                                         class="font-medium {{ $progression->hasPassedQcm() ? 'text-green-400' : 'text-red-400' }}">
                                         {{ $progression->qcm_score }}%
                                     </span>
                                 </div>
                                 <div class="text-xs text-gray-500">
-                                    Score minimum requis : {{ $coursQcm->passing_score }}%
+                                    {{ __('cours.minimum_score_required') }} : {{ $coursQcm->passing_score }}%
                                 </div>
                             </div>
                             @endif
@@ -408,35 +410,35 @@
 
                 <!-- Info du cours -->
                 <div class="p-6 rounded-lg content-card" style="background: #1a1a1a; border: 1px solid #333;">
-                    <h3 class="mb-4 font-bold text-white">Informations</h3>
+                    <h3 class="mb-4 font-bold text-white">{{ __('cours.informations') }}</h3>
 
                     <div class="space-y-3">
                         <div>
-                            <p class="mb-1 text-xs text-gray-400">Durée estimée</p>
-                            <p class="text-sm text-white">{{ $cours->duration_formatted ?? 'Non spécifiée' }}</p>
+                            <p class="mb-1 text-xs text-gray-400">{{ __('cours.duration_estimated') }}</p>
+                            <p class="text-sm text-white">{{ $cours->duration_formatted ?? __('cours.not_specified') }}
+                            </p>
                         </div>
 
                         <div>
-                            <p class="mb-1 text-xs text-gray-400">Type de contenu</p>
+                            <p class="mb-1 text-xs text-gray-400">{{ __('cours.content_type') }}</p>
                             <p class="text-sm text-white">
                                 @if($cours->hasVideo() && $cours->hasPdf())
-                                <i class="mr-1 fas fa-video"></i> Vidéo +
-                                <i class="ml-2 mr-1 fas fa-file-pdf"></i> Document
+                                <i class="mr-1 fas fa-video"></i> {{ __('cours.video_document') }}
                                 @elseif($cours->hasVideo())
-                                <i class="mr-1 fas fa-video"></i> Vidéo
+                                <i class="mr-1 fas fa-video"></i> {{ __('cours.video_only') }}
                                 @elseif($cours->hasPdf())
-                                <i class="mr-1 fas fa-file-pdf"></i> Document
+                                <i class="mr-1 fas fa-file-pdf"></i> {{ __('cours.document_only') }}
                                 @elseif($cours->content)
-                                <i class="mr-1 fas fa-file-alt"></i> Contenu texte
+                                <i class="mr-1 fas fa-file-alt"></i> {{ __('cours.text_content') }}
                                 @else
-                                <i class="mr-1 fas fa-question-circle"></i> Non spécifié
+                                <i class="mr-1 fas fa-question-circle"></i> {{ __('cours.not_specified') }}
                                 @endif
                             </p>
                         </div>
 
                         @if($cours->hasVideo())
                         <div>
-                            <p class="mb-1 text-xs text-gray-400">Fichier vidéo</p>
+                            <p class="mb-1 text-xs text-gray-400">{{ __('cours.video_file') }}</p>
                             <p class="text-sm text-white truncate" title="{{ $cours->video_display_name }}">
                                 {{ $cours->video_display_name }}
                             </p>
@@ -445,7 +447,7 @@
 
                         @if($cours->hasPdf())
                         <div>
-                            <p class="mb-1 text-xs text-gray-400">Document</p>
+                            <p class="mb-1 text-xs text-gray-400">{{ __('cours.document') }}</p>
                             <p class="text-sm text-white truncate" title="{{ $cours->pdf_display_name }}">
                                 {{ $cours->pdf_display_name }}
                             </p>
@@ -453,7 +455,7 @@
                         @endif
 
                         <div>
-                            <p class="mb-1 text-xs text-gray-400">Dernière mise à jour</p>
+                            <p class="mb-1 text-xs text-gray-400">{{ __('cours.last_update') }}</p>
                             <p class="text-sm text-white">{{ $cours->updated_at->format('d/m/Y') }}</p>
                         </div>
                     </div>
@@ -466,27 +468,42 @@
 @section('scripts')
 <script>
     // Marquer le cours comme terminé
-    document.getElementById('completeForm')?.addEventListener('submit', function(e) {
+    document.getElementById('markCompleteBtn')?.addEventListener('click', function(e) {
         e.preventDefault();
 
-        fetch(this.action, {
+        const form = document.getElementById('completeForm');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        // Envoyer la requête AJAX
+        fetch(form.action, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                'X-CSRF-TOKEN': csrfToken
             },
             body: JSON.stringify({})
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                // Rediriger vers la même page avec un message de succès
+                window.location.href = window.location.href + '?success=1';
+            } else {
+                alert('Erreur: ' + (data.error || 'Impossible de marquer le cours comme terminé'));
             }
         })
         .catch(error => {
             console.error('Erreur:', error);
+            alert('Une erreur est survenue. Veuillez réessayer.');
         });
     });
+
+    // Afficher un message de succès si présent dans l'URL
+    if (window.location.search.includes('success=1')) {
+        alert('Le cours a été marqué comme terminé avec succès!');
+        // Retirer le paramètre de l'URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
 
     // Gestion de la vidéo si présente
     @if($cours->hasVideo())

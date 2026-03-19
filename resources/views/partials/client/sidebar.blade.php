@@ -220,13 +220,13 @@
         </a>
 
         <!-- Paramètres -->
-        @if(Route::has('client.settings'))
+        {{-- @if(Route::has('client.settings'))
         <a href="{{ route('client.settings') }}"
             class="flex items-center px-3 py-2.5 mx-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 {{ str_starts_with($currentRoute, 'client.settings') ? 'bg-yellow-50 text-yellow-700 border-l-4 border-yellow-500' : '' }}">
             <i class="fas fa-cog mr-3 w-5 text-center text-gray-400"></i>
             <span class="text-sm font-medium">Paramètres</span>
         </a>
-        @endif
+        @endif --}}
 
         <!-- Support -->
         <a href="{{ route('client.support') }}"

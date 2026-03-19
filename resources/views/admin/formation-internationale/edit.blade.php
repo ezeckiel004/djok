@@ -5,7 +5,7 @@
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Modifier la demande de {{ $demande->nom_complet }}</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Modifier la demande</h1>
         <a href="{{ route('admin.demandes-formation-internationale.index') }}"
             class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
             <i class="fas fa-arrow-left mr-2"></i>Retour
@@ -28,26 +28,26 @@
             @method('PUT')
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Informations personnelles -->
+                <!-- Informations -->
                 <div class="md:col-span-2">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Informations personnelles</h2>
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Informations</h2>
                 </div>
 
                 <div>
-                    <label for="nom_complet" class="block text-sm font-medium text-gray-700 mb-2">
-                        Nom complet *
+                    <label for="nom_entreprise" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nom de l'entreprise
                     </label>
-                    <input type="text" name="nom_complet" id="nom_complet" required
-                        value="{{ old('nom_complet', $demande->nom_complet) }}"
+                    <input type="text" name="nom_entreprise" id="nom_entreprise"
+                        value="{{ old('nom_entreprise', $demande->nom_entreprise) }}"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500">
                 </div>
 
                 <div>
-                    <label for="nationalite" class="block text-sm font-medium text-gray-700 mb-2">
-                        Nationalité *
+                    <label for="nom_responsable" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nom du responsable *
                     </label>
-                    <input type="text" name="nationalite" id="nationalite" required
-                        value="{{ old('nationalite', $demande->nationalite) }}"
+                    <input type="text" name="nom_responsable" id="nom_responsable" required
+                        value="{{ old('nom_responsable', $demande->nom_responsable ?? $demande->nom_complet) }}"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500">
                 </div>
 
@@ -55,124 +55,89 @@
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
                         Email *
                     </label>
-                    <input type="email" name="email" id="email" required value="{{ old('email', $demande->email) }}"
+                    <input type="email" name="email" id="email" required
+                        value="{{ old('email', $demande->email) }}"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500">
                 </div>
 
                 <div>
                     <label for="telephone" class="block text-sm font-medium text-gray-700 mb-2">
-                        Téléphone *
+                        Téléphone / WhatsApp *
                     </label>
                     <input type="text" name="telephone" id="telephone" required
                         value="{{ old('telephone', $demande->telephone) }}"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500">
                 </div>
 
-                <div>
-                    <label for="whatsapp" class="block text-sm font-medium text-gray-700 mb-2">
-                        WhatsApp (optionnel)
-                    </label>
-                    <input type="text" name="whatsapp" id="whatsapp" value="{{ old('whatsapp', $demande->whatsapp) }}"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500">
-                </div>
-
-                <!-- Formation -->
+                <!-- Détails du projet -->
                 <div class="md:col-span-2 mt-4">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Formation demandée</h2>
-                </div>
-
-                <div class="md:col-span-2">
-                    <label for="formation_id" class="block text-sm font-medium text-gray-700 mb-2">
-                        Sélectionner une formation existante
-                    </label>
-                    <select name="formation_id" id="formation_id"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500">
-                        <option value="">-- Choisir une formation --</option>
-                        @foreach($formations as $formation)
-                        <option value="{{ $formation->id }}" {{ old('formation_id', $demande->formation_id) ==
-                            $formation->id ? 'selected' : '' }}>
-                            {{ $formation->title }} ({{ $formation->duration_hours }}h - {{
-                            number_format($formation->price, 0, ',', ' ') }} €)
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="md:col-span-2">
-                    <label for="formation_personnalisee" class="block text-sm font-medium text-gray-700 mb-2">
-                        Ou saisir une formation personnalisée
-                    </label>
-                    <input type="text" name="formation_personnalisee" id="formation_personnalisee"
-                        value="{{ old('formation_personnalisee', $demande->formation_personnalisee) }}"
-                        placeholder="Ex: Formation VTC, Formation Marketing Digital..."
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500">
-                </div>
-
-                <!-- Dates -->
-                <div>
-                    <label for="date_debut" class="block text-sm font-medium text-gray-700 mb-2">
-                        Date de début souhaitée (optionnel)
-                    </label>
-                    <input type="date" name="date_debut" id="date_debut"
-                        value="{{ old('date_debut', $demande->date_debut ? $demande->date_debut->format('Y-m-d') : '') }}"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Détails du projet</h2>
                 </div>
 
                 <div>
-                    <label for="duree" class="block text-sm font-medium text-gray-700 mb-2">
-                        Durée estimée (optionnel)
+                    <label for="destination_souhaitee" class="block text-sm font-medium text-gray-700 mb-2">
+                        Destination souhaitée
                     </label>
-                    <select name="duree" id="duree"
+                    <select name="destination_souhaitee" id="destination_souhaitee"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500">
                         <option value="">-- Sélectionner --</option>
-                        <option value="1-2 semaines" {{ old('duree', $demande->duree) == '1-2 semaines' ? 'selected' :
-                            '' }}>1-2 semaines</option>
-                        <option value="1 mois" {{ old('duree', $demande->duree) == '1 mois' ? 'selected' : '' }}>1 mois
-                        </option>
-                        <option value="3 mois" {{ old('duree', $demande->duree) == '3 mois' ? 'selected' : '' }}>3 mois
-                        </option>
-                        <option value="6 mois" {{ old('duree', $demande->duree) == '6 mois' ? 'selected' : '' }}>6 mois
-                        </option>
-                        <option value="1 an" {{ old('duree', $demande->duree) == '1 an' ? 'selected' : '' }}>1 an
-                        </option>
+                        <option value="dubai" {{ old('destination_souhaitee', $demande->destination_souhaitee) == 'dubai' ? 'selected' : '' }}>Dubaï</option>
+                        <option value="usa" {{ old('destination_souhaitee', $demande->destination_souhaitee) == 'usa' ? 'selected' : '' }}>USA</option>
+                        <option value="europe" {{ old('destination_souhaitee', $demande->destination_souhaitee) == 'europe' ? 'selected' : '' }}>Europe</option>
+                        <option value="afrique" {{ old('destination_souhaitee', $demande->destination_souhaitee) == 'afrique' ? 'selected' : '' }}>Afrique</option>
+                        <option value="autre" {{ old('destination_souhaitee', $demande->destination_souhaitee) == 'autre' ? 'selected' : '' }}>Autre</option>
                     </select>
                 </div>
 
-                <!-- Services -->
-                <div class="md:col-span-2 mt-4">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Services demandés</h2>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        @php
-                        $services = [
-                        'Accompagnement visa',
-                        'Hébergement',
-                        'Transport',
-                        'Service conciergerie',
-                        'Assurance',
-                        'Formation + stage'
-                        ];
-                        $oldServices = old('services', $demande->services ?? []);
-                        @endphp
+                <div>
+                    <label for="nombre_participants" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nombre de participants
+                    </label>
+                    <input type="number" name="nombre_participants" id="nombre_participants" min="1"
+                        value="{{ old('nombre_participants', $demande->nombre_participants) }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500">
+                </div>
 
-                        @foreach($services as $service)
+                <!-- Type d'événement -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Type d'événement
+                    </label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        @php
+                        $oldTypes = old('type_evenement', $demande->type_evenement ?? []);
+                        @endphp
                         <label class="flex items-center">
-                            <input type="checkbox" name="services[]" value="{{ $service }}" {{ in_array($service,
-                                $oldServices) ? 'checked' : '' }}
+                            <input type="checkbox" name="type_evenement[]" value="formation" {{ in_array('formation', $oldTypes) ? 'checked' : '' }}
                                 class="mr-2 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500">
-                            <span class="text-sm">{{ $service }}</span>
+                            <span class="text-sm">Formation</span>
                         </label>
-                        @endforeach
+                        <label class="flex items-center">
+                            <input type="checkbox" name="type_evenement[]" value="seminaire" {{ in_array('seminaire', $oldTypes) ? 'checked' : '' }}
+                                class="mr-2 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500">
+                            <span class="text-sm">Séminaire</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="type_evenement[]" value="voyage_business" {{ in_array('voyage_business', $oldTypes) ? 'checked' : '' }}
+                                class="mr-2 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500">
+                            <span class="text-sm">Voyage business</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="type_evenement[]" value="team_building" {{ in_array('team_building', $oldTypes) ? 'checked' : '' }}
+                                class="mr-2 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500">
+                            <span class="text-sm">Team building</span>
+                        </label>
                     </div>
                 </div>
 
                 <!-- Message -->
                 <div class="md:col-span-2">
                     <label for="message" class="block text-sm font-medium text-gray-700 mb-2">
-                        Message / Projet / Besoins spécifiques *
+                        Message / Objectifs du projet *
                     </label>
                     <textarea name="message" id="message" rows="6" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-                        placeholder="Décrivez le projet, les attentes, les besoins spécifiques...">{{ old('message', $demande->message) }}</textarea>
+                        placeholder="Décrivez votre projet...">{{ old('message', $demande->message) }}</textarea>
                 </div>
 
                 <!-- Statut et Notes -->
@@ -182,27 +147,20 @@
                     </label>
                     <select name="statut" id="statut" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500">
-                        <option value="nouveau" {{ old('statut', $demande->statut) == 'nouveau' ? 'selected' : ''
-                            }}>Nouveau</option>
-                        <option value="en_cours" {{ old('statut', $demande->statut) == 'en_cours' ? 'selected' : ''
-                            }}>En cours</option>
-                        <option value="traite" {{ old('statut', $demande->statut) == 'traite' ? 'selected' : ''
-                            }}>Traité</option>
-                        <option value="annule" {{ old('statut', $demande->statut) == 'annule' ? 'selected' : ''
-                            }}>Annulé</option>
+                        <option value="nouveau" {{ old('statut', $demande->statut) == 'nouveau' ? 'selected' : '' }}>Nouveau</option>
+                        <option value="en_cours" {{ old('statut', $demande->statut) == 'en_cours' ? 'selected' : '' }}>En cours</option>
+                        <option value="traite" {{ old('statut', $demande->statut) == 'traite' ? 'selected' : '' }}>Traité</option>
+                        <option value="annule" {{ old('statut', $demande->statut) == 'annule' ? 'selected' : '' }}>Annulé</option>
                     </select>
                 </div>
 
                 <div>
                     <label for="notes_admin" class="block text-sm font-medium text-gray-700 mb-2">
-                        Notes internes (optionnel)
+                        Notes internes
                     </label>
                     <textarea name="notes_admin" id="notes_admin" rows="6"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
                         placeholder="Notes pour le suivi interne...">{{ old('notes_admin', $demande->notes_admin) }}</textarea>
-                    <p class="text-sm text-gray-500 mt-1">
-                        Ces notes seront visibles par le client dans l'email de notification si le statut change.
-                    </p>
                 </div>
             </div>
 
@@ -214,7 +172,7 @@
                     </a>
                     <button type="submit"
                         class="bg-yellow-600 text-white px-6 py-2 rounded hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                        <i class="fas fa-save mr-2"></i>Enregistrer les modifications
+                        <i class="fas fa-save mr-2"></i>Enregistrer
                     </button>
                 </div>
             </div>

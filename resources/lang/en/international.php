@@ -11,12 +11,12 @@ return [
     'contact_soon' => 'Our team will contact you shortly.',
 
     // Hero Section
-    'hero_title' => 'International training – Live the DJOK PRESTIGE experience in France',
-    'hero_description' => 'Dream of coming to France to develop your skills, obtain a recognized qualification and discover an environment of professional excellence? DJOK PRESTIGE, a Qualiopi certified training center, welcomes you in an ideal setting in Paris and Île-de-France.',
+    'hero_title' => 'International Training – Experience DJOK PRESTIGE anywhere in the world',
+    'hero_description' => 'DJOK PRESTIGE supports companies, leaders, and organizations in creating training programs and business events in the world \'s top destinations: Dubai, the United States, Europe, Africa, and Asia.',
 
     // Hero buttons
-    'discover_formations' => 'Discover trainings',
-    'visa_accompaniment' => 'Visa Accompaniment',
+    'discover_formations' => 'Discover international programs',
+    'visa_accompaniment' => 'Organize a seminar',
 
     // Sections
     'formation_domains' => 'Available training domains',

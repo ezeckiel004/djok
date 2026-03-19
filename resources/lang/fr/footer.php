@@ -26,7 +26,7 @@ return [
     'phone' => 'Téléphone',
     'hours' => 'Lun–Sam : 9h – 19h',
     'email_value' => 'contact@djokprestige.com',
-    'phone_value' => '06.99.16.44.55',
+    'phone_value' => '06 99 16 44 55',
 
     // Certification
     'certification_title' => 'Centre de formation certifié Qualiopi',

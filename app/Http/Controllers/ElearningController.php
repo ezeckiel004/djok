@@ -457,7 +457,7 @@ class ElearningController extends Controller
     }
 
     /**
-     * Salle virtuelle principale - VERSION CORRIGÉE
+     * Salle virtuelle principale - VERSION CORRIGÉE ET OPTIMISÉE
      */
     public function virtualRoom()
     {
@@ -481,27 +481,31 @@ class ElearningController extends Controller
         }
 
         if ($acces->current_session_token !== session('elearning_session_token')) {
-            Log::warning('Token de session invalide', [
-                'session_token' => session('elearning_session_token'),
-                'db_token' => $acces->current_session_token
-            ]);
+            Log::warning('Token de session invalide');
             return redirect()->route('elearning.salle');
         }
 
-        // CORRECTION : Mettre à jour l'activité de la session
+        // Mettre à jour l'activité
         $this->updateSessionActivity($acces);
-
-        // Mettre à jour la dernière activité de l'accès
         $acces->update(['last_access_at' => now()]);
 
-        // Récupérer les cours actifs
+        // Récupérer les données
         $cours = ElearningCours::active()->ordered()->get();
-
-        // Récupérer les progressions de l'utilisateur
-        $progressions = ElearningProgression::where('acces_id', $acces->id)->get()->keyBy('cours_id');
-
-        // Récupérer tous les QCM actifs
         $qcms = ElearningQcm::active()->get();
+
+        // Récupérer TOUTES les progressions de l'utilisateur en UNE SEULE REQUÊTE
+        $allProgressions = ElearningProgression::where('acces_id', $acces->id)->get();
+
+        // Indexer par cours_id pour les cours
+        $progressions = $allProgressions->keyBy('cours_id');
+
+        // Créer un tableau des progressions indexé par qcm_id
+        $qcmsProgressions = [];
+        foreach ($allProgressions as $progression) {
+            if ($progression->qcm_id) {
+                $qcmsProgressions[$progression->qcm_id] = $progression;
+            }
+        }
 
         // Séparer les QCM normaux et examens blancs
         $qcmsNormaux = collect();
@@ -515,19 +519,21 @@ class ElearningController extends Controller
             }
         }
 
-        // Séparer les QCM complétés des QCM disponibles
-        $qcmsCompletes = collect();
+        // Calculer les QCM complétés en utilisant les progressions
         $qcmsNormauxDisponibles = collect();
+        $qcmsNormauxCompletes = collect();
         $examensBlancsDisponibles = collect();
+        $examensBlancsCompletes = collect();
+        $allQcmsCompletes = collect();
 
         // Pour les QCM normaux
         foreach ($qcmsNormaux as $qcm) {
-            $progression = ElearningProgression::where('acces_id', $acces->id)
-                ->where('qcm_id', $qcm->id)
-                ->first();
+            $progression = $qcmsProgressions[$qcm->id] ?? null;
+            $isCompleted = $progression && $progression->qcm_completed == 1;
 
-            if ($progression && $progression->qcm_completed) {
-                $qcmsCompletes->push($qcm);
+            if ($isCompleted) {
+                $qcmsNormauxCompletes->push($qcm);
+                $allQcmsCompletes->push($qcm);
             } else {
                 $qcmsNormauxDisponibles->push($qcm);
             }
@@ -535,43 +541,44 @@ class ElearningController extends Controller
 
         // Pour les examens blancs
         foreach ($examensBlancs as $examen) {
-            $progression = ElearningProgression::where('acces_id', $acces->id)
-                ->where('qcm_id', $examen->id)
-                ->first();
+            $progression = $qcmsProgressions[$examen->id] ?? null;
+            $isCompleted = $progression && $progression->qcm_completed == 1;
 
-            if ($progression && $progression->qcm_completed) {
-                $qcmsCompletes->push($examen);
+            if ($isCompleted) {
+                $examensBlancsCompletes->push($examen);
+                $allQcmsCompletes->push($examen);
             } else {
                 $examensBlancsDisponibles->push($examen);
             }
         }
 
         // Calculer le pourcentage de progression
-        if ($acces->total_cours > 0) {
-            $progressionPercentage = ($acces->cours_completed / $acces->total_cours) * 100;
-        } else {
-            $progressionPercentage = 0;
-        }
-
-        $acces->progression_percentage = round($progressionPercentage, 1);
+        $acces->progression_percentage = $acces->total_cours > 0
+            ? round(($acces->cours_completed / $acces->total_cours) * 100, 1)
+            : 0;
 
         Log::info('Données chargées pour la salle virtuelle', [
             'cours_count' => $cours->count(),
-            'qcms_normaux_disponibles' => $qcmsNormauxDisponibles->count(),
-            'examens_blancs_disponibles' => $examensBlancsDisponibles->count(),
-            'qcms_completes_count' => $qcmsCompletes->count(),
-            'progressions_count' => $progressions->count(),
-            'progression_percentage' => $acces->progression_percentage
+            'qcms_normaux_disponibles_count' => $qcmsNormauxDisponibles->count(),
+            'qcms_normaux_completes_count' => $qcmsNormauxCompletes->count(),
+            'examens_blancs_disponibles_count' => $examensBlancsDisponibles->count(),
+            'examens_blancs_completes_count' => $examensBlancsCompletes->count(),
+            'qcms_completes_total_count' => $allQcmsCompletes->count()
         ]);
 
-        // Passer les variables à la vue (en utilisant les noms exacts de la vue)
+        // Passer toutes les variables nécessaires à la vue
         return view('elearning.virtual-room', compact(
             'acces',
             'cours',
-            'qcmsNormaux', // Pour la vue (référence à $qcmsNormaux->count())
-            'examensBlancs', // Pour la vue (référence à $examensBlancs->count())
-            'qcmsCompletes', // Pour la vue
-            'progressions'
+            'progressions',
+            'qcmsNormaux',
+            'examensBlancs',
+            'qcmsNormauxDisponibles',
+            'qcmsNormauxCompletes',
+            'examensBlancsDisponibles',
+            'examensBlancsCompletes',
+            'allQcmsCompletes',
+            'qcmsProgressions' // NOUVEAU : passer cette collection à la vue
         ));
     }
 
@@ -588,25 +595,20 @@ class ElearningController extends Controller
             return redirect()->route('elearning.salle');
         }
 
-        // CORRECTION : Mettre à jour l'activité de la session
         $this->updateSessionActivity($acces);
 
         $cours = ElearningCours::findOrFail($coursId);
 
         Log::info('Cours trouvé', [
             'cours_id' => $cours->id,
-            'title' => $cours->title,
-            'has_content' => !empty($cours->content)
+            'title' => $cours->title
         ]);
 
-        // Vérifier si une progression existe déjà
         $progression = ElearningProgression::where('acces_id', $acces->id)
             ->where('cours_id', $coursId)
             ->first();
 
-        // Si pas de progression, vérifier s'il existe déjà une progression pour cet accès et cours
         if (!$progression) {
-            // Chercher s'il existe déjà une progression pour ce cours (sans QCM spécifique)
             $existingProgression = ElearningProgression::where('acces_id', $acces->id)
                 ->where('cours_id', $coursId)
                 ->first();
@@ -615,7 +617,6 @@ class ElearningController extends Controller
                 $progression = $existingProgression;
                 Log::info('Progression existante trouvée', ['progression_id' => $progression->id]);
             } else {
-                // Créer une nouvelle progression
                 $progression = ElearningProgression::create([
                     'acces_id' => $acces->id,
                     'cours_id' => $coursId,
@@ -624,11 +625,6 @@ class ElearningController extends Controller
                 Log::info('Nouvelle progression créée pour le cours', ['progression_id' => $progression->id]);
             }
         }
-
-        Log::info('Progression récupérée/créée', [
-            'progression_id' => $progression->id,
-            'cours_completed' => $progression->cours_completed
-        ]);
 
         return view('elearning.cours', compact('acces', 'cours', 'progression'));
     }
@@ -646,7 +642,6 @@ class ElearningController extends Controller
             return response()->json(['error' => 'Accès invalide'], 401);
         }
 
-        // CORRECTION : Mettre à jour l'activité de la session
         $this->updateSessionActivity($acces);
 
         $progression = ElearningProgression::where('acces_id', $acces->id)
@@ -654,12 +649,7 @@ class ElearningController extends Controller
             ->first();
 
         if (!$progression) {
-            Log::warning('Progression non trouvée pour le cours', [
-                'acces_id' => $acces->id,
-                'cours_id' => $coursId
-            ]);
-
-            // Créer la progression si elle n'existe pas
+            Log::warning('Progression non trouvée pour le cours');
             $progression = ElearningProgression::create([
                 'acces_id' => $acces->id,
                 'cours_id' => $coursId,
@@ -667,18 +657,12 @@ class ElearningController extends Controller
                 'cours_completed_at' => now(),
             ]);
         } else {
-            Log::info('Progression avant complétion', [
-                'progression_id' => $progression->id,
-                'cours_completed' => $progression->cours_completed
-            ]);
-
             $progression->update([
                 'cours_completed' => true,
                 'cours_completed_at' => now(),
             ]);
         }
 
-        // Mettre à jour le compteur de cours
         $acces->increment('cours_completed');
         $acces->update(['total_cours' => ElearningCours::active()->count()]);
 
@@ -695,11 +679,7 @@ class ElearningController extends Controller
      */
     public function showQcm($qcmId)
     {
-        Log::info('=== DÉBUT showQcm ===', [
-            'qcm_id' => $qcmId,
-            'session_has_access' => session()->has('elearning_access_id'),
-            'session_access_id' => session('elearning_access_id')
-        ]);
+        Log::info('=== DÉBUT showQcm ===', ['qcm_id' => $qcmId]);
 
         $acces = $this->getValidAccess();
         if (!$acces) {
@@ -707,15 +687,7 @@ class ElearningController extends Controller
             return redirect()->route('elearning.salle');
         }
 
-        // CORRECTION : Mettre à jour l'activité de la session
         $this->updateSessionActivity($acces);
-
-        Log::info('Accès valide trouvé', [
-            'acces_id' => $acces->id,
-            'email' => $acces->email,
-            'nom' => $acces->nom,
-            'prenom' => $acces->prenom
-        ]);
 
         try {
             $qcm = ElearningQcm::findOrFail($qcmId);
@@ -724,243 +696,172 @@ class ElearningController extends Controller
                 'qcm_id' => $qcm->id,
                 'title' => $qcm->title,
                 'questions_count' => $qcm->questions_count,
-                'allow_multiple_correct' => $qcm->allow_multiple_correct,
-                'is_examen_blanc' => $qcm->is_examen_blanc,
                 'has_questions_data' => !empty($qcm->questions_data)
             ]);
 
-            // Vérifier la structure des données de questions
             if (empty($qcm->questions_data)) {
-                Log::error('questions_data est vide pour le QCM', ['qcm_id' => $qcm->id]);
+                Log::error('questions_data est vide pour le QCM');
                 throw new \Exception('Le QCM ne contient pas de questions.');
             }
 
             $questionsData = $qcm->questions_data;
-
-            Log::info('Structure questions_data', [
-                'is_array' => is_array($questionsData),
-                'keys' => array_keys($questionsData),
-                'has_questions_key' => isset($questionsData['questions']),
-                'questions_count' => isset($questionsData['questions']) ? count($questionsData['questions']) : 0
-            ]);
-
-            // Préparer les données pour la vue
             $questions = isset($questionsData['questions']) ? $questionsData['questions'] : [];
-
-            // Ajouter les questions à l'objet QCM pour la vue
             $qcm->questions = $questions;
-
-            Log::info('=== FIN showQcm - Prêt à afficher ===');
 
             return view('elearning.qcm', compact('acces', 'qcm'));
         } catch (\Exception $e) {
-            Log::error('Erreur showQcm: ' . $e->getMessage(), [
-                'qcm_id' => $qcmId,
-                'acces_id' => $acces->id ?? null,
-                'trace' => $e->getTraceAsString()
-            ]);
-
+            Log::error('Erreur showQcm: ' . $e->getMessage());
             return redirect()->route('elearning.virtual-room')
-                ->with('error', 'Erreur lors du chargement du QCM: ' . $e->getMessage());
+                ->with('error', 'Erreur lors du chargement du QCM');
         }
     }
 
     /**
-     * Soumettre un QCM - VERSION SIMPLIFIÉE
-     */
-    public function submitQcm(Request $request, $qcmId)
-    {
-        Log::info('=== DÉBUT submitQcm ===', [
-            'qcm_id' => $qcmId,
-            'has_answers' => !empty($request->answers),
-            'answers_count' => count($request->input('answers', [])),
-            'allow_multiple_correct' => $request->input('allow_multiple_correct', 0)
-        ]);
+ * Soumettre un QCM - VERSION CORRIGÉE avec gestion des doublons
+ */
+public function submitQcm(Request $request, $qcmId)
+{
+    Log::info('=== DÉBUT submitQcm ===', ['qcm_id' => $qcmId]);
 
-        $acces = $this->getValidAccess();
-        if (!$acces) {
-            Log::error('Accès invalide pour submitQcm');
-            return response()->json(['error' => 'Accès invalide'], 401);
-        }
+    $acces = $this->getValidAccess();
+    if (!$acces) {
+        Log::error('Accès invalide pour submitQcm');
+        return response()->json(['error' => 'Accès invalide'], 401);
+    }
 
-        // CORRECTION : Mettre à jour l'activité de la session
-        $this->updateSessionActivity($acces);
+    $this->updateSessionActivity($acces);
 
-        try {
-            $qcm = ElearningQcm::findOrFail($qcmId);
-            $userAnswers = $request->input('answers', []);
+    try {
+        $qcm = ElearningQcm::findOrFail($qcmId);
+        $userAnswers = $request->input('answers', []);
 
-            Log::info('QCM trouvé pour soumission', [
-                'qcm_id' => $qcm->id,
-                'title' => $qcm->title,
-                'questions_count' => $qcm->questions_count,
-                'allow_multiple_correct' => $qcm->allow_multiple_correct,
-                'user_answers_count' => count($userAnswers)
-            ]);
+        // Calculer le score
+        $scoreResult = $this->calculateQcmScore($qcm, $userAnswers);
+        $score = $scoreResult['score'];
+        $details = $scoreResult['details'];
 
-            // Afficher les réponses utilisateur pour débogage
-            foreach ($userAnswers as $questionId => $answer) {
-                Log::debug('Réponse utilisateur', [
-                    'question_id' => $questionId,
-                    'answer' => $answer,
-                    'answer_type' => gettype($answer)
-                ]);
+        Log::info('Score calculé:', ['score' => $score]);
+
+        // ÉTAPE 1: Chercher une progression EXISTANTE pour ce QCM
+        $progression = ElearningProgression::where('acces_id', $acces->id)
+            ->where('qcm_id', $qcmId)
+            ->first();
+
+        if ($progression) {
+            // Cas 1: Une progression existe déjà pour ce QCM
+            Log::info('Progression existante trouvée pour le QCM', ['progression_id' => $progression->id]);
+
+            // Vérifier le nombre de tentatives
+            if ($qcm->attempts_allowed > 0 && $progression->qcm_attempts >= $qcm->attempts_allowed) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Nombre maximum de tentatives atteint.'
+                ], 403);
             }
 
-            // Calculer le score
-            $scoreResult = $this->calculateQcmScore($qcm, $userAnswers);
-            $score = $scoreResult['score'];
-            $details = $scoreResult['details'];
+            $attemptNumber = $progression->qcm_attempts + 1;
 
-            Log::info('Score calculé:', [
-                'score' => $score,
-                'passing_score' => $qcm->passing_score,
-                'passed' => $score >= $qcm->passing_score,
-                'details_count' => count($details)
-            ]);
+            // Mettre à jour la progression existante
+            $progression->qcm_completed = 1;
+            $progression->qcm_score = $score;
+            $progression->qcm_attempts = $attemptNumber;
+            $progression->qcm_completed_at = now();
+            $progression->qcm_answers = $userAnswers; // Sauvegarder les réponses
+            $progression->qcm_details = $details; // Sauvegarder les détails
+            $progression->save();
 
-            // Gestion des tentatives
-            // Chercher s'il existe déjà une progression pour ce QCM
-            $progression = ElearningProgression::where('acces_id', $acces->id)
-                ->where('qcm_id', $qcmId)
+            Log::info('Progression mise à jour - ID: ' . $progression->id .
+                      ', completed: ' . $progression->qcm_completed);
+
+        } else {
+            // ÉTAPE 2: Chercher s'il existe une progression pour ce cours (sans QCM)
+            $coursProgression = ElearningProgression::where('acces_id', $acces->id)
+                ->where('cours_id', $qcm->cours_id)
                 ->first();
 
-            if ($progression) {
-                // Vérifier le nombre de tentatives maximales
-                if ($qcm->attempts_allowed > 0 && $progression->qcm_attempts >= $qcm->attempts_allowed) {
-                    Log::warning('Nombre maximum de tentatives atteint', [
-                        'attempts' => $progression->qcm_attempts,
-                        'max_attempts' => $qcm->attempts_allowed
-                    ]);
+            if ($coursProgression) {
+                // Cas 2: Il existe une progression pour le cours, on la met à jour avec les infos QCM
+                Log::info('Progression de cours existante trouvée', ['progression_id' => $coursProgression->id]);
 
-                    return response()->json([
-                        'success' => false,
-                        'error' => 'Vous avez atteint le nombre maximum de tentatives autorisées pour ce QCM.'
-                    ], 403);
-                }
+                $coursProgression->qcm_id = $qcm->id;
+                $coursProgression->qcm_completed = 1;
+                $coursProgression->qcm_score = $score;
+                $coursProgression->qcm_attempts = 1;
+                $coursProgression->qcm_completed_at = now();
+                $coursProgression->qcm_answers = $userAnswers;
+                $coursProgression->qcm_details = $details;
+                $coursProgression->save();
 
-                // Incrémenter les tentatives
-                $attemptNumber = $progression->qcm_attempts + 1;
+                $progression = $coursProgression;
 
-                // Mettre à jour la progression existante
-                $progression->update([
-                    'qcm_completed' => true,
-                    'qcm_score' => $score,
-                    'qcm_attempts' => $attemptNumber,
-                    'qcm_completed_at' => now(),
-                ]);
+                Log::info('Progression de cours mise à jour avec QCM', ['progression_id' => $progression->id]);
 
-                Log::info('Progression mise à jour', [
-                    'progression_id' => $progression->id,
-                    'attempt_number' => $attemptNumber
-                ]);
             } else {
-                // Créer une nouvelle progression
-                // D'abord, vérifier s'il existe une progression pour ce cours
-                $coursProgression = ElearningProgression::where('acces_id', $acces->id)
-                    ->where('cours_id', $qcm->cours_id)
-                    ->first();
+                // Cas 3: Aucune progression n'existe, on en crée une nouvelle
+                Log::info('Aucune progression existante, création d\'une nouvelle');
 
-                if ($coursProgression) {
-                    // Si une progression existe pour le cours, utiliser son ID
-                    // Mettre à jour avec les infos du QCM
-                    $coursProgression->update([
-                        'qcm_id' => $qcm->id,
-                        'qcm_completed' => true,
-                        'qcm_score' => $score,
-                        'qcm_attempts' => 1,
-                        'qcm_completed_at' => now(),
-                    ]);
+                $progression = ElearningProgression::create([
+                    'acces_id' => $acces->id,
+                    'cours_id' => $qcm->cours_id,
+                    'qcm_id' => $qcm->id,
+                    'qcm_completed' => 1,
+                    'qcm_score' => $score,
+                    'qcm_attempts' => 1,
+                    'qcm_completed_at' => now(),
+                    'qcm_answers' => $userAnswers,
+                    'qcm_details' => $details,
+                ]);
 
-                    $progression = $coursProgression;
-                    Log::info('Progression du cours mise à jour avec QCM', [
-                        'progression_id' => $progression->id,
-                        'attempt_number' => 1
-                    ]);
-                } else {
-                    // Créer une nouvelle progression
-                    $progression = ElearningProgression::create([
-                        'acces_id' => $acces->id,
-                        'cours_id' => $qcm->cours_id,
-                        'qcm_id' => $qcm->id,
-                        'qcm_completed' => true,
-                        'qcm_score' => $score,
-                        'qcm_attempts' => 1,
-                        'qcm_completed_at' => now(),
-                    ]);
-
-                    Log::info('Nouvelle progression créée', [
-                        'progression_id' => $progression->id,
-                        'attempt_number' => 1
-                    ]);
-                }
+                Log::info('Nouvelle progression créée', ['progression_id' => $progression->id]);
             }
-
-            // Mettre à jour la moyenne des scores
-            $this->updateAverageScore($acces);
-
-            Log::info('=== FIN submitQcm - Succès ===');
-
-            return response()->json([
-                'success' => true,
-                'score' => round($score, 2),
-                'passed' => $score >= $qcm->passing_score,
-                'questions_count' => $qcm->questions_count,
-                'passing_score' => $qcm->passing_score,
-                'attempt_number' => $progression->qcm_attempts,
-                'max_attempts' => $qcm->attempts_allowed,
-                'details' => $details,
-                'is_examen_blanc' => $qcm->is_examen_blanc,
-                'allow_multiple_correct' => $qcm->allow_multiple_correct,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Erreur submitQcm: ' . $e->getMessage(), [
-                'qcm_id' => $qcmId,
-                'acces_id' => $acces->id,
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'error' => 'Erreur lors du traitement du QCM: ' . $e->getMessage()
-            ], 500);
         }
+
+        // VÉRIFICATION : recharger depuis la base pour confirmer
+        $verification = ElearningProgression::find($progression->id);
+        Log::info('Vérification base - qcm_completed: ' . $verification->qcm_completed);
+
+        // Mettre à jour la moyenne
+        $this->updateAverageScore($acces);
+
+        Log::info('=== FIN submitQcm - Succès ===');
+
+        return response()->json([
+            'success' => true,
+            'score' => round($score, 2),
+            'passed' => $score >= $qcm->passing_score,
+            'questions_count' => $qcm->questions_count,
+            'passing_score' => $qcm->passing_score,
+            'attempt_number' => $progression->qcm_attempts,
+            'max_attempts' => $qcm->attempts_allowed,
+            'details' => $details,
+            'is_examen_blanc' => $qcm->is_examen_blanc,
+            'allow_multiple_correct' => $qcm->allow_multiple_correct,
+            'redirect' => route('elearning.virtual-room')
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Erreur submitQcm: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'error' => 'Erreur: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
-     * Helper: Calculer le score d'un QCM (Version corrigée pour multi-réponses)
+     * Helper: Calculer le score d'un QCM
      */
     private function calculateQcmScore(ElearningQcm $qcm, array $userAnswers): array
     {
-        Log::info('=== DÉBUT calculateQcmScore ===', [
-            'qcm_title' => $qcm->title,
-            'allow_multiple' => $qcm->allow_multiple_correct,
-            'questions_in_qcm' => $qcm->questions_count,
-            'user_answers_count' => count($userAnswers)
-        ]);
-
         $questions = $qcm->questions_data['questions'] ?? [];
         $allowMultiple = $qcm->allow_multiple_correct;
 
         $correctQuestions = 0;
         $details = [];
 
-        Log::info('Structure des questions', [
-            'total_questions' => count($questions),
-            'has_questions_key' => isset($qcm->questions_data['questions'])
-        ]);
-
         foreach ($questions as $index => $question) {
             $questionId = $question['id'] ?? $index;
-            $questionText = $question['text'] ?? 'Question ' . ($index + 1);
 
-            Log::debug('Traitement question', [
-                'index' => $index,
-                'question_id' => $questionId,
-                'question_text' => substr($questionText, 0, 100)
-            ]);
-
-            // Récupérer les réponses correctes
             $correctAnswers = [];
             if ($allowMultiple && isset($question['correct_answers'])) {
                 $correctAnswers = is_array($question['correct_answers'])
@@ -970,117 +871,40 @@ class ElearningController extends Controller
                 $correctAnswers = [$question['correct_answer']];
             }
 
-            Log::debug('Réponses correctes pour la question', [
-                'correct_answers' => $correctAnswers,
-                'correct_answers_count' => count($correctAnswers)
-            ]);
-
-            // Récupérer les réponses de l'utilisateur
             $userAnswer = $userAnswers[$questionId] ?? null;
-
-            Log::debug('Réponse utilisateur', [
-                'question_id' => $questionId,
-                'user_answer' => $userAnswer,
-                'user_answer_type' => gettype($userAnswer)
-            ]);
-
-            // Vérifier si la réponse est correcte
             $isCorrect = false;
-            $points = 0;
-            $maxPoints = 1;
 
             if ($allowMultiple) {
-                // Mode multi-réponses
                 $userSelections = is_array($userAnswer) ? $userAnswer : [$userAnswer];
+                $userSelections = array_filter($userSelections);
+                $correctSelections = array_filter($correctAnswers);
 
-                // Filtrer les valeurs vides
-                $userSelections = array_filter($userSelections, function ($val) {
-                    return !is_null($val) && $val !== '';
-                });
-
-                $correctSelections = array_filter($correctAnswers, function ($val) {
-                    return !is_null($val) && $val !== '';
-                });
-
-                Log::debug('Sélections utilisateur filtrées', [
-                    'user_selections' => $userSelections,
-                    'correct_selections' => $correctSelections,
-                    'user_count' => count($userSelections),
-                    'correct_count' => count($correctSelections)
-                ]);
-
-                if (empty($correctSelections)) {
-                    // Pas de réponse correcte définie
-                    $isCorrect = false;
-                    $points = 0;
-                    $maxPoints = 1;
-                    Log::warning('Pas de réponse correcte définie pour la question', ['question_id' => $questionId]);
-                } else {
-                    // Compter les bonnes réponses
+                if (!empty($correctSelections)) {
                     $correctCount = count(array_intersect($userSelections, $correctSelections));
                     $wrongCount = count(array_diff($userSelections, $correctSelections));
-
-                    // Calcul des points avec pénalité pour les mauvaises réponses
-                    $points = max(0, $correctCount - ($wrongCount * 0.5));
-                    $maxPoints = count($correctSelections);
-
-                    // La question est considérée comme correcte si l'utilisateur a sélectionné toutes les bonnes réponses
-                    // et n'a pas sélectionné de mauvaises réponses
                     $isCorrect = ($correctCount === count($correctSelections) && $wrongCount === 0);
-
-                    Log::debug('Calcul points multi-réponses', [
-                        'correct_count' => $correctCount,
-                        'wrong_count' => $wrongCount,
-                        'points' => $points,
-                        'max_points' => $maxPoints,
-                        'is_correct' => $isCorrect
-                    ]);
                 }
             } else {
-                // Mode simple réponse
                 $correctAnswer = $correctAnswers[0] ?? '';
                 $isCorrect = ($userAnswer === $correctAnswer && !empty($userAnswer));
-                $points = $isCorrect ? 1 : 0;
-                $maxPoints = 1;
-
-                Log::debug('Calcul points réponse simple', [
-                    'correct_answer' => $correctAnswer,
-                    'user_answer' => $userAnswer,
-                    'is_correct' => $isCorrect,
-                    'points' => $points
-                ]);
             }
 
             if ($isCorrect) {
                 $correctQuestions++;
-                Log::debug('Question correcte', ['correct_count' => $correctQuestions]);
             }
 
-            // Ajouter les détails
             $details[] = [
                 'question_index' => $index + 1,
-                'question' => $questionText,
+                'question' => $question['text'] ?? 'Question ' . ($index + 1),
                 'correct' => $isCorrect,
                 'user_answer' => $userAnswer,
                 'correct_answer' => $allowMultiple ? $correctAnswers : ($correctAnswers[0] ?? ''),
-                'points' => $points,
-                'max_points' => $maxPoints,
                 'explanation' => $question['explanation'] ?? '',
             ];
         }
 
-        // Calcul du score en pourcentage
         $totalQuestions = count($questions);
         $score = $totalQuestions > 0 ? ($correctQuestions / $totalQuestions) * 100 : 0;
-
-        Log::info('Résultat calcul score', [
-            'total_questions' => $totalQuestions,
-            'correct_questions' => $correctQuestions,
-            'score' => $score,
-            'details_count' => count($details)
-        ]);
-
-        Log::info('=== FIN calculateQcmScore ===');
 
         return [
             'score' => $score,
@@ -1097,19 +921,9 @@ class ElearningController extends Controller
             ->whereNotNull('qcm_score')
             ->get();
 
-        Log::debug('Mise à jour moyenne scores', [
-            'acces_id' => $acces->id,
-            'progressions_count' => $progressions->count()
-        ]);
-
         if ($progressions->count() > 0) {
             $average = $progressions->avg('qcm_score');
             $acces->update(['average_qcm_score' => round($average, 2)]);
-
-            Log::info('Moyenne mise à jour', [
-                'old_average' => $acces->average_qcm_score,
-                'new_average' => round($average, 2)
-            ]);
         }
     }
 
@@ -1118,10 +932,7 @@ class ElearningController extends Controller
      */
     public function logout()
     {
-        Log::info('=== DÉBUT logout e-learning ===', [
-            'has_session' => session()->has('elearning_access_id'),
-            'access_id' => session('elearning_access_id')
-        ]);
+        Log::info('=== DÉBUT logout e-learning ===');
 
         if (session('elearning_access_id')) {
             $acces = ElearningAcces::find(session('elearning_access_id'));
@@ -1131,17 +942,10 @@ class ElearningController extends Controller
                     'current_session_start' => null,
                     'current_session_ip' => null,
                 ]);
-                Log::info('Accès mis à jour pour déconnexion', ['acces_id' => $acces->id]);
             }
 
-            // Marquer la session comme terminée
-            $sessionUpdated = ElearningSession::where('session_token', session('elearning_session_token'))
+            ElearningSession::where('session_token', session('elearning_session_token'))
                 ->update(['logout_at' => now()]);
-
-            Log::info('Session terminée', [
-                'session_token' => session('elearning_session_token'),
-                'rows_updated' => $sessionUpdated
-            ]);
         }
 
         session()->forget([
@@ -1150,14 +954,9 @@ class ElearningController extends Controller
             'elearning_virtual_room',
         ]);
 
-        Log::info('Session nettoyée');
-
         return redirect()->route('elearning.salle')->with('success', 'Déconnexion réussie.');
     }
 
-    /**
-     * Helper: Vérifier et récupérer l'accès valide
-     */
     /**
      * Helper: Vérifier et récupérer l'accès valide
      */
@@ -1166,54 +965,18 @@ class ElearningController extends Controller
         $accessId = session('elearning_access_id');
         $sessionToken = session('elearning_session_token');
 
-        Log::debug('getValidAccess appelé', [
-            'access_id' => $accessId,
-            'session_token_exists' => !empty($sessionToken)
-        ]);
-
         if (!$accessId || !$sessionToken) {
-            Log::warning('Session incomplète', [
-                'has_access_id' => !empty($accessId),
-                'has_session_token' => !empty($sessionToken)
-            ]);
             return null;
         }
 
         $acces = ElearningAcces::find($accessId);
 
-        if (!$acces) {
-            Log::error('Accès non trouvé en base', ['access_id' => $accessId]);
+        if (!$acces || $acces->current_session_token !== $sessionToken || !$acces->isActive()) {
             return null;
         }
 
-        if ($acces->current_session_token !== $sessionToken) {
-            Log::warning('Token de session invalide', [
-                'expected' => $acces->current_session_token,
-                'actual' => $sessionToken
-            ]);
-            return null;
-        }
-
-        if (!$acces->isActive()) {
-            Log::warning('Accès non actif', [
-                'acces_id' => $acces->id,
-                'status' => $acces->status,
-                'access_end' => $acces->access_end
-            ]);
-            return null;
-        }
-
-        // Mettre à jour la dernière activité de l'accès
         $acces->update(['last_access_at' => now()]);
-
-        // CORRECTION AJOUTÉE ICI : Mettre à jour l'activité de la session
         $this->updateSessionActivity($acces);
-
-        Log::debug('Accès valide confirmé', [
-            'acces_id' => $acces->id,
-            'email' => $acces->email,
-            'virtual_room_code' => $acces->virtual_room_code
-        ]);
 
         return $acces;
     }

@@ -299,7 +299,7 @@
                             </div>
                             <a href="tel:0176380017" class="text-lg font-medium hover:text-var(--gold)"
                                 style="color: var(--gold);">
-                                01 76 38 00 17
+                                06 99 16 44 55
                             </a>
                             <p class="text-sm text-gray-400 mt-2">{{ __('contact.phone_hours') }}</p>
                         </div>
@@ -332,7 +332,7 @@
                             </div>
                             <a href="https://wa.me/33176380017" target="_blank"
                                 class="text-lg font-medium hover:text-green-400" style="color: #25D366;">
-                                +33 1 76 38 00 17
+                                06 99 16 44 55
                             </a>
                             <p class="text-sm text-gray-400 mt-2">{{ __('contact.whatsapp_available') }}</p>
                         </div>

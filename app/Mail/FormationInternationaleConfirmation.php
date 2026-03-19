@@ -1,4 +1,5 @@
 <?php
+// app/Mail/FormationInternationaleConfirmation.php
 
 namespace App\Mail;
 
@@ -12,35 +13,29 @@ class FormationInternationaleConfirmation extends Mailable
     use Queueable, SerializesModels;
 
     public $demande;
-    public $formationTitre;
 
     public function __construct(DemandeFormationInternationale $demande)
     {
         $this->demande = $demande;
-
-        if ($demande->formation_id && $demande->formation) {
-            $this->formationTitre = $demande->formation->title;
-        } else {
-            $this->formationTitre = $demande->formation_personnalisee ?? 'Formation personnalisée';
-        }
     }
 
     public function build()
     {
-        $services = $this->demande->services ?? [];
-
-        return $this->subject('Confirmation de votre demande de formation internationale - DJOK PRESTIGE')
+        return $this->subject('Confirmation de votre demande - DJOK PRESTIGE International')
             ->from(config('mail.from.address'), config('mail.from.name'))
             ->replyTo('international@djokprestige.com', 'Service International DJOK PRESTIGE')
-            ->view('emails.formation-internationale-confirmation-client')
+            ->view('emails.formation-internationale-confirmation')
             ->with([
                 'demande' => $this->demande,
-                'formationTitre' => $this->formationTitre,
-                'services' => $services,
+                'nomResponsable' => $this->demande->nom_responsable ?? $this->demande->nom_complet,
+                'nomEntreprise' => $this->demande->nom_entreprise,
+                'destination' => $this->demande->destination_label,
+                'nombreParticipants' => $this->demande->nombre_participants,
+                'typeEvenements' => $this->demande->type_evenement_list,
                 'dateDemande' => $this->demande->created_at->format('d/m/Y à H:i'),
-                'telephoneContact' => '+33 1 76 38 00 17',
-                'whatsappContact' => '+33 1 76 38 00 17',
-                'emailContact' => 'international@djokprestige.com',
+                'telephoneContact' => '06 99 16 44 55',
+                'whatsappContact' => '06 99 16 44 55',
+                'emailContact' => 'contact@djokprestige.com',
             ]);
     }
 }

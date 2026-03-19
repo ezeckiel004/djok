@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Formation E-learning - DJOK PRESTIGE')
+@section('title', __('index.page_title'))
 
 @section('content')
 <!-- Messages de succès/erreur - Style sobre -->
@@ -47,16 +47,15 @@
     <div class="container relative z-10 px-4 py-20 mx-auto md:px-6">
         <div class="max-w-5xl mx-auto text-center">
             <h1 class="mb-8 text-3xl font-bold md:text-4xl lg:text-5xl" style="color: #b89449;">
-                Formation E-learning VTC
+                {{ __('index.main_title') }}
             </h1>
 
             <p class="mb-10 text-lg text-gray-300 md:text-xl">
-                Préparez-vous à l'examen VTC en candidat libre avec nos cours en ligne, QCM et examens blancs.
-                Accès immédiat après paiement, depuis chez vous.
+                {{ __('index.main_subtitle') }}
             </p>
 
             <p class="mb-12 text-lg" style="color: #b89449;">
-                Formation certifiée et conforme au programme officiel
+                {{ __('index.certified_training') }}
             </p>
 
             <!-- Avantages clés - Style sobre -->
@@ -65,25 +64,25 @@
                     <div class="flex items-center justify-center mb-4 w-14 h-14" style="background: #b89449;">
                         <i class="text-xl text-black fas fa-laptop"></i>
                     </div>
-                    <span class="text-sm text-center">100% en ligne</span>
+                    <span class="text-sm text-center">{{ __('index.fully_online') }}</span>
                 </div>
                 <div class="flex flex-col items-center text-white">
                     <div class="flex items-center justify-center mb-4 w-14 h-14" style="background: #b89449;">
                         <i class="text-xl text-black fas fa-clock"></i>
                     </div>
-                    <span class="text-sm text-center">Accès 24h/24</span>
+                    <span class="text-sm text-center">{{ __('index.access_24_7') }}</span>
                 </div>
                 <div class="flex flex-col items-center text-white">
                     <div class="flex items-center justify-center mb-4 w-14 h-14" style="background: #b89449;">
                         <i class="text-xl text-black fas fa-chalkboard-teacher"></i>
                     </div>
-                    <span class="text-sm text-center">Formateurs experts</span>
+                    <span class="text-sm text-center">{{ __('index.expert_trainers') }}</span>
                 </div>
                 <div class="flex flex-col items-center text-white">
                     <div class="flex items-center justify-center mb-4 w-14 h-14" style="background: #b89449;">
                         <i class="text-xl text-black fas fa-certificate"></i>
                     </div>
-                    <span class="text-sm text-center">Certification incluse</span>
+                    <span class="text-sm text-center">{{ __('index.certification_included') }}</span>
                 </div>
             </div>
 
@@ -91,12 +90,12 @@
             <div class="flex flex-col justify-center gap-4 sm:flex-row">
                 <a href="#forfaits" class="w-full px-8 py-3 font-semibold text-center transition duration-300 sm:w-auto"
                     style="background: #b89449; color: black;">
-                    Voir les forfaits
+                    {{ __('index.view_packages') }}
                 </a>
                 <a href="{{ route('elearning.salle') }}"
                     class="w-full px-8 py-3 font-semibold text-center transition duration-300 border sm:w-auto"
                     style="border-color: #b89449; color: #b89449;">
-                    Accéder à ma salle
+                    {{ __('index.access_my_room') }}
                 </a>
             </div>
         </div>
@@ -105,7 +104,7 @@
     <!-- Scroll Indicator -->
     <div class="absolute transform -translate-x-1/2 bottom-8 left-1/2">
         <a href="#forfaits" class="text-white transition duration-300 hover:text-b89449"
-            aria-label="Défiler vers le bas">
+            aria-label="{{ __('index.scroll_down') }}">
             <i class="text-xl fas fa-chevron-down"></i>
         </a>
     </div>
@@ -115,9 +114,9 @@
 <section id="forfaits" class="py-16" style="background: #000;">
     <div class="container px-4 mx-auto md:px-6">
         <div class="mb-12 text-center">
-            <h2 class="mb-4 text-2xl font-bold md:text-3xl" style="color: #b89449;">Nos forfaits e-learning</h2>
+            <h2 class="mb-4 text-2xl font-bold md:text-3xl" style="color: #b89449;">{{ __('index.our_packages') }}</h2>
             <p class="max-w-3xl mx-auto text-gray-400">
-                Choisissez la formule qui correspond à vos besoins et à votre rythme d'apprentissage
+                {{ __('index.packages_subtitle') }}
             </p>
         </div>
 
@@ -129,7 +128,8 @@
                     <h3 class="mb-2 text-xl font-bold text-white">{{ $forfait->name }}</h3>
                     <div class="flex items-center">
                         <span class="text-3xl font-bold" style="color: #b89449;">{{ $forfait->formatted_price }}</span>
-                        <span class="ml-2 text-gray-400">/ {{ $forfait->duration_days }} jours</span>
+                        <span class="ml-2 text-gray-400">/ {{ $forfait->duration_days }} {{ __('index.days_access')
+                            }}</span>
                     </div>
                 </div>
 
@@ -140,28 +140,28 @@
                     <ul class="space-y-3 mb-8">
                         <li class="flex items-center">
                             <i class="mr-3 fas fa-check" style="color: #46b94c;"></i>
-                            <span class="text-gray-300">Accès {{ $forfait->duration_days }} jours</span>
+                            <span class="text-gray-300">{{ __('index.all_courses_available') }}</span>
                         </li>
                         <li class="flex items-center">
                             <i class="mr-3 fas fa-check" style="color: #46b94c;"></i>
-                            <span class="text-gray-300">Tous les cours disponibles</span>
+                            <span class="text-gray-300">{{ __('index.all_courses_available') }}</span>
                         </li>
                         @if($forfait->includes_qcm)
                         <li class="flex items-center">
                             <i class="mr-3 fas fa-check" style="color: #46b94c;"></i>
-                            <span class="text-gray-300">QCM d'auto-évaluation</span>
+                            <span class="text-gray-300">{{ __('index.self_assessment_qcm') }}</span>
                         </li>
                         @endif
                         @if($forfait->includes_examens_blancs)
                         <li class="flex items-center">
                             <i class="mr-3 fas fa-check" style="color: #46b94c;"></i>
-                            <span class="text-gray-300">Examens blancs corrigés</span>
+                            <span class="text-gray-300">{{ __('index.corrected_practice_exams') }}</span>
                         </li>
                         @endif
                         @if($forfait->includes_certification)
                         <li class="flex items-center">
                             <i class="mr-3 fas fa-check" style="color: #46b94c;"></i>
-                            <span class="text-gray-300">Certificat de formation</span>
+                            <span class="text-gray-300">{{ __('index.training_certificate') }}</span>
                         </li>
                         @endif
                     </ul>
@@ -169,7 +169,7 @@
                     <a href="{{ route('elearning.acheter', $forfait->slug) }}"
                         class="block w-full py-3 text-center font-semibold transition duration-300"
                         style="background: #b89449; color: black;">
-                        Choisir ce forfait
+                        {{ __('index.choose_this_package') }}
                     </a>
                 </div>
             </div>
@@ -180,8 +180,8 @@
                 <div class="inline-flex items-center justify-center w-16 h-16 mb-4" style="background: #111;">
                     <i class="text-2xl fas fa-book" style="color: #b89449;"></i>
                 </div>
-                <h3 class="mb-2 text-xl font-semibold text-white">Aucun forfait disponible</h3>
-                <p class="text-gray-400">Les forfaits e-learning seront bientôt disponibles.</p>
+                <h3 class="mb-2 text-xl font-semibold text-white">{{ __('index.no_packages_available') }}</h3>
+                <p class="text-gray-400">{{ __('index.packages_coming_soon') }}</p>
             </div>
             @endif
         </div>
@@ -192,7 +192,7 @@
 <section class="py-16" style="background: #111;">
     <div class="container px-4 mx-auto md:px-6">
         <div class="mb-12 text-center">
-            <h2 class="mb-4 text-2xl font-bold md:text-3xl" style="color: #b89449;">Comment ça marche ?</h2>
+            <h2 class="mb-4 text-2xl font-bold md:text-3xl" style="color: #b89449;">{{ __('index.how_it_works') }}</h2>
         </div>
 
         <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
@@ -200,22 +200,22 @@
                 <div class="inline-flex items-center justify-center w-16 h-16 mb-6" style="background: #b89449;">
                     <i class="text-2xl fas fa-shopping-cart"></i>
                 </div>
-                <h3 class="mb-3 text-lg font-bold text-white">1. Choisissez votre forfait</h3>
-                <p class="text-gray-400">Sélectionnez la durée d'accès qui vous convient</p>
+                <h3 class="mb-3 text-lg font-bold text-white">1. {{ __('index.choose_your_package') }}</h3>
+                <p class="text-gray-400">{{ __('index.choose_package_desc') }}</p>
             </div>
             <div class="text-center">
                 <div class="inline-flex items-center justify-center w-16 h-16 mb-6" style="background: #b89449;">
                     <i class="text-2xl fas fa-credit-card"></i>
                 </div>
-                <h3 class="mb-3 text-lg font-bold text-white">2. Paiement sécurisé</h3>
-                <p class="text-gray-400">Payez en ligne de manière sécurisée avec Stripe</p>
+                <h3 class="mb-3 text-lg font-bold text-white">2. {{ __('index.secure_payment') }}</h3>
+                <p class="text-gray-400">{{ __('index.secure_payment_desc') }}</p>
             </div>
             <div class="text-center">
                 <div class="inline-flex items-center justify-center w-16 h-16 mb-6" style="background: #b89449;">
                     <i class="text-2xl fas fa-laptop"></i>
                 </div>
-                <h3 class="mb-3 text-lg font-bold text-white">3. Accès immédiat</h3>
-                <p class="text-gray-400">Recevez vos codes d'accès par email et commencez</p>
+                <h3 class="mb-3 text-lg font-bold text-white">3. {{ __('index.immediate_access') }}</h3>
+                <p class="text-gray-400">{{ __('index.immediate_access_desc') }}</p>
             </div>
         </div>
     </div>
@@ -225,40 +225,35 @@
 <section class="py-16" style="background: #000;">
     <div class="container px-4 mx-auto md:px-6">
         <div class="mb-12 text-center">
-            <h2 class="mb-4 text-2xl font-bold md:text-3xl" style="color: #b89449;">Questions fréquentes</h2>
+            <h2 class="mb-4 text-2xl font-bold md:text-3xl" style="color: #b89449;">{{ __('index.faq_title') }}</h2>
         </div>
 
         <div class="max-w-3xl mx-auto space-y-4">
             <div class="overflow-hidden rounded-lg" style="background: #111; border: 1px solid #333;">
                 <div class="p-6">
-                    <h3 class="mb-3 text-lg font-semibold text-white">Ai-je besoin de créer un compte ?</h3>
-                    <p class="text-gray-400">Non, tout se fait par email. Vous recevez un code d'accès unique après
-                        paiement que vous utilisez pour accéder à la salle virtuelle.</p>
+                    <h3 class="mb-3 text-lg font-semibold text-white">{{ __('index.faq1_question') }}</h3>
+                    <p class="text-gray-400">{{ __('index.faq1_answer') }}</p>
                 </div>
             </div>
 
             <div class="overflow-hidden rounded-lg" style="background: #111; border: 1px solid #333;">
                 <div class="p-6">
-                    <h3 class="mb-3 text-lg font-semibold text-white">Puis-je me connecter sur plusieurs appareils ?
-                    </h3>
-                    <p class="text-gray-400">Pour des raisons de sécurité, un seul appareil peut être connecté à la fois
-                        avec votre code. Vous devez vous déconnecter avant de vous connecter sur un autre appareil.</p>
+                    <h3 class="mb-3 text-lg font-semibold text-white">{{ __('index.faq2_question') }}</h3>
+                    <p class="text-gray-400">{{ __('index.faq2_answer') }}</p>
                 </div>
             </div>
 
             <div class="overflow-hidden rounded-lg" style="background: #111; border: 1px solid #333;">
                 <div class="p-6">
-                    <h3 class="mb-3 text-lg font-semibold text-white">Que se passe-t-il à la fin de mon forfait ?</h3>
-                    <p class="text-gray-400">Votre accès expire automatiquement. Vous pouvez renouveler en achetant un
-                        nouveau forfait si vous souhaitez continuer à vous entraîner.</p>
+                    <h3 class="mb-3 text-lg font-semibold text-white">{{ __('index.faq3_question') }}</h3>
+                    <p class="text-gray-400">{{ __('index.faq3_answer') }}</p>
                 </div>
             </div>
 
             <div class="overflow-hidden rounded-lg" style="background: #111; border: 1px solid #333;">
                 <div class="p-6">
-                    <h3 class="mb-3 text-lg font-semibold text-white">Puis-je télécharger les cours ?</h3>
-                    <p class="text-gray-400">Non, pour des raisons de droits d'auteur et de protection du contenu, les
-                        cours sont accessibles uniquement en streaming dans votre espace sécurisé.</p>
+                    <h3 class="mb-3 text-lg font-semibold text-white">{{ __('index.faq4_question') }}</h3>
+                    <p class="text-gray-400">{{ __('index.faq4_answer') }}</p>
                 </div>
             </div>
         </div>
@@ -269,14 +264,14 @@
 <section class="py-16" style="background: #b89449; color: black;">
     <div class="container px-4 mx-auto md:px-6">
         <div class="max-w-4xl mx-auto text-center">
-            <h2 class="mb-6 text-2xl font-bold md:text-3xl">Déjà un accès e-learning ?</h2>
+            <h2 class="mb-6 text-2xl font-bold md:text-3xl">{{ __('index.already_have_access') }}</h2>
             <p class="mb-8 text-lg">
-                Connectez-vous à votre salle virtuelle avec votre code d'accès et votre email
+                {{ __('index.connect_to_virtual_room') }}
             </p>
             <a href="{{ route('elearning.salle') }}"
                 class="inline-flex items-center px-8 py-3 font-semibold transition-all duration-300"
                 style="background: #000; color: white;">
-                <i class="mr-3 fas fa-sign-in-alt"></i>Accéder à ma salle
+                <i class="mr-3 fas fa-sign-in-alt"></i>{{ __('index.access_virtual_room') }}
             </a>
         </div>
     </div>

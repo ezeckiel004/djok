@@ -468,34 +468,69 @@
     </div>
 </section>
 
-<!-- Statistics Section -->
+<!-- Statistics Section - CORRIGÉE avec espacement et icônes -->
 <section id="stats" class="py-20 text-white bg-dark">
     <div class="px-4 mx-auto max-w-7xl">
         <h2 class="mb-4 text-4xl font-bold text-center" style="color: #b69246;">{{ __('home.numbers_title') }}</h2>
         <p class="mt-4 text-center text-gray-300">{{ __('home.numbers_subtitle') }}</p>
 
-        <div class="grid grid-cols-1 gap-8 mt-12 md:grid-cols-2 lg:grid-cols-4">
-            <div class="text-center">
-                <div class="mb-2 text-4xl font-bold" style="color: #b69246;">5000+</div>
-                <p class="text-gray-300">{{ __('home.satisfied_clients') }}</p>
+        <div class="grid grid-cols-1 gap-12 mt-16 md:grid-cols-2 lg:grid-cols-4">
+            <!-- Réseau d'experts -->
+            <div class="flex flex-col items-center text-center group">
+                <div class="flex items-center justify-center w-20 h-20 mb-6 transition-all duration-300 rounded-full bg-gradient-to-br from-amber-600/20 to-amber-800/20 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-amber-900/30">
+                    <i class="text-3xl fas fa-handshake" style="color: #b69246;"></i>
+                </div>
+                <h3 class="mb-3 text-xl font-bold leading-tight md:text-2xl" style="color: #b69246;">
+                    {{ __('home.experts_network') }}
+                </h3>
+                <p class="max-w-xs text-sm text-gray-300 md:text-base">
+                    {{ __('home.experts_network_desc') }}
+                </p>
             </div>
-            <div class="text-center">
-                <div class="mb-2 text-4xl font-bold" style="color: #b69246;">500+</div>
-                <p class="text-gray-300">{{ __('home.trainings_delivered') }}</p>
+
+            <!-- Formations pratiques -->
+            <div class="flex flex-col items-center text-center group">
+                <div class="flex items-center justify-center w-20 h-20 mb-6 transition-all duration-300 rounded-full bg-gradient-to-br from-amber-600/20 to-amber-800/20 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-amber-900/30">
+                    <i class="text-3xl fas fa-chalkboard-teacher" style="color: #b69246;"></i>
+                </div>
+                <h3 class="mb-3 text-xl font-bold leading-tight md:text-2xl" style="color: #b69246;">
+                    {{ __('home.practical_trainings') }}
+                </h3>
+                <p class="max-w-xs text-sm text-gray-300 md:text-base">
+                    {{ __('home.practical_trainings_desc') }}
+                </p>
             </div>
-            <div class="text-center">
-                <div class="mb-2 text-4xl font-bold" style="color: #b69246;">50+</div>
-                <p class="text-gray-300">{{ __('home.africa_projects') }}</p>
+
+            <!-- Accompagnement sur mesure -->
+            <div class="flex flex-col items-center text-center group">
+                <div class="flex items-center justify-center w-20 h-20 mb-6 transition-all duration-300 rounded-full bg-gradient-to-br from-amber-600/20 to-amber-800/20 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-amber-900/30">
+                    <i class="text-3xl fas fa-user-check" style="color: #b69246;"></i>
+                </div>
+                <h3 class="mb-3 text-xl font-bold leading-tight md:text-2xl" style="color: #b69246;">
+                    {{ __('home.tailored_support') }}
+                </h3>
+                <p class="max-w-xs text-sm text-gray-300 md:text-base">
+                    {{ __('home.tailored_support_desc') }}
+                </p>
             </div>
-            <div class="text-center">
-                <div class="mb-2 text-4xl font-bold" style="color: #b69246;">99%</div>
-                <p class="text-gray-300">{{ __('home.satisfaction_rate') }}</p>
+
+            <!-- Communauté en développement -->
+            <div class="flex flex-col items-center text-center group">
+                <div class="flex items-center justify-center w-20 h-20 mb-6 transition-all duration-300 rounded-full bg-gradient-to-br from-amber-600/20 to-amber-800/20 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-amber-900/30">
+                    <i class="text-3xl fas fa-users" style="color: #b69246;"></i>
+                </div>
+                <h3 class="mb-3 text-xl font-bold leading-tight md:text-2xl" style="color: #b69246;">
+                    {{ __('home.growing_community') }}
+                </h3>
+                <p class="max-w-xs text-sm text-gray-300 md:text-base">
+                    {{ __('home.growing_community_desc') }}
+                </p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Certifications Section - Avec images et lien PDF -->
+<!-- Certifications Section - Avec images et liens PDF -->
 <section class="py-16" style="background: #000;">
     <div class="container mx-auto px-4 md:px-6">
         <div class="max-w-6xl mx-auto">
@@ -510,78 +545,89 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Card 1 - Qualiopi -->
-                <a href="{{ route('pdf.arrete-modificatif') }}" target="_blank" class="block no-underline">
-                    <div class="p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer"
+                <a href="{{ asset('Agrément_Qualiopi.pdf') }}" target="_blank" class="block no-underline">
+                    <div class="p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer h-full flex flex-col"
                         style="background: #111; border: 1px solid #333;">
-                        <div class="w-20 h-20 flex items-center justify-center rounded-full mx-auto mb-6 overflow-hidden transition-all duration-300 hover:scale-110 hover:rotate-12"
-                            style="background: var(--gold);">
-                            <img src="{{ asset('ac1.WEBP') }}" alt="Qualiopi Certification"
-                                class="object-cover w-full h-full rounded-full">
+                        <div class="flex-grow">
+                            <div class="w-20 h-20 flex items-center justify-center rounded-full mx-auto mb-6 overflow-hidden transition-all duration-300 hover:scale-110 hover:rotate-12"
+                                style="background: var(--gold);">
+                                <img src="{{ asset('ac1.WEBP') }}" alt="Qualiopi Certification"
+                                    class="object-cover w-full h-full rounded-full">
+                            </div>
+                            <h3 class="text-xl font-bold mb-4" style="color: white;">{{ __('home.qualiopi') }}</h3>
+                            <p class="text-gray-400 mb-3">{{ __('home.qualiopi_description') }}</p>
+                            <p class="text-sm text-gray-500">{{ __('home.qualiopi_detail') }}</p>
                         </div>
-                        <h3 class="text-xl font-bold mb-4" style="color: white;">{{ __('home.qualiopi') }}</h3>
-                        <p class="text-gray-400 mb-3">{{ __('home.qualiopi_description') }}</p>
-                        <p class="text-sm text-gray-500">{{ __('home.qualiopi_detail') }}</p>
-                        <div class="mt-4 text-sm text-var(--gold) flex items-center justify-center">
-                            <i class="fas fa-file-pdf mr-2"></i>
-                            <span>{{ __('home.view_arrete_pdf') }}</span>
-                        </div>
-                        <div class="mt-1 text-xs text-gray-500">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            {{ __('home.pdf_label') }}
+                        <div class="mt-6">
+                            <div class="text-sm" style="color: var(--gold);">
+                                <i class="fas fa-file-pdf mr-2"></i>
+                                <span>{{ __('home.view_arrete_pdf') }}</span>
+                            </div>
+                            <div class="mt-1 text-xs text-gray-500">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                {{ __('home.pdf_label') }}
+                            </div>
                         </div>
                     </div>
                 </a>
 
                 <!-- Card 2 - Préfectoral (avec lien PDF) -->
-                <a href="{{ route('pdf.arrete-modificatif') }}" target="_blank" class="block no-underline">
-                    <div class="p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer"
+                <a href="{{ asset('Agrément_préfecture.pdf') }}" target="_blank" class="block no-underline">
+                    <div class="p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer h-full flex flex-col"
                         style="background: #111; border: 1px solid #333;">
-                        <div class="w-20 h-20 flex items-center justify-center rounded-full mx-auto mb-6 overflow-hidden transition-all duration-300 hover:scale-110 hover:rotate-12"
-                            style="background: var(--gold);">
-                            <img src="{{ asset('ac2.PNG') }}" alt="Arrêté Préfectoral"
-                                class="object-cover w-full h-full rounded-full">
+                        <div class="flex-grow">
+                            <div class="w-20 h-20 flex items-center justify-center rounded-full mx-auto mb-6 overflow-hidden transition-all duration-300 hover:scale-110 hover:rotate-12"
+                                style="background: var(--gold);">
+                                <img src="{{ asset('ac2.PNG') }}" alt="Arrêté Préfectoral"
+                                    class="object-cover w-full h-full rounded-full">
+                            </div>
+                            <h3 class="text-xl font-bold mb-4" style="color: white;">{{ __('home.prefectoral') }}</h3>
+                            <p class="text-gray-400 mb-3">{{ __('home.prefectoral_description') }}</p>
+                            <p class="text-sm text-gray-500">{{ __('home.prefectoral_detail') }}</p>
                         </div>
-                        <h3 class="text-xl font-bold mb-4" style="color: white;">{{ __('home.prefectoral') }}</h3>
-                        <p class="text-gray-400 mb-3">{{ __('home.prefectoral_description') }}</p>
-                        <p class="text-sm text-gray-500">{{ __('home.prefectoral_detail') }}</p>
-                        <div class="mt-4 text-sm text-var(--gold) flex items-center justify-center">
-                            <i class="fas fa-file-pdf mr-2"></i>
-                            <span>{{ __('home.view_arrete_pdf') }}</span>
-                        </div>
-                        <div class="mt-1 text-xs text-gray-500">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            {{ __('home.pdf_label') }}
+                        <div class="mt-6">
+                            <div class="text-sm" style="color: var(--gold);">
+                                <i class="fas fa-file-pdf mr-2"></i>
+                                <span>{{ __('home.view_arrete_pdf') }}</span>
+                            </div>
+                            <div class="mt-1 text-xs text-gray-500">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                {{ __('home.pdf_label') }}
+                            </div>
                         </div>
                     </div>
                 </a>
 
-                <!-- Card 3 - Datadock -->
-                <a href="{{ route('pdf.arrete-modificatif') }}" target="_blank" class="block no-underline">
-                    <div class="p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer"
+                <!-- Card 3 - Datadock (conservé mais commenté) -->
+                {{-- <a href="{{ route('pdf.arrete-modificatif') }}" target="_blank" class="block no-underline">
+                    <div class="p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer h-full flex flex-col"
                         style="background: #111; border: 1px solid #333;">
-                        <div class="w-20 h-20 flex items-center justify-center rounded-full mx-auto mb-6 overflow-hidden transition-all duration-300 hover:scale-110 hover:rotate-12"
-                            style="background: var(--gold);">
-                            <img src="{{ asset('ac3.JPG') }}" alt="Datadock Certification"
-                                class="object-cover w-full h-full rounded-full">
+                        <div class="flex-grow">
+                            <div class="w-20 h-20 flex items-center justify-center rounded-full mx-auto mb-6 overflow-hidden transition-all duration-300 hover:scale-110 hover:rotate-12"
+                                style="background: var(--gold);">
+                                <img src="{{ asset('ac3.JPG') }}" alt="Datadock Certification"
+                                    class="object-cover w-full h-full rounded-full">
+                            </div>
+                            <h3 class="text-xl font-bold mb-4" style="color: white;">{{ __('home.datadock') }}</h3>
+                            <p class="text-gray-400 mb-3">{{ __('home.datadock_description') }}</p>
+                            <p class="text-sm text-gray-500">{{ __('home.datadock_detail') }}</p>
                         </div>
-                        <h3 class="text-xl font-bold mb-4" style="color: white;">{{ __('home.datadock') }}</h3>
-                        <p class="text-gray-400 mb-3">{{ __('home.datadock_description') }}</p>
-                        <p class="text-sm text-gray-500">{{ __('home.datadock_detail') }}</p>
-                        <div class="mt-4 text-sm text-var(--gold) flex items-center justify-center">
-                            <i class="fas fa-file-pdf mr-2"></i>
-                            <span>{{ __('home.view_arrete_pdf') }}</span>
-                        </div>
-                        <div class="mt-1 text-xs text-gray-500">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            {{ __('home.pdf_label') }}
+                        <div class="mt-6">
+                            <div class="text-sm" style="color: var(--gold);">
+                                <i class="fas fa-file-pdf mr-2"></i>
+                                <span>{{ __('home.view_arrete_pdf') }}</span>
+                            </div>
+                            <div class="mt-1 text-xs text-gray-500">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                {{ __('home.pdf_label') }}
+                            </div>
                         </div>
                     </div>
-                </a>
+                </a> --}}
             </div>
         </div>
     </div>
 </section>
-
 <!-- NOUVELLE SECTION AVIS CLIENTS AVEC SLIDER -->
 <section id="testimonials" class="py-20 bg-black">
     <div class="px-4 mx-auto max-w-7xl">
@@ -830,8 +876,6 @@
         </div>
     </div>
 </section>
-
-<!-- Les styles CSS restent exactement les mêmes -->
 
 <style>
     /* HERO SECTION - MODIFIÉ POUR CORRIGER L'OPACITÉ */

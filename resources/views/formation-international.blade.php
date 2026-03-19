@@ -97,112 +97,111 @@
     <div class="container mx-auto px-4 md:px-6">
         <div class="text-center mb-12">
             <h2 class="text-2xl md:text-3xl font-bold mb-4" style="color: var(--gold);">{{
-                trans('international.formation_domains') }}</h2>
+                trans('international.destinations_title') }}</h2>
         </div>
 
         <!-- Formations principales -->
-        <div class="mb-16">
-            <h3 class="text-2xl font-semibold text-center mb-8" style="color: white;">{{
-                trans('international.main_formations') }}</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @php
-                $formations = App\Models\Formation::where('is_active', true)
-                ->whereIn('categorie', ['international', 'vtc_theorique', 'vtc_pratique'])
-                ->take(6)
-                ->get();
-                @endphp
+<div class="mb-16">
+    <h3 class="text-2xl font-semibold text-center mb-8" style="color: white;">{{
+        trans('international.destinations_subtitle') }}</h3>
 
-                @if($formations->count() > 0)
-                @foreach($formations as $formation)
-                <div class="p-6" style="background: #111; border: 1px solid #333;">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <div class="w-12 h-12 flex items-center justify-center rounded-lg"
-                                style="background: var(--gold);">
-                                <i class="fas fa-graduation-cap text-black"></i>
-                            </div>
-                        </div>
-                        <div class="ml-4">
-                            <h4 class="text-lg font-bold mb-2" style="color: white;">{{ $formation->title }}</h4>
-                            <p class="text-gray-400">{{ Str::limit($formation->description, 100) }}</p>
-                            <div class="mt-2 text-sm text-gray-500">
-                                <span class="font-semibold">{{ $formation->duration_hours }}h</span>
-                                •
-                                <span class="font-semibold" style="color: var(--gold);">
-                                    {{ number_format($formation->price, 0, ',', ' ') }} €
-                                </span>
-                            </div>
-                        </div>
+    <!-- Destinations professionnelles -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @foreach([
+            ['title' => 'Dubaï', 'desc' => 'Innovation, business international', 'icon' => 'fa-building'],
+            ['title' => 'États-Unis', 'desc' => 'Entrepreneuriat et leadership', 'icon' => 'fa-chart-line'],
+            ['title' => 'France & Europe', 'desc' => 'Standards européens et networking', 'icon' => 'fa-globe-europe'],
+            ['title' => 'Afrique', 'desc' => 'Développement économique et opportunités', 'icon' => 'fa-tree'],
+            ['title' => 'Asie', 'desc' => 'Technologie et transformation digitale', 'icon' => 'fa-microchip'],
+            ['title' => 'Sur mesure', 'desc' => 'Programmes personnalisés selon vos besoins', 'icon' => 'fa-compass']
+        ] as $destination)
+        <div class="p-6 transition-all duration-300 hover:scale-105" style="background: #111; border: 1px solid #333;">
+            <div class="flex flex-col items-center text-center">
+                <div class="w-16 h-16 flex items-center justify-center rounded-full mb-4" style="background: var(--gold);">
+                    <i class="fas {{ $destination['icon'] }} text-black text-xl"></i>
+                </div>
+                <h4 class="text-xl font-bold mb-2" style="color: var(--gold);">{{ $destination['title'] }}</h4>
+                <p class="text-gray-300">{{ $destination['desc'] }}</p>
+            </div>
+        </div>
+        @endforeach
+    </div>
+
+    <!-- Message de personnalisation -->
+    <div class="max-w-3xl mx-auto text-center p-8 mt-8" style="background: #111; border: 1px solid #333;">
+        <i class="fas fa-gem text-4xl mb-4" style="color: var(--gold);"></i>
+        <p class="text-gray-300">
+            {{ __('international.program_custom_desc') }}
+        </p>
+    </div>
+</div>
+        <!-- Types d'événements organisés -->
+<div class="mt-16">
+    <h3 class="text-2xl font-semibold text-center mb-8" style="color: white;">{{
+        trans('international.event_types') }}</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Séminaires d'entreprise -->
+        <div class="p-6" style="background: #111; border: 1px solid #333;">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-lg" style="background: var(--gold);">
+                        <i class="fas fa-users text-black"></i>
                     </div>
                 </div>
-                @endforeach
-                @else
-                @foreach([
-                [trans('international.formation_vtc'), trans('international.formation_vtc_desc')],
-                [trans('international.formation_micro_entreprise'),
-                trans('international.formation_micro_entreprise_desc')],
-                [trans('international.formation_marketing'), trans('international.formation_marketing_desc')],
-                [trans('international.formation_business_creation'),
-                trans('international.formation_business_creation_desc')],
-                [trans('international.formation_bureautique'), trans('international.formation_bureautique_desc')],
-                [trans('international.formation_language'), trans('international.formation_language_desc')]
-                ] as $formation)
-                <div class="p-6" style="background: #111; border: 1px solid #333;">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <div class="w-12 h-12 flex items-center justify-center rounded-lg"
-                                style="background: var(--gold);">
-                                <i class="fas fa-graduation-cap text-black"></i>
-                            </div>
-                        </div>
-                        <div class="ml-4">
-                            <h4 class="text-lg font-bold mb-2" style="color: white;">{{ $formation[0] }}</h4>
-                            <p class="text-gray-400">{{ $formation[1] }}</p>
-                        </div>
-                    </div>
+                <div class="ml-4">
+                    <h4 class="text-lg font-bold mb-2" style="color: var(--gold);">{{ trans('international.event_seminars') }}</h4>
+                    <p class="text-gray-400">{{ trans('international.event_seminars_desc') }}</p>
                 </div>
-                @endforeach
-                @endif
             </div>
         </div>
 
-        <!-- Modules optionnels -->
-        <div>
-            <h3 class="text-2xl font-semibold text-center mb-8" style="color: white;">{{
-                trans('international.optional_modules') }}</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <ul class="space-y-4">
-                        @foreach([
-                        trans('international.module_leadership'),
-                        trans('international.module_personal_development'),
-                        trans('international.module_sales'),
-                        trans('international.module_finance')
-                        ] as $module)
-                        <li class="flex items-center p-4" style="background: #111; border: 1px solid #333;">
-                            <i class="fas fa-check mr-3" style="color: var(--gold);"></i>
-                            <span class="font-medium" style="color: white;">{{ $module }}</span>
-                        </li>
-                        @endforeach
-                    </ul>
+        <!-- Formations professionnelles internationales -->
+        <div class="p-6" style="background: #111; border: 1px solid #333;">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-lg" style="background: var(--gold);">
+                        <i class="fas fa-globe text-black"></i>
+                    </div>
                 </div>
-                <div>
-                    <ul class="space-y-4">
-                        @foreach([
-                        trans('international.module_project_management'),
-                        trans('international.module_intercultural'),
-                        trans('international.module_digital_transformation'),
-                        trans('international.module_business_strategy')
-                        ] as $module)
-                        <li class="flex items-center p-4" style="background: #111; border: 1px solid #333;">
-                            <i class="fas fa-check mr-3" style="color: var(--gold);"></i>
-                            <span class="font-medium" style="color: white;">{{ $module }}</span>
-                        </li>
-                        @endforeach
-                    </ul>
+                <div class="ml-4">
+                    <h4 class="text-lg font-bold mb-2" style="color: var(--gold);">{{ trans('international.event_trainings') }}</h4>
+                    <p class="text-gray-400">{{ trans('international.event_trainings_desc') }}</p>
                 </div>
             </div>
         </div>
+
+        <!-- Voyages business & networking -->
+        <div class="p-6" style="background: #111; border: 1px solid #333;">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-lg" style="background: var(--gold);">
+                        <i class="fas fa-handshake text-black"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <h4 class="text-lg font-bold mb-2" style="color: var(--gold);">{{ trans('international.event_networking') }}</h4>
+                    <p class="text-gray-400">{{ trans('international.event_networking_desc') }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Programmes leadership & management -->
+        <div class="p-6" style="background: #111; border: 1px solid #333;">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-lg" style="background: var(--gold);">
+                        <i class="fas fa-chart-line text-black"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <h4 class="text-lg font-bold mb-2" style="color: var(--gold);">{{ trans('international.event_leadership') }}</h4>
+                    <p class="text-gray-400">{{ trans('international.event_leadership_desc') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
     </div>
 </section>
 
@@ -214,32 +213,41 @@
                 trans('international.target_audience') }}</h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="text-center p-6" style="background: #1a1a1a; border: 1px solid #333;">
-                <div class="w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4"
-                    style="background: #1e40af;">
-                    <i class="fas fa-user-graduate text-white"></i>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Entreprises -->
+            <div class="text-center p-6 transition-all duration-300 hover:scale-105" style="background: #1a1a1a; border: 1px solid #333;">
+                <div class="w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4" style="background: #2563eb;">
+                    <i class="fas fa-building text-white text-xl"></i>
                 </div>
-                <h3 class="text-lg font-bold mb-3" style="color: white;">{{ trans('international.students') }}</h3>
-                <p class="text-gray-400">{{ trans('international.students_desc') }}</p>
+                <h3 class="text-lg font-bold mb-3" style="color: white;">{{ trans('international.companies') }}</h3>
+                <p class="text-gray-400">{{ trans('international.companies_desc') }}</p>
             </div>
 
-            <div class="text-center p-6" style="background: #1a1a1a; border: 1px solid #333;">
-                <div class="w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4"
-                    style="background: #065f46;">
-                    <i class="fas fa-briefcase text-white"></i>
+            <!-- Dirigeants & entrepreneurs -->
+            <div class="text-center p-6 transition-all duration-300 hover:scale-105" style="background: #1a1a1a; border: 1px solid #333;">
+                <div class="w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4" style="background: #b45309;">
+                    <i class="fas fa-user-tie text-white text-xl"></i>
                 </div>
-                <h3 class="text-lg font-bold mb-3" style="color: white;">{{ trans('international.entrepreneurs') }}</h3>
-                <p class="text-gray-400">{{ trans('international.entrepreneurs_desc') }}</p>
+                <h3 class="text-lg font-bold mb-3" style="color: white;">{{ trans('international.leaders') }}</h3>
+                <p class="text-gray-400">{{ trans('international.leaders_desc') }}</p>
             </div>
 
-            <div class="text-center p-6" style="background: #1a1a1a; border: 1px solid #333;">
-                <div class="w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4"
-                    style="background: #5b21b6;">
-                    <i class="fas fa-building text-white"></i>
+            <!-- Organisations & institutions -->
+            <div class="text-center p-6 transition-all duration-300 hover:scale-105" style="background: #1a1a1a; border: 1px solid #333;">
+                <div class="w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4" style="background: #7e22ce;">
+                    <i class="fas fa-landmark text-white text-xl"></i>
                 </div>
-                <h3 class="text-lg font-bold mb-3" style="color: white;">{{ trans('international.institutions') }}</h3>
-                <p class="text-gray-400">{{ trans('international.institutions_desc') }}</p>
+                <h3 class="text-lg font-bold mb-3" style="color: white;">{{ trans('international.organizations') }}</h3>
+                <p class="text-gray-400">{{ trans('international.organizations_desc') }}</p>
+            </div>
+
+            <!-- Startups & porteurs de projet -->
+            <div class="text-center p-6 transition-all duration-300 hover:scale-105" style="background: #1a1a1a; border: 1px solid #333;">
+                <div class="w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4" style="background: #059669;">
+                    <i class="fas fa-rocket text-white text-xl"></i>
+                </div>
+                <h3 class="text-lg font-bold mb-3" style="color: white;">{{ trans('international.startups') }}</h3>
+                <p class="text-gray-400">{{ trans('international.startups_desc') }}</p>
             </div>
         </div>
     </div>
@@ -322,25 +330,54 @@
             </h2>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            @foreach([
-            [trans('international.why_certified'), 'fas fa-award'],
-            [trans('international.why_team'), 'fas fa-users'],
-            [trans('international.why_adapted'), 'fas fa-globe-africa'],
-            [trans('international.why_accommodation'), 'fas fa-home'],
-            [trans('international.why_concierge'), 'fas fa-concierge-bell'],
-            [trans('international.why_testimonials'), 'fas fa-video'],
-            [trans('international.why_network'), 'fas fa-handshake'],
-            [trans('international.why_logistics'), 'fas fa-shipping-fast']
-            ] as $avantage)
-            <div class="flex flex-col items-center text-center">
-                <div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full mb-3"
-                    style="background: var(--gold);">
-                    <i class="{{ $avantage[1] }} text-black text-lg"></i>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 max-w-4xl mx-auto">
+            <!-- Organisation de séminaires internationaux -->
+            <div class="flex flex-col items-center text-center group">
+                <div class="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-full mb-4 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg" style="background: var(--gold);">
+                    <i class="fas fa-calendar-alt text-black text-xl md:text-2xl"></i>
                 </div>
-                <span class="text-xs md:text-sm font-medium" style="color: white;">{{ $avantage[0] }}</span>
+                <span class="text-sm md:text-base font-medium" style="color: white;">{{ trans('international.why_seminars') }}</span>
             </div>
-            @endforeach
+
+            <!-- Réseau d'experts et d'entreprises partenaires -->
+            <div class="flex flex-col items-center text-center group">
+                <div class="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-full mb-4 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg" style="background: var(--gold);">
+                    <i class="fas fa-handshake text-black text-xl md:text-2xl"></i>
+                </div>
+                <span class="text-sm md:text-base font-medium" style="color: white;">{{ trans('international.why_network') }}</span>
+            </div>
+
+            <!-- Programmes personnalisés -->
+            <div class="flex flex-col items-center text-center group">
+                <div class="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-full mb-4 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg" style="background: var(--gold);">
+                    <i class="fas fa-puzzle-piece text-black text-xl md:text-2xl"></i>
+                </div>
+                <span class="text-sm md:text-base font-medium" style="color: white;">{{ trans('international.why_custom') }}</span>
+            </div>
+
+            <!-- Destinations business stratégiques -->
+            <div class="flex flex-col items-center text-center group">
+                <div class="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-full mb-4 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg" style="background: var(--gold);">
+                    <i class="fas fa-globe text-black text-xl md:text-2xl"></i>
+                </div>
+                <span class="text-sm md:text-base font-medium" style="color: white;">{{ trans('international.why_destinations') }}</span>
+            </div>
+
+            <!-- Organisation clé en main -->
+            <div class="flex flex-col items-center text-center group">
+                <div class="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-full mb-4 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg" style="background: var(--gold);">
+                    <i class="fas fa-key text-black text-xl md:text-2xl"></i>
+                </div>
+                <span class="text-sm md:text-base font-medium" style="color: white;">{{ trans('international.why_turnkey') }}</span>
+            </div>
+
+            <!-- Expérience premium pour dirigeants et équipes -->
+            <div class="flex flex-col items-center text-center group">
+                <div class="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-full mb-4 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg" style="background: var(--gold);">
+                    <i class="fas fa-crown text-black text-xl md:text-2xl"></i>
+                </div>
+                <span class="text-sm md:text-base font-medium" style="color: white;">{{ trans('international.why_premium') }}</span>
+            </div>
         </div>
     </div>
 </section>
@@ -386,224 +423,97 @@
             </div>
             @endif
 
-            <form action="{{ route('formation-internationale.store') }}" method="POST" id="formation-form">
-                @csrf
+            <form action="{{ route('formation-internationale.store') }}" method="POST">
+    @csrf
 
-                <div class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                        <div>
-                            <label class="block mb-2 font-medium" style="color: #ddd;">{{
-                                trans('international.full_name') }}</label>
-                            <input type="text" name="nom" required value="{{ old('nom') }}"
-                                class="w-full px-4 py-3 rounded @error('nom') border-red-500 @enderror"
-                                style="background: #1a1a1a; border: 1px solid #444; color: white;"
-                                placeholder="{{ trans('international.full_name_placeholder') }}">
-                            @error('nom')
-                            <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+    <!-- Nom de l'entreprise (nouveau, optionnel) -->
+    <div>
+        <label class="block mb-2 font-medium" style="color: #ddd;">Nom de l'entreprise</label>
+        <input type="text" name="nom_entreprise" value="{{ old('nom_entreprise') }}"
+            class="w-full px-4 py-3 rounded"
+            style="background: #1a1a1a; border: 1px solid #444; color: white;">
+    </div>
 
-                        <div>
-                            <label class="block mb-2 font-medium" style="color: #ddd;">{{
-                                trans('international.nationality') }}</label>
-                            <input type="text" name="nationalite" required value="{{ old('nationalite') }}"
-                                class="w-full px-4 py-3 rounded @error('nationalite') border-red-500 @enderror"
-                                style="background: #1a1a1a; border: 1px solid #444; color: white;"
-                                placeholder="{{ trans('international.nationality_placeholder') }}">
-                            @error('nationalite')
-                            <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
+    <!-- Nom du responsable (correspond à nom_complet) -->
+    <div>
+        <label class="block mb-2 font-medium" style="color: #ddd;">Nom du responsable *</label>
+        <input type="text" name="nom_responsable" required value="{{ old('nom_responsable') }}"
+            class="w-full px-4 py-3 rounded"
+            style="background: #1a1a1a; border: 1px solid #444; color: white;">
+    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                        <div>
-                            <label class="block mb-2 font-medium" style="color: #ddd;">{{ trans('international.email')
-                                }}</label>
-                            <input type="email" name="email" required value="{{ old('email') }}"
-                                class="w-full px-4 py-3 rounded @error('email') border-red-500 @enderror"
-                                style="background: #1a1a1a; border: 1px solid #444; color: white;"
-                                placeholder="{{ trans('international.email_placeholder') }}">
-                            @error('email')
-                            <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+    <!-- Email -->
+    <div>
+        <label class="block mb-2 font-medium" style="color: #ddd;">Email *</label>
+        <input type="email" name="email" required value="{{ old('email') }}"
+            class="w-full px-4 py-3 rounded"
+            style="background: #1a1a1a; border: 1px solid #444; color: white;">
+    </div>
 
-                        <div>
-                            <label class="block mb-2 font-medium" style="color: #ddd;">{{ trans('international.phone')
-                                }}</label>
-                            <input type="tel" name="telephone" required value="{{ old('telephone') }}"
-                                class="w-full px-4 py-3 rounded @error('telephone') border-red-500 @enderror"
-                                style="background: #1a1a1a; border: 1px solid #444; color: white;"
-                                placeholder="{{ trans('international.phone_placeholder') }}">
-                            @error('telephone')
-                            <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
+    <!-- Téléphone / WhatsApp -->
+    <div>
+        <label class="block mb-2 font-medium" style="color: #ddd;">Téléphone / WhatsApp *</label>
+        <input type="tel" name="telephone" required value="{{ old('telephone') }}"
+            class="w-full px-4 py-3 rounded"
+            style="background: #1a1a1a; border: 1px solid #444; color: white;">
+    </div>
 
-                    <div>
-                        <label class="block mb-2 font-medium" style="color: #ddd;">{{ trans('international.whatsapp')
-                            }}</label>
-                        <input type="tel" name="whatsapp" value="{{ old('whatsapp') }}"
-                            class="w-full px-4 py-3 rounded @error('whatsapp') border-red-500 @enderror"
-                            style="background: #1a1a1a; border: 1px solid #444; color: white;"
-                            placeholder="{{ trans('international.whatsapp_placeholder') }}">
-                        @error('whatsapp')
-                        <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+    <!-- Destination souhaitée (nouveau, optionnel) -->
+    <div>
+        <label class="block mb-2 font-medium" style="color: #ddd;">Destination souhaitée</label>
+        <select name="destination_souhaitee" class="w-full px-4 py-3 rounded"
+                style="background: #1a1a1a; border: 1px solid #444; color: white;">
+            <option value="">Sélectionnez une destination</option>
+            <option value="dubai">Dubaï</option>
+            <option value="usa">USA</option>
+            <option value="europe">Europe</option>
+            <option value="afrique">Afrique</option>
+            <option value="autre">Autre</option>
+        </select>
+    </div>
 
-                    <div>
-                        <label class="block mb-2 font-medium" style="color: #ddd;">{{
-                            trans('international.formation_type') }}</label>
-                        <select name="formation" required
-                            class="w-full px-4 py-3 rounded @error('formation') border-red-500 @enderror"
-                            style="background: #1a1a1a; border: 1px solid #444; color: white;">
-                            <option value="" style="color: #666;">{{ trans('international.select_formation') }}</option>
-                            <!-- Formations existantes -->
-                            @php
-                            $formationsList = App\Models\Formation::where('is_active', true)
-                            ->whereIn('categorie', ['international', 'vtc_theorique', 'vtc_pratique', 'e_learning',
-                            'renouvellement'])
-                            ->get();
-                            @endphp
+    <!-- Nombre de participants (nouveau, optionnel) -->
+    <div>
+        <label class="block mb-2 font-medium" style="color: #ddd;">Nombre de participants</label>
+        <input type="number" name="nombre_participants" min="1" value="{{ old('nombre_participants') }}"
+            class="w-full px-4 py-3 rounded"
+            style="background: #1a1a1a; border: 1px solid #444; color: white;">
+    </div>
 
-                            @if($formationsList->count() > 0)
-                            <optgroup label="{{ trans('international.available_formations') }}">
-                                @foreach($formationsList as $formation)
-                                <option value="{{ $formation->id }}" {{ old('formation')==$formation->id ? 'selected' :
-                                    '' }} style="color: white;">
-                                    {{ $formation->title }}
-                                </option>
-                                @endforeach
-                            </optgroup>
-                            @endif
+    <!-- Type d'événement (nouveau, optionnel) -->
+    <div>
+        <label class="block mb-2 font-medium" style="color: #ddd;">Type d'événement</label>
+        <div class="grid grid-cols-2 gap-3">
+            <label class="flex items-center p-2 rounded" style="background: #1a1a1a;">
+                <input type="checkbox" name="type_evenement[]" value="formation" class="mr-2"> Formation
+            </label>
+            <label class="flex items-center p-2 rounded" style="background: #1a1a1a;">
+                <input type="checkbox" name="type_evenement[]" value="seminaire" class="mr-2"> Séminaire
+            </label>
+            <label class="flex items-center p-2 rounded" style="background: #1a1a1a;">
+                <input type="checkbox" name="type_evenement[]" value="voyage_business" class="mr-2"> Voyage business
+            </label>
+            <label class="flex items-center p-2 rounded" style="background: #1a1a1a;">
+                <input type="checkbox" name="type_evenement[]" value="team_building" class="mr-2"> Team building
+            </label>
+        </div>
+    </div>
 
-                            <optgroup label="{{ trans('international.other_formations') }}">
-                                <option value="vtc" {{ old('formation')=='vtc' ? 'selected' : '' }}
-                                    style="color: white;">{{ trans('international.formation_vtc_option') }}</option>
-                                <option value="micro_entreprise" {{ old('formation')=='micro_entreprise' ? 'selected'
-                                    : '' }} style="color: white;">
-                                    {{ trans('international.formation_micro_option') }}</option>
-                                <option value="marketing" {{ old('formation')=='marketing' ? 'selected' : '' }}
-                                    style="color: white;">
-                                    {{ trans('international.formation_marketing_option') }}</option>
-                                <option value="creation_entreprise" {{ old('formation')=='creation_entreprise'
-                                    ? 'selected' : '' }} style="color: white;">
-                                    {{ trans('international.formation_business_option') }}</option>
-                                <option value="bureautique" {{ old('formation')=='bureautique' ? 'selected' : '' }}
-                                    style="color: white;">
-                                    {{ trans('international.formation_bureautique_option') }}</option>
-                                <option value="langue" {{ old('formation')=='langue' ? 'selected' : '' }}
-                                    style="color: white;">{{ trans('international.formation_language_option') }}
-                                </option>
-                                <option value="personnalise" {{ old('formation')=='personnalise' ? 'selected' : '' }}
-                                    style="color: white;">
-                                    {{ trans('international.formation_custom') }}</option>
-                            </optgroup>
-                        </select>
-                        @error('formation')
-                        <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+    <!-- Message / objectifs du projet (utilise message pour compatibilité) -->
+    <div>
+        <label class="block mb-2 font-medium" style="color: #ddd;">Message / objectifs du projet *</label>
+        <textarea name="message" rows="5" required
+            class="w-full px-4 py-3 rounded"
+            style="background: #1a1a1a; border: 1px solid #444; color: white;"
+            placeholder="Décrivez votre projet...">{{ old('message') }}</textarea>
+    </div>
 
-                    <div>
-                        <label class="block mb-2 font-medium" style="color: #ddd;">{{
-                            trans('international.services_title') }}</label>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                            @php
-                            $oldServices = old('services', []);
-                            @endphp
-                            @foreach([
-                            trans('international.service_visa'),
-                            trans('international.service_accommodation'),
-                            trans('international.service_transport'),
-                            trans('international.service_concierge'),
-                            trans('international.service_insurance'),
-                            trans('international.service_internship')
-                            ] as $service)
-                            <label class="flex items-center p-2 rounded cursor-pointer"
-                                style="background: #1a1a1a; border: 1px solid #444; color: white;">
-                                <input type="checkbox" name="services[]" value="{{ $service }}" {{ in_array($service,
-                                    $oldServices) ? 'checked' : '' }} class="mr-3 rounded" style="border-color: #666;">
-                                <span class="text-sm">{{ $service }}</span>
-                            </label>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block mb-2 font-medium" style="color: #ddd;">{{
-                            trans('international.project_title') }}</label>
-                        <textarea name="message" rows="4" required
-                            class="w-full px-4 py-3 rounded @error('message') border-red-500 @enderror"
-                            style="background: #1a1a1a; border: 1px solid #444; color: white;"
-                            placeholder="{{ trans('international.project_placeholder') }}">{{ old('message') }}</textarea>
-                        @error('message')
-                        <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                        <div>
-                            <label class="block mb-2 font-medium" style="color: #ddd;">{{
-                                trans('international.start_date') }}</label>
-                            <input type="date" name="date_debut" value="{{ old('date_debut') }}"
-                                class="w-full px-4 py-3 rounded @error('date_debut') border-red-500 @enderror"
-                                style="background: #1a1a1a; border: 1px solid #444; color: white;">
-                            @error('date_debut')
-                            <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label class="block mb-2 font-medium" style="color: #ddd;">{{
-                                trans('international.duration') }}</label>
-                            <select name="duree"
-                                class="w-full px-4 py-3 rounded @error('duree') border-red-500 @enderror"
-                                style="background: #1a1a1a; border: 1px solid #444; color: white;">
-                                <option value="" style="color: #666;">{{ trans('international.select_duration') }}
-                                </option>
-                                <option value="1-2 semaines" {{ old('duree')=='1-2 semaines' ? 'selected' : '' }}
-                                    style="color: white;">{{ trans('international.duration_1_2') }}</option>
-                                <option value="1 mois" {{ old('duree')=='1 mois' ? 'selected' : '' }}
-                                    style="color: white;">{{ trans('international.duration_1_month') }}</option>
-                                <option value="3 mois" {{ old('duree')=='3 mois' ? 'selected' : '' }}
-                                    style="color: white;">{{ trans('international.duration_3_months') }}</option>
-                                <option value="6 mois" {{ old('duree')=='6 mois' ? 'selected' : '' }}
-                                    style="color: white;">{{ trans('international.duration_6_months') }}</option>
-                                <option value="1 an" {{ old('duree')=='1 an' ? 'selected' : '' }} style="color: white;">
-                                    {{ trans('international.duration_1_year') }}</option>
-                            </select>
-                            @error('duree')
-                            <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <!-- Bouton de soumission -->
-                    <div class="relative">
-                        <button type="submit" id="submit-btn"
-                            class="w-full px-6 md:px-8 py-3 font-semibold rounded transition-all duration-300 flex items-center justify-center"
-                            style="background: var(--gold); color: black;">
-                            <span id="btn-text" class="flex items-center justify-center">
-                                <i class="fas fa-paper-plane mr-3"></i>
-                                {{ trans('international.submit_button') }}
-                            </span>
-                            <span id="btn-loading" class="hidden flex items-center justify-center">
-                                <i class="fas fa-spinner fa-spin mr-3"></i>
-                                {{ trans('international.processing') }}
-                            </span>
-                        </button>
-                    </div>
-
-                    <p class="text-center text-sm mt-4" style="color: #888;">
-                        <i class="fas fa-shield-alt mr-2"></i>
-                        {{ trans('international.security_notice') }}
-                    </p>
-                </div>
-            </form>
+    <!-- Bouton -->
+    <button type="submit" class="w-full px-6 py-3 font-semibold rounded"
+            style="background: var(--gold); color: black;">
+        <i class="fas fa-paper-plane mr-2"></i> Recevoir une proposition
+    </button>
+</form>
         </div>
 
         <!-- Contact rapide - Style sobre -->
