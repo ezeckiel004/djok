@@ -85,27 +85,27 @@
                 {{ trans('formation.hero_success') }}
             </p>
 
-            <!-- Avantages clés - Style sobre avec centrage parfait -->
-            <div class="flex flex-wrap justify-center gap-6 mb-16">
-                <div class="flex flex-col items-center text-white" style="flex: 0 0 auto; min-width: 200px;">
+            <!-- Avantages clés - Style sobre -->
+            <div class="grid grid-cols-1 gap-6 mb-16 md:grid-cols-2 lg:grid-cols-4">
+                <div class="flex flex-col items-center text-white">
                     <div class="flex items-center justify-center mb-4 w-14 h-14" style="background: #b89449;">
                         <i class="text-xl text-black fas fa-clock"></i>
                     </div>
                     <span class="text-sm text-center">{{ trans('formation.advantage_1') }}</span>
                 </div>
-                {{-- <div class="flex flex-col items-center text-white" style="flex: 0 0 auto; min-width: 200px;">
+                <div class="flex flex-col items-center text-white">
                     <div class="flex items-center justify-center mb-4 w-14 h-14" style="background: #b89449;">
                         <i class="text-xl text-black fas fa-euro-sign"></i>
                     </div>
                     <span class="text-sm text-center">{{ trans('formation.advantage_2') }}</span>
-                </div> --}}
-                <div class="flex flex-col items-center text-white" style="flex: 0 0 auto; min-width: 200px;">
+                </div>
+                <div class="flex flex-col items-center text-white">
                     <div class="flex items-center justify-center mb-4 w-14 h-14" style="background: #b89449;">
                         <i class="text-xl text-black fas fa-chalkboard-teacher"></i>
                     </div>
                     <span class="text-sm text-center">{{ trans('formation.advantage_3') }}</span>
                 </div>
-                <div class="flex flex-col items-center text-white" style="flex: 0 0 auto; min-width: 200px;">
+                <div class="flex flex-col items-center text-white">
                     <div class="flex items-center justify-center mb-4 w-14 h-14" style="background: #b89449;">
                         <i class="text-xl text-black fas fa-car"></i>
                     </div>

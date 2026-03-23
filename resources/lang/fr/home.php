@@ -7,7 +7,7 @@ return [
     // Bannière 1 - Formation VTC
     'vtc_training' => 'FORMATION VTC',
     'become_vtc_driver' => 'Devenez Chauffeur VTC Professionnel',
-    'vtc_description' => 'Obtenez votre carte VTC avec une formation complète, certifiée Qualiopi, agréée par la préfecture et finançable par le CPF',
+    'vtc_description' => 'Obtenez votre carte VTC avec une formation complète, certifiée Qualiopi et agréée par la préfecture .',
 
     // Slides Formation VTC
     'slide1_title' => 'INSCRIPTION À L\'EXAMEN VTC & FORMATION VTC',
