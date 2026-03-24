@@ -728,8 +728,7 @@
                         <i class="fas fa-phone-alt text-black"></i>
                     </div>
                     <h3 class="text-lg font-bold mb-2" style="color: white;">{{ __('conciergerie.phone_label') }}</h3>
-                    <a href="tel:0176380017" class="font-semibold hover:text-yellow-300" style="color: var(--gold);">01
-                        76 38 00 17</a>
+                    <a href="tel:0176380017" class="font-semibold hover:text-yellow-300" style="color: var(--gold);">06 99 16 44 55</a>
                 </div>
 
                 <div class="text-center p-6" style="background: #1a1a1a; border: 1px solid #333;">
@@ -748,9 +747,9 @@
                         <i class="fas fa-envelope text-black"></i>
                     </div>
                     <h3 class="text-lg font-bold mb-2" style="color: white;">{{ __('conciergerie.email_label') }}</h3>
-                    <a href="mailto:conciergerie@djokprestige.com" class="font-semibold hover:text-yellow-300"
+                    <a href="mailto:contact@djokprestige.com" class="font-semibold hover:text-yellow-300"
                         style="color: var(--gold);">
-                        conciergerie@djokprestige.com
+                        contact@djokprestige.com
                     </a>
                 </div>
             </div>

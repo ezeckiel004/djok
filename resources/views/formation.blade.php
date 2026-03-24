@@ -1052,14 +1052,13 @@
                             <p class="text-blue-100">
                                 <i class="mr-2 fas fa-phone-alt"></i>
                                 {{ trans('formation.phone_label') }}
-                                <a href="tel:0176380017" class="font-semibold text-white hover:underline">01
-                                    76 38 00 17</a>
+                                <a href="tel:0176380017" class="font-semibold text-white hover:underline">06 99 16 44 55</a>
                             </p>
                             <p class="mt-2 text-blue-100">
                                 <i class="mr-2 fas fa-envelope"></i>
                                 {{ trans('formation.email_label') }}
                                 <a href="mailto:formation@djokprestige.com"
-                                    class="font-semibold text-white hover:underline">formation@djokprestige.com</a>
+                                    class="font-semibold text-white hover:underline">contact@djokprestige.com</a>
                             </p>
                         </div>
 

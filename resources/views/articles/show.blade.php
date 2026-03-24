@@ -14,10 +14,8 @@
 @endsection
 
 @section('content')
-<!-- Navigation et Hero -->
+<!-- Hero section sans navbar (la navbar est déjà dans le layout) -->
 <header class="relative bg-gradient-to-r from-{{ $article->color_class }}-600 to-{{ $article->color_class }}-800">
-    @include('layouts.navbar')
-
     <div class="container mx-auto px-4 pt-24 pb-16">
         <div class="max-w-4xl mx-auto text-center text-white">
             <!-- Catégorie -->
@@ -100,79 +98,80 @@
                 $content = preg_replace('/__(.*?)__/', '<u>$1</u>', $content);
 
                 // Convertir ### Titre en <h3>Titre</h3>
-                $content = preg_replace('/### (.*?)(\n|$)/', '<h3 class="text-2xl font-bold mt-8 mb-4 text-gray-900">$1
-                </h3>', $content);
+                $content = preg_replace('/### (.*?)(\n|$)/', '<h3 class="text-2xl font-bold mt-8 mb-4 text-gray-900">$1</h3>', $content);
 
                 // Convertir #### Titre en <h4>Titre</h4>
-                $content = preg_replace('/#### (.*?)(\n|$)/', '<h4 class="text-xl font-bold mt-6 mb-3 text-gray-800">$1
-                </h4>', $content);
+                $content = preg_replace('/#### (.*?)(\n|$)/', '<h4 class="text-xl font-bold mt-6 mb-3 text-gray-800">$1</h4>', $content);
 
                 // Convertir [texte](url) en <a href="url">texte</a>
-                $content = preg_replace('/\[(.*?)\]\((.*?)\)/', '<a href="$2"
-                    class="text-{{ $article->color_class }}-600 hover:text-{{ $article->color_class }}-700 underline"
-                    target="_blank" rel="noopener">$1</a>', $content);
+                $content = preg_replace('/\[(.*?)\]\((.*?)\)/', '<a href="$2" class="text-' . $article->color_class . '-600 hover:text-' . $article->color_class . '-700 underline" target="_blank" rel="noopener">$1</a>', $content);
 
                 // Convertir les listes à puces
                 $content = preg_replace('/\n\* (.*?)(\n|$)/', "\n<li>$1</li>", $content);
-                $content = str_replace("\n<li>", "\n<ul class='list-disc pl-6 mb-4 space-y-2'>
-                        <li>", $content);
-                            $content = str_replace("</li>\n<li>", "</li>\n<li>", $content);
-                            $content = str_replace("</li>\n", "</li>
-                </ul>\n", $content);
+                $content = str_replace("\n<li>", "\n<ul class='list-disc pl-6 mb-4 space-y-2'><li>", $content);
+                $content = str_replace("</li>\n<li>", "</li>\n<li>", $content);
+                $content = str_replace("</li>\n", "</li></ul>\n", $content);
 
                 // Convertir les retours à la ligne en paragraphes
                 $paragraphs = explode("\n\n", $content);
                 $formattedContent = '';
                 foreach ($paragraphs as $paragraph) {
-                $paragraph = trim($paragraph);
-                if (!empty($paragraph)) {
-                if (!preg_match('/^<(h[1-6]|ul|ol|li|strong|em|u|a) /', $paragraph)) { $formattedContent
-                    .='<p class="mb-6 text-gray-700 leading-relaxed">' . nl2br($paragraph) . '</p>' ; } else {
-                    $formattedContent .=$paragraph; } } } @endphp {!! $formattedContent !!} </div>
+                    $paragraph = trim($paragraph);
+                    if (!empty($paragraph)) {
+                        if (!preg_match('/^<(h[1-6]|ul|ol|li|strong|em|u|a) /', $paragraph)) {
+                            $formattedContent .= '<p class="mb-6 text-gray-700 leading-relaxed">' . nl2br($paragraph) . '</p>';
+                        } else {
+                            $formattedContent .= $paragraph;
+                        }
+                    }
+                }
+                @endphp
+                {!! $formattedContent !!}
+            </div>
 
-                    <!-- Tags et partage -->
-                    <div class="mt-12 pt-8 border-t border-gray-200">
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                            <!-- Tags -->
-                            <div>
-                                <span class="text-sm font-medium text-gray-700 mb-2 block">Catégories :</span>
-                                <div class="flex flex-wrap gap-2">
-                                    <a href="{{ route('blog.category', $article->category) }}"
-                                        class="px-3 py-1 bg-{{ $article->color_class }}-100 text-{{ $article->color_class }}-800 rounded-full text-sm font-medium hover:bg-{{ $article->color_class }}-200 transition">
-                                        {{ $article->category_label }}
-                                    </a>
-                                </div>
-                            </div>
-
-                            <!-- Partage -->
-                            <div>
-                                <span class="text-sm font-medium text-gray-700 mb-2 block">Partager :</span>
-                                <div class="flex gap-2">
-                                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}"
-                                        target="_blank"
-                                        class="w-10 h-10 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">
-                                        <i class="fab fa-facebook-f"></i>
-                                    </a>
-                                    <a href="https://twitter.com/intent/tweet?url={{ urlencode(url()->current()) }}&text={{ urlencode($article->title) }}"
-                                        target="_blank"
-                                        class="w-10 h-10 flex items-center justify-center bg-blue-400 text-white rounded-full hover:bg-blue-500 transition">
-                                        <i class="fab fa-twitter"></i>
-                                    </a>
-                                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(url()->current()) }}"
-                                        target="_blank"
-                                        class="w-10 h-10 flex items-center justify-center bg-blue-700 text-white rounded-full hover:bg-blue-800 transition">
-                                        <i class="fab fa-linkedin-in"></i>
-                                    </a>
-                                    <a href="mailto:?subject={{ urlencode($article->title) }}&body={{ urlencode('Regarde cet article : ' . url()->current()) }}"
-                                        class="w-10 h-10 flex items-center justify-center bg-gray-600 text-white rounded-full hover:bg-gray-700 transition">
-                                        <i class="fas fa-envelope"></i>
-                                    </a>
-                                </div>
-                            </div>
+            <!-- Tags et partage -->
+            <div class="mt-12 pt-8 border-t border-gray-200">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                    <!-- Tags -->
+                    <div>
+                        <span class="text-sm font-medium text-gray-700 mb-2 block">Catégories :</span>
+                        <div class="flex flex-wrap gap-2">
+                            <a href="{{ route('blog.category', $article->category) }}"
+                                class="px-3 py-1 bg-{{ $article->color_class }}-100 text-{{ $article->color_class }}-800 rounded-full text-sm font-medium hover:bg-{{ $article->color_class }}-200 transition">
+                                {{ $article->category_label }}
+                            </a>
                         </div>
                     </div>
+
+                    <!-- Partage -->
+                    <div>
+                        <span class="text-sm font-medium text-gray-700 mb-2 block">Partager :</span>
+                        <div class="flex gap-2">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}"
+                                target="_blank"
+                                class="w-10 h-10 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?url={{ urlencode(url()->current()) }}&text={{ urlencode($article->title) }}"
+                                target="_blank"
+                                class="w-10 h-10 flex items-center justify-center bg-blue-400 text-white rounded-full hover:bg-blue-500 transition">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(url()->current()) }}"
+                                target="_blank"
+                                class="w-10 h-10 flex items-center justify-center bg-blue-700 text-white rounded-full hover:bg-blue-800 transition">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="mailto:?subject={{ urlencode($article->title) }}&body={{ urlencode('Regarde cet article : ' . url()->current()) }}"
+                                class="w-10 h-10 flex items-center justify-center bg-gray-600 text-white rounded-full hover:bg-gray-700 transition">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
 </article>
 
 <!-- Articles similaires -->
@@ -189,28 +188,24 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @foreach($relatedArticles as $relatedArticle)
-                <div
-                    class="bg-white rounded-xl shadow-md overflow-hidden group hover:shadow-lg transition duration-300">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden group hover:shadow-lg transition duration-300">
                     @if($relatedArticle->image)
                     <div class="h-48 overflow-hidden">
                         <img src="{{ Storage::url($relatedArticle->image) }}" alt="{{ $relatedArticle->title }}"
                             class="w-full h-full object-cover transform group-hover:scale-105 transition duration-300">
                     </div>
                     @else
-                    <div
-                        class="h-48 flex items-center justify-center bg-gradient-to-r from-{{ $relatedArticle->color_class }}-400 to-{{ $relatedArticle->color_class }}-600">
+                    <div class="h-48 flex items-center justify-center bg-gradient-to-r from-{{ $relatedArticle->color_class }}-400 to-{{ $relatedArticle->color_class }}-600">
                         <i class="{{ $relatedArticle->icon ?? 'fas fa-newspaper' }} text-white text-5xl"></i>
                     </div>
                     @endif
 
                     <div class="p-6">
                         <div class="flex items-center gap-2 mb-3">
-                            <span
-                                class="px-3 py-1 bg-{{ $relatedArticle->color_class }}-100 text-{{ $relatedArticle->color_class }}-800 rounded-full text-xs font-medium">
+                            <span class="px-3 py-1 bg-{{ $relatedArticle->color_class }}-100 text-{{ $relatedArticle->color_class }}-800 rounded-full text-xs font-medium">
                                 {{ $relatedArticle->category_label }}
                             </span>
-                            <span class="text-gray-500 text-sm">{{ $relatedArticle->created_at->format('d M Y')
-                                }}</span>
+                            <span class="text-gray-500 text-sm">{{ $relatedArticle->created_at->format('d M Y') }}</span>
                         </div>
                         <h3 class="text-lg font-bold text-gray-900 mb-3 line-clamp-2">
                             {{ $relatedArticle->title }}

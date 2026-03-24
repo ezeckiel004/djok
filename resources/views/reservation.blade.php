@@ -947,16 +947,15 @@
                                 <i class="fas fa-phone-alt mr-4" style="color: var(--gold);"></i>
                                 <div>
                                     <p class="font-semibold">{{ trans('reservation.phone_label') }}</p>
-                                    <a href="tel:0176380017" class="hover:text-yellow-400 transition duration-300">01 76
-                                        38 00 17</a>
+                                    <a href="tel:0176380017" class="hover:text-yellow-400 transition duration-300">06 99 16 44 55</a>
                                 </div>
                             </div>
                             <div class="flex items-center">
                                 <i class="fas fa-envelope mr-4" style="color: var(--gold);"></i>
                                 <div>
                                     <p class="font-semibold">{{ trans('reservation.email_label') }}</p>
-                                    <a href="mailto:vtc@djokprestige.com"
-                                        class="hover:text-yellow-400 transition duration-300">vtc@djokprestige.com</a>
+                                    <a href="mailto:contact@djokprestige.com"
+                                        class="hover:text-yellow-400 transition duration-300">contact@djokprestige.com</a>
                                 </div>
                             </div>
                             <div class="flex items-center">
@@ -985,10 +984,13 @@
                                 <img src="https://th.bing.com/th/id/OIP.yzt6QuqyUyZTJ28KOYmQUgHaE3?w=212&h=180&c=7&r=0&o=7&pid=1.7&rm=3" alt="Carte Bancaire (CB)"
                                     class="h-8 w-auto object-contain">
 
-                                <!-- VISA -->
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa"
-                                    class="h-8 w-auto object-contain">
+                                {{-- <!-- VISA -->
+                                <img src="https://www.bing.com/images/search?view=detailV2&ccid=QY6PwjWT&id=EC0C1D870641AD8AE5FF9CF870DF744B6F38D3C5&thid=OIP.QY6PwjWTVLphia6E69VB7AHaEK&mediaurl=https%3a%2f%2flogos-world.net%2fwp-content%2fuploads%2f2020%2f06%2fVisa-Logo-1992.png&cdnurl=https%3a%2f%2fth.bing.com%2fth%2fid%2fR.418e8fc2359354ba6189ae84ebd541ec%3frik%3dxdM4b0t033D4nA%26pid%3dImgRaw%26r%3d0&exph=2160&expw=3840&q=visa+logo&FORM=IRPRST&ck=5FC83BC5CEE7C51F6E487E52583112CA&selectedIndex=3&itb=1" alt="Visa"
+                                    class="h-8 w-auto object-contain"> --}}
 
+                                <!-- VISA -->
+                                <img src="https://1000logos.net/wp-content/uploads/2017/06/VISA-Logo-2006.png" alt="VISA"
+                                    class="h-8 w-auto object-contain">
                                 <!-- MASTERCARD -->
                                 <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard"
                                     class="h-8 w-auto object-contain">

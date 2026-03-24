@@ -526,8 +526,7 @@
                     </div>
                     <h3 class="text-lg font-bold mb-2" style="color: white;">{{
                         trans('international.international_phone') }}</h3>
-                    <a href="tel:+33176380017" class="font-semibold hover:text-blue-300" style="color: #60a5fa;">+33 1
-                        76 38 00 17</a>
+                    <a href="tel:+33176380017" class="font-semibold hover:text-blue-300" style="color: #60a5fa;">06 99 16 44 55</a>
                 </div>
 
                 <div class="text-center p-6" style="background: #111; border: 1px solid #333;">
@@ -546,9 +545,9 @@
                     </div>
                     <h3 class="text-lg font-bold mb-2" style="color: white;">{{ trans('international.email_label') }}
                     </h3>
-                    <a href="mailto:international@djokprestige.com" class="font-semibold hover:text-yellow-300"
+                    <a href="mailto:contact@djokprestige.com" class="font-semibold hover:text-yellow-300"
                         style="color: var(--gold);">
-                        international@djokprestige.com
+                        contact@djokprestige.com
                     </a>
                 </div>
             </div>
