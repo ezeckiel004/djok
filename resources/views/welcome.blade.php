@@ -630,19 +630,9 @@
 </section>
 
 <!-- ============================================ -->
-<!-- SESSIONS DE FORMATION À VENIR - NOUVEAU -->
+<!-- SESSIONS DE FORMATION À VENIR -->
 <!-- ============================================ -->
-@php
-$upcomingSessions = App\Models\FormationSession::with('formation')
-    ->where('is_active', true)
-    ->where('start_date', '>=', now())
-    ->where('available_places', '>', 0)
-    ->orderBy('start_date', 'asc')
-    ->limit(6)
-    ->get();
-@endphp
-
-@if($upcomingSessions->count() > 0)
+@if(isset($upcomingSessions) && $upcomingSessions->count() > 0)
 <section class="py-20" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);">
     <div class="container px-4 mx-auto md:px-6">
         <div class="mb-12 text-center">
@@ -735,6 +725,24 @@ $upcomingSessions = App\Models\FormationSession::with('formation')
         @endif
     </div>
 </section>
+@else
+<!-- Si aucune session n'est disponible, on peut afficher un message (optionnel) -->
+@if(isset($upcomingSessions))
+<section class="py-20" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);">
+    <div class="container px-4 mx-auto md:px-6">
+        <div class="text-center py-12">
+            <div class="text-gray-400 mb-3">
+                <i class="fas fa-calendar-alt text-5xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-white mb-2">Aucune session programmée pour le moment</h3>
+            <p class="text-gray-400">Consultez notre catalogue de formations ou contactez-nous pour plus d'informations.</p>
+            <a href="{{ route('formation') }}" class="inline-block mt-4 px-6 py-2 rounded-lg" style="background: #b69246; color: black;">
+                Voir nos formations
+            </a>
+        </div>
+    </div>
+</section>
+@endif
 @endif
 
 <!-- NOUVELLE SECTION AVIS CLIENTS AVEC SLIDER -->
