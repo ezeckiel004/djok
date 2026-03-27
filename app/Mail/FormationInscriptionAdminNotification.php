@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\Participant;
 use App\Models\Formation;
+use App\Models\FormationSession;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -16,17 +17,19 @@ class FormationInscriptionAdminNotification extends Mailable
 
     public $participant;
     public $formation;
+    public $session;
 
-    public function __construct(Participant $participant, Formation $formation)
+    public function __construct(Participant $participant, Formation $formation, ?FormationSession $session = null)
     {
         $this->participant = $participant;
         $this->formation = $formation;
+        $this->session = $session;
     }
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Nouvelle inscription - ' . $this->formation->title . ' | DJOK PRESTIGE',
+            subject: 'Nouvelle inscription - ' . $this->formation->title . ($this->session ? ' (' . $this->session->name . ')' : '') . ' | DJOK PRESTIGE',
         );
     }
 
@@ -37,6 +40,7 @@ class FormationInscriptionAdminNotification extends Mailable
             with: [
                 'participant' => $this->participant,
                 'formation' => $this->formation,
+                'session' => $this->session,
             ],
         );
     }

@@ -79,6 +79,7 @@ class FormationController extends Controller
             Log::info('Content-Type: ' . $request->header('Content-Type'));
             Log::info('Has PDF files: ' . ($request->hasFile('pdf_files') ? 'OUI' : 'NON'));
             Log::info('Has Video files: ' . ($request->hasFile('video_files') ? 'OUI' : 'NON'));
+            Log::info('Has Programme PDF: ' . ($request->hasFile('programme_pdf') ? 'OUI' : 'NON'));
 
             // Validation des données de base
             Log::info('Validation des données de base...');
@@ -100,6 +101,7 @@ class FormationController extends Controller
                 'program' => 'nullable|string',
                 'requirements' => 'nullable|string',
                 'included_services' => 'nullable|string',
+                'programme_pdf' => 'nullable|file|mimes:pdf|max:51200', // 50MB max pour le PDF programme
             ]);
             Log::info('Validation des données de base réussie');
 
@@ -189,6 +191,13 @@ class FormationController extends Controller
             $formation = Formation::create($validated);
             Log::info('Formation créée avec ID: ' . $formation->id . ' - Titre: ' . $formation->title);
 
+            // Upload du PDF programme (brochure)
+            if ($request->hasFile('programme_pdf')) {
+                Log::info('Upload du PDF programme...');
+                $this->uploadProgrammePdf($formation, $request->file('programme_pdf'));
+                Log::info('Upload du PDF programme terminé');
+            }
+
             // Upload des fichiers PDF
             if ($request->hasFile('pdf_files')) {
                 Log::info('Début upload des fichiers PDF...');
@@ -236,7 +245,7 @@ class FormationController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('=== ERREUR DE VALIDATION ===');
             Log::error('Erreurs: ', $e->errors());
-            Log::error('Données reçues: ', $request->except(['pdf_files', 'video_files', 'new_pdf_files', 'new_video_files']));
+            Log::error('Données reçues: ', $request->except(['pdf_files', 'video_files', 'new_pdf_files', 'new_video_files', 'programme_pdf']));
 
             // Re-throw l'exception pour qu'elle soit gérée par Laravel
             throw $e;
@@ -259,7 +268,7 @@ class FormationController extends Controller
             }
 
             return back()
-                ->withInput($request->except(['pdf_files', 'video_files']))
+                ->withInput($request->except(['pdf_files', 'video_files', 'programme_pdf']))
                 ->withErrors([
                     'error' => 'Une erreur est survenue lors de la création de la formation: ' . $e->getMessage()
                 ]);
@@ -344,6 +353,7 @@ class FormationController extends Controller
                 'program' => 'nullable|string',
                 'requirements' => 'nullable|string',
                 'included_services' => 'nullable|string',
+                'programme_pdf' => 'nullable|file|mimes:pdf|max:51200', // 50MB max
             ]);
             Log::info('Validation des données de base réussie');
 
@@ -440,6 +450,23 @@ class FormationController extends Controller
             Log::info('Mise à jour de la formation...');
             $formation->update($validated);
             Log::info('Formation mise à jour avec succès');
+
+            // Gestion du PDF programme (brochure)
+            if ($request->hasFile('programme_pdf')) {
+                Log::info('Upload du nouveau PDF programme...');
+                // Supprimer l'ancien PDF s'il existe
+                $formation->deleteProgrammePdf();
+                // Upload du nouveau
+                $this->uploadProgrammePdf($formation, $request->file('programme_pdf'));
+                Log::info('Upload du nouveau PDF programme terminé');
+            }
+
+            // Si l'utilisateur a coché la case de suppression
+            if ($request->has('delete_programme_pdf') && $request->delete_programme_pdf == '1') {
+                Log::info('Suppression du PDF programme demandée...');
+                $formation->deleteProgrammePdf();
+                Log::info('PDF programme supprimé');
+            }
 
             // Gérer les médias existants (mise à jour des titres/descriptions)
             if ($request->has('media_titles')) {
@@ -555,7 +582,7 @@ class FormationController extends Controller
             Log::error('Trace: ' . $e->getTraceAsString());
 
             return back()
-                ->withInput($request->except(['new_pdf_files', 'new_video_files']))
+                ->withInput($request->except(['new_pdf_files', 'new_video_files', 'programme_pdf']))
                 ->withErrors([
                     'error' => 'Une erreur est survenue lors de la mise à jour: ' . $e->getMessage()
                 ]);
@@ -634,19 +661,19 @@ class FormationController extends Controller
                 $mediaDeleted = $formation->media()->delete();
                 Log::info('Entrées médias supprimées: ' . $mediaDeleted);
 
-                // 6. Supprimer le dossier de la formation
+                // 6. Supprimer le PDF programme s'il existe
+                if ($formation->programme_pdf && Storage::disk('public')->exists($formation->programme_pdf)) {
+                    Log::info('Suppression du PDF programme: ' . $formation->programme_pdf);
+                    Storage::disk('public')->delete($formation->programme_pdf);
+                }
+
+                // 7. Supprimer le dossier de la formation
                 $formationFolder = "formations/{$formation->id}";
                 if (Storage::disk('public')->exists($formationFolder)) {
                     Log::info('Suppression du dossier: ' . $formationFolder);
                     Storage::disk('public')->deleteDirectory($formationFolder);
                 } else {
                     Log::info('Dossier non trouvé: ' . $formationFolder);
-                }
-
-                // 7. Supprimer le PDF programme s'il existe
-                if ($formation->programme_pdf && Storage::disk('public')->exists($formation->programme_pdf)) {
-                    Log::info('Suppression du PDF programme: ' . $formation->programme_pdf);
-                    Storage::disk('public')->delete($formation->programme_pdf);
                 }
 
                 // 8. Enfin, supprimer la formation elle-même
@@ -684,6 +711,41 @@ class FormationController extends Controller
 
             return redirect()->route('admin.formations.index')
                 ->with('error', 'Erreur lors de la suppression de la formation: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Upload du PDF programme (brochure)
+     */
+    private function uploadProgrammePdf($formation, $file)
+    {
+        try {
+            $fileName = 'programme_' . Str::slug($formation->title) . '_' . time() . '.pdf';
+            $folder = "formations/{$formation->id}/programme";
+
+            // Créer le dossier s'il n'existe pas
+            if (!Storage::disk('public')->exists($folder)) {
+                Storage::disk('public')->makeDirectory($folder, 0755, true);
+            }
+
+            $path = $file->storeAs($folder, $fileName, 'public');
+
+            $formation->update([
+                'programme_pdf' => $path,
+                'programme_pdf_generated_at' => now(),
+            ]);
+
+            Log::info('PDF programme uploadé', [
+                'formation_id' => $formation->id,
+                'path' => $path
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur upload PDF programme', [
+                'formation_id' => $formation->id,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
         }
     }
 

@@ -12,6 +12,7 @@ class Participant extends Model
 
     protected $fillable = [
         'formation_id',
+        'session_id',        // <-- AJOUTER CETTE LIGNE !
         'user_id',
         'paiement_id',
         'nom',
@@ -47,6 +48,14 @@ class Participant extends Model
     public function formation(): BelongsTo
     {
         return $this->belongsTo(Formation::class);
+    }
+
+    /**
+     * Relation avec la session de formation
+     */
+    public function session(): BelongsTo
+    {
+        return $this->belongsTo(FormationSession::class, 'session_id');
     }
 
     /**

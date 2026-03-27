@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\InscriptionController as AdminInscriptionControll
 use App\Http\Controllers\Admin\ReservationController as AdminReservationController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use App\Http\Controllers\Admin\FormationController as AdminFormationController;
+use App\Http\Controllers\Admin\FormationSessionController as AdminFormationSessionController;
 use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Admin\VehicleController as AdminVehicleController;
 use App\Http\Controllers\Admin\FormationInternationaleController as AdminFormationInternationaleController;
@@ -28,7 +29,18 @@ Route::middleware(['auth', 'can:access-admin-dashboard'])->prefix('admin')->name
     Route::get('/statistics', [StatisticsController::class, 'index'])->name('statistics');
 
     // ==============================================
-    // E-LEARNING - NOUVEAU
+    // GESTION DES SESSIONS DE FORMATION
+    // ==============================================
+    Route::resource('sessions', AdminFormationSessionController::class);
+    Route::post('/sessions/{session}/toggle-status', [AdminFormationSessionController::class, 'toggleStatus'])
+        ->name('sessions.toggle-status');
+    Route::post('/sessions/{session}/adjust-places', [AdminFormationSessionController::class, 'adjustPlaces'])
+        ->name('sessions.adjust-places');
+    Route::get('/sessions/{session}/export', [AdminFormationSessionController::class, 'exportParticipants'])
+        ->name('sessions.export');
+
+    // ==============================================
+    // E-LEARNING
     // ==============================================
     Route::prefix('elearning')->name('elearning.')->group(function () {
         // Dashboard
@@ -48,7 +60,7 @@ Route::middleware(['auth', 'can:access-admin-dashboard'])->prefix('admin')->name
         Route::get('/acces/{id}', [AdminElearningController::class, 'showAcces'])->name('acces.show');
         Route::post('/acces/{id}/suspend', [AdminElearningController::class, 'suspendAcces'])->name('acces.suspend');
         Route::post('/acces/{id}/activate', [AdminElearningController::class, 'activateAcces'])->name('acces.activate');
-        Route::delete('/acces/{id}', [AdminElearningController::class, 'destroyAcces'])->name('acces.destroy'); // NOUVEAU
+        Route::delete('/acces/{id}', [AdminElearningController::class, 'destroyAcces'])->name('acces.destroy');
         Route::post('/acces/{id}/upload-certification', [AdminElearningController::class, 'uploadCertification'])->name('acces.upload-certification');
 
         // Détails QCM pour un accès spécifique

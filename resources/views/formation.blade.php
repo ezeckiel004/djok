@@ -93,12 +93,6 @@
                     </div>
                     <span class="text-sm text-center">{{ trans('formation.advantage_1') }}</span>
                 </div>
-                {{-- <div class="flex flex-col items-center text-white" style="flex: 0 0 auto; min-width: 200px;">
-                    <div class="flex items-center justify-center mb-4 w-14 h-14" style="background: #b89449;">
-                        <i class="text-xl text-black fas fa-euro-sign"></i>
-                    </div>
-                    <span class="text-sm text-center">{{ trans('formation.advantage_2') }}</span>
-                </div> --}}
                 <div class="flex flex-col items-center text-white" style="flex: 0 0 auto; min-width: 200px;">
                     <div class="flex items-center justify-center mb-4 w-14 h-14" style="background: #b89449;">
                         <i class="text-xl text-black fas fa-chalkboard-teacher"></i>
@@ -440,8 +434,8 @@
 
                         <!-- Boutons d'action -->
                         <div class="space-y-2">
-                            <!-- Bouton Programme PDF -->
-                            @if($formation->program || $formation->programme_pdf_exists)
+                            <!-- Bouton Programme PDF - NE S'AFFICHE QUE SI PDF UPLOADÉ -->
+                            @if($formation->programme_pdf_exists)
                             <a href="{{ $formation->programme_pdf_route }}" target="_blank"
                                 class="inline-flex items-center justify-center w-full px-3 py-2 text-xs font-semibold transition-all duration-300 rounded hover:bg-blue-800"
                                 style="background: #1e40af; color: white;"
@@ -1104,12 +1098,10 @@
         font-weight: bold;
         padding: 8px 16px;
         padding-right: 24px;
-        /* Plus d'espace à droite pour éviter la coupure */
         min-width: 160px;
         max-width: 200px;
         line-height: 1.2;
         text-align: center;
-        /* FORME FLÈCHE améliorée pour desktop - moins agressive */
         clip-path: polygon(0 0, 92% 0, 100% 50%, 92% 100%, 0 100%);
         display: flex;
         align-items: center;
@@ -1125,7 +1117,6 @@
         padding-right: 20px;
         line-height: 1.2;
         text-align: center;
-        /* FORME FLÈCHE pour mobile - moins agressive */
         clip-path: polygon(0 0, 96% 0, 100% 50%, 96% 100%, 0 100%);
         width: 100%;
         margin: 0;
@@ -1135,7 +1126,6 @@
         min-height: 60px;
     }
 
-    /* Container pour le texte dans les labels */
     .formation-label-desktop>div,
     .formation-label-mobile>div {
         width: 100%;
@@ -1145,7 +1135,6 @@
         hyphens: auto;
     }
 
-    /* Effet hover pour les boutons prix - TOUS LES ÉCRANS */
     .price-btn {
         position: relative;
         min-height: 40px;
@@ -1191,14 +1180,12 @@
         justify-content: center;
     }
 
-    /* Pour mobile/tablette */
     @media (max-width: 1024px) {
         .price-btn {
             min-height: 48px;
         }
     }
 
-    /* Style des lignes de formation */
     .formation-row {
         border-bottom: 1px solid #333;
     }
@@ -1207,7 +1194,6 @@
         border-bottom: none;
     }
 
-    /* Responsive */
     @media (max-width: 767px) {
         .formation-label-mobile {
             border-radius: 0;
@@ -1229,7 +1215,6 @@
             background-color: #1f2937;
         }
 
-        /* Ajustement pour grands écrans */
         @media (min-width: 1280px) {
             .formation-label-desktop {
                 max-width: 220px;
@@ -1242,11 +1227,9 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Effet hover sur les boutons prix desktop
         const priceButtons = document.querySelectorAll('.price-btn');
 
         priceButtons.forEach(button => {
-            // Pour desktop
             button.addEventListener('mouseenter', function() {
                 const priceText = this.querySelector('.price-text');
                 const hoverText = this.querySelector('.price-hover-text');
@@ -1271,7 +1254,6 @@
                 }
             });
 
-            // Pour mobile/tablette
             button.addEventListener('touchstart', function(e) {
                 e.preventDefault();
                 this.classList.add('touch-active');
@@ -1304,7 +1286,6 @@
                 }, 300);
             });
 
-            // Empêcher le comportement par défaut du touch
             button.addEventListener('touchmove', function(e) {
                 if (this.classList.contains('touch-active')) {
                     e.preventDefault();
@@ -1312,7 +1293,6 @@
             });
         });
 
-        // Prévenir le zoom sur double-tap sur mobile
         let lastTouchEnd = 0;
         document.addEventListener('touchend', function(event) {
             const now = (new Date()).getTime();

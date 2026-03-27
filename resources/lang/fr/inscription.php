@@ -22,6 +22,9 @@ return [
         'connected_as' => 'Vous êtes connecté(e) en tant que',
         'info_prefilled' => 'Certaines informations ont été pré-remplies pour vous faciliter la tâche. Vous pouvez les modifier si nécessaire.',
 
+        // AJOUT DE LA CLÉ min_age ICI
+        'min_age' => 'Âge minimum : 16 ans',
+
         'sections' => [
             'personal_info' => 'Informations personnelles',
             'address' => 'Adresse',
@@ -70,6 +73,11 @@ return [
             'cpf_desc' => 'Utilisation de vos heures de formation DIF',
             'pole_emploi' => 'Pôle Emploi',
             'pole_emploi_desc' => 'Prise en charge par Pôle Emploi (AIF)',
+        ],
+
+        'session' => [
+            'selected' => 'Vous vous inscrivez à la session :',
+            'places_left' => 'Places restantes',
         ],
 
         'terms' => [

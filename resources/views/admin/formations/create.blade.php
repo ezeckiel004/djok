@@ -352,21 +352,62 @@ Certificat de fin de formation
                     </div>
                 </div>
 
+                <!-- Programme détaillé PDF (Brochure) -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-file-pdf text-djok-yellow mr-2"></i>
+                        Programme détaillé (PDF)
+                    </h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Cette section permet d'uploader un PDF unique qui servira de brochure commerciale pour présenter le programme détaillé de la formation.
+                        Ce PDF sera téléchargeable publiquement sur la page de la formation.
+                    </p>
+
+                    <div class="border border-gray-200 rounded-lg p-4 bg-white">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="programme_pdf" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Fichier PDF du programme
+                                </label>
+                                <input type="file" name="programme_pdf" id="programme_pdf" accept="application/pdf"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100">
+                                <p class="text-xs text-gray-500 mt-1">PDF uniquement, taille max : 50 Mo</p>
+                                @error('programme_pdf')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="flex items-end">
+                                <div class="w-full p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                                        <span class="text-sm text-blue-700">Ce PDF remplacera le programme texte généré automatiquement sur la page publique.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-3">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Ce PDF sera affiché comme "Programme détaillé" sur la page publique de la formation, à la place du contenu texte.
+                        </p>
+                    </div>
+                </div>
+
                 <!-- Fichiers multimédias -->
                 <div class="bg-gray-50 rounded-lg p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                         <i class="fas fa-file-alt text-djok-yellow mr-2"></i>
-                        Fichiers multimédias
+                        Fichiers multimédias (Ressources pédagogiques)
                     </h3>
                     <p class="text-sm text-gray-600 mb-6">
-                        Pour les formations en ligne ou mixtes, vous pouvez ajouter des fichiers PDF et des vidéos.
+                        Pour les formations en ligne ou mixtes, vous pouvez ajouter des fichiers PDF et des vidéos qui serviront de ressources pédagogiques.
+                        Ces fichiers seront accessibles uniquement aux utilisateurs ayant acheté la formation.
                     </p>
 
                     <!-- Fichiers PDF -->
                     <div class="mb-8">
                         <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
                             <i class="fas fa-file-pdf text-red-500 mr-2"></i>
-                            Fichiers PDF
+                            Fichiers PDF (Cours)
                         </h4>
                         <div id="pdf-files-container" class="space-y-4">
                             <div class="pdf-file-group border border-gray-200 rounded-lg p-4 bg-white">
@@ -535,20 +576,20 @@ Certificat de fin de formation
     });
 
     // Vérification des limites de fichiers
-    function checkFileSize(fileInput, maxSizeGB = 2) {
-        const maxSize = maxSizeGB * 1024 * 1024 * 1024; // Convertir GB en bytes
+    function checkFileSize(fileInput, maxSizeMB) {
+        const maxSize = maxSizeMB * 1024 * 1024; // Convertir MB en bytes
         let totalSize = 0;
 
         for (let file of fileInput.files) {
             totalSize += file.size;
             if (file.size > maxSize) {
-                alert('Le fichier "' + file.name + '" dépasse ' + maxSizeGB + 'GB');
+                alert('Le fichier "' + file.name + '" dépasse ' + maxSizeMB + 'MB');
                 return false;
             }
         }
 
         if (totalSize > maxSize) {
-            alert('La taille totale des fichiers dépasse ' + maxSizeGB + 'GB');
+            alert('La taille totale des fichiers dépasse ' + maxSizeMB + 'MB');
             return false;
         }
 
@@ -559,15 +600,19 @@ Certificat de fin de formation
     document.querySelectorAll('input[type="file"]').forEach(input => {
         input.addEventListener('change', function() {
             if (this.accept.includes('video')) {
-                if (!checkFileSize(this, 2)) { // 2GB pour les vidéos
+                if (!checkFileSize(this, 2048)) { // 2GB pour les vidéos
                     this.value = '';
                 }
             } else if (this.accept.includes('image')) {
-                if (!checkFileSize(this, 0.002)) { // 2MB pour les images
+                if (!checkFileSize(this, 2)) { // 2MB pour les images
                     this.value = '';
                 }
-            } else if (this.name.includes('pdf')) {
-                if (!checkFileSize(this, 0.5)) { // 500MB pour les PDF
+            } else if (this.name.includes('pdf') && this.id !== 'programme_pdf') {
+                if (!checkFileSize(this, 500)) { // 500MB pour les PDF de cours
+                    this.value = '';
+                }
+            } else if (this.id === 'programme_pdf') {
+                if (!checkFileSize(this, 50)) { // 50MB pour le PDF programme
                     this.value = '';
                 }
             }
@@ -601,13 +646,13 @@ Certificat de fin de formation
         const units = ['B', 'KB', 'MB', 'GB', 'TB'];
         let unitIndex = 0;
 
-        while (bytes >= 1024 && unitIndex < units.length - 1) { 
-            bytes /= 1024; 
-            unitIndex++; 
-        } 
-        return bytes.toFixed(2) + ' ' + units[unitIndex]; 
+        while (bytes >= 1024 && unitIndex < units.length - 1) {
+            bytes /= 1024;
+            unitIndex++;
+        }
+        return bytes.toFixed(2) + ' ' + units[unitIndex];
     }
-    
+
     // Initialiser pour tous les inputs file existants
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('input[type="file"]').forEach((input, index) => {

@@ -399,12 +399,71 @@
                     </div>
                 </div>
 
+                <!-- Programme détaillé PDF (Brochure) -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-file-pdf text-djok-yellow mr-2"></i>
+                        Programme détaillé (PDF)
+                    </h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Cette section permet d'uploader un PDF unique qui servira de brochure commerciale pour présenter le programme détaillé de la formation.
+                        Ce PDF sera téléchargeable publiquement sur la page de la formation.
+                    </p>
+
+                    <div class="border border-gray-200 rounded-lg p-4 bg-white">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="programme_pdf" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Nouveau fichier PDF du programme
+                                </label>
+                                <input type="file" name="programme_pdf" id="programme_pdf" accept="application/pdf"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100">
+                                <p class="text-xs text-gray-500 mt-1">PDF uniquement, taille max : 50 Mo (laisser vide pour conserver le PDF actuel)</p>
+                                @error('programme_pdf')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="flex items-end">
+                                @if($formation->programme_pdf_exists)
+                                <div class="w-full p-3 bg-green-50 rounded-lg border border-green-200">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                                            <span class="text-sm text-green-700">PDF actuel :</span>
+                                            <a href="{{ $formation->programme_pdf_url }}" target="_blank"
+                                               class="text-sm font-semibold text-blue-600 hover:underline ml-2">
+                                                {{ basename($formation->programme_pdf) }}
+                                            </a>
+                                        </div>
+                                        <label class="flex items-center text-sm text-red-600 cursor-pointer">
+                                            <input type="checkbox" name="delete_programme_pdf" value="1" class="mr-1">
+                                            Supprimer
+                                        </label>
+                                    </div>
+                                </div>
+                                @else
+                                <div class="w-full p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                                        <span class="text-sm text-blue-700">Aucun PDF programme n'est actuellement associé à cette formation.</span>
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-3">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Ce PDF sera affiché comme "Programme détaillé" sur la page publique de la formation.
+                        </p>
+                    </div>
+                </div>
+
                 <!-- Fichiers multimédias existants -->
                 @if($formation->media->count() > 0)
                 <div class="bg-gray-50 rounded-lg p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                         <i class="fas fa-photo-video text-djok-yellow mr-2"></i>
-                        Fichiers multimédias existants
+                        Fichiers multimédias existants (Ressources pédagogiques)
                     </h3>
                     <div class="space-y-4" id="media-container" data-sortable>
                         @foreach($formation->media()->orderBy('order')->get() as $media)
@@ -492,17 +551,17 @@
                 <div class="bg-gray-50 rounded-lg p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                         <i class="fas fa-plus-circle text-djok-yellow mr-2"></i>
-                        Ajouter de nouveaux fichiers
+                        Ajouter de nouveaux fichiers (Ressources pédagogiques)
                     </h3>
                     <p class="text-sm text-gray-600 mb-6">
-                        Pour les formations en ligne ou mixtes, vous pouvez ajouter des fichiers PDF et des vidéos.
+                        Pour les formations en ligne ou mixtes, vous pouvez ajouter des fichiers PDF et des vidéos qui serviront de ressources pédagogiques.
                     </p>
 
                     <!-- Nouveaux fichiers PDF -->
                     <div class="mb-8">
                         <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
                             <i class="fas fa-file-pdf text-red-500 mr-2"></i>
-                            Nouveaux fichiers PDF
+                            Nouveaux fichiers PDF (Cours)
                         </h4>
                         <div id="new-pdf-files-container" class="space-y-4">
                             <div class="new-pdf-file-group border border-gray-200 rounded-lg p-4 bg-white">
@@ -706,24 +765,31 @@
                     e.preventDefault();
                 }
             }
+
+            const deleteProgrammePdf = form.querySelector('input[name="delete_programme_pdf"]:checked');
+            if (deleteProgrammePdf) {
+                if (!confirm('Êtes-vous sûr de vouloir supprimer le PDF programme ?')) {
+                    e.preventDefault();
+                }
+            }
         });
     });
 
     // Vérification des limites de fichiers
-    function checkFileSize(fileInput, maxSizeGB = 2) {
-        const maxSize = maxSizeGB * 1024 * 1024 * 1024; // Convertir GB en bytes
+    function checkFileSize(fileInput, maxSizeMB) {
+        const maxSize = maxSizeMB * 1024 * 1024;
         let totalSize = 0;
 
         for (let file of fileInput.files) {
             totalSize += file.size;
             if (file.size > maxSize) {
-                alert('Le fichier "' + file.name + '" dépasse ' + maxSizeGB + 'GB');
+                alert('Le fichier "' + file.name + '" dépasse ' + maxSizeMB + 'MB');
                 return false;
             }
         }
 
         if (totalSize > maxSize) {
-            alert('La taille totale des fichiers dépasse ' + maxSizeGB + 'GB');
+            alert('La taille totale des fichiers dépasse ' + maxSizeMB + 'MB');
             return false;
         }
 
@@ -734,15 +800,19 @@
     document.querySelectorAll('input[type="file"]').forEach(input => {
         input.addEventListener('change', function() {
             if (this.accept.includes('video')) {
-                if (!checkFileSize(this, 2)) { // 2GB pour les vidéos
+                if (!checkFileSize(this, 2048)) {
                     this.value = '';
                 }
             } else if (this.accept.includes('image')) {
-                if (!checkFileSize(this, 0.002)) { // 2MB pour les images
+                if (!checkFileSize(this, 2)) {
                     this.value = '';
                 }
-            } else if (this.name.includes('pdf')) {
-                if (!checkFileSize(this, 0.5)) { // 500MB pour les PDF
+            } else if (this.name.includes('pdf') && this.id !== 'programme_pdf') {
+                if (!checkFileSize(this, 500)) {
+                    this.value = '';
+                }
+            } else if (this.id === 'programme_pdf') {
+                if (!checkFileSize(this, 50)) {
                     this.value = '';
                 }
             }

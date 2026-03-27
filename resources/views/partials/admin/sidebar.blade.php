@@ -20,12 +20,11 @@
             @php
             $currentRoute = request()->route()->getName();
             $pendingCount = \App\Models\Contact::where('status', 'new')->count();
-            $pendingInternationalCount = \App\Models\DemandeFormationInternationale::where('statut',
-            'nouveau')->count();
+            $pendingInternationalCount = \App\Models\DemandeFormationInternationale::where('statut', 'nouveau')->count();
             $pendingConciergerieCount = \App\Models\ConciergerieDemande::where('statut', 'nouvelle')->count();
             $pendingParticipantsCount = \App\Models\Participant::where('statut', 'en_attente')->count();
 
-            // AJOUTER LE COMPTEUR D'ARTICLES EN ATTENTE
+            // Compteur articles
             $pendingArticlesCount = \App\Models\Article::where('published', false)->count();
             $draftArticlesCount = \App\Models\Article::where('published', false)->count();
             $publishedArticlesCount = \App\Models\Article::where('published', true)->count();
@@ -35,11 +34,16 @@
             $draftCampaignsCount = \App\Models\NewsletterCampaign::where('status', 'draft')->count();
             $scheduledCampaignsCount = \App\Models\NewsletterCampaign::where('status', 'scheduled')->count();
 
-            // Compteur paiements (AJOUTÉ)
+            // Compteur paiements
             $pendingPaiementsCount = \App\Models\Paiement::where('status', 'pending')->count();
 
-            // Compteur réservations en attente (AJOUTÉ)
+            // Compteur réservations en attente
             $pendingReservationsCount = \App\Models\Reservation::where('status', 'pending')->count();
+
+            // Compteur des sessions actives à venir
+            $activeSessionsCount = \App\Models\FormationSession::where('is_active', true)
+                ->where('start_date', '>=', now())
+                ->count();
             @endphp
 
             <!-- Dashboard -->
@@ -70,7 +74,19 @@
                 <span>Formations</span>
             </a>
 
-            <!-- PAIEMENTS - AJOUTÉ ICI -->
+            <!-- SESSIONS DE FORMATION - NOUVEAU LIEN -->
+            <a href="{{ route('admin.sessions.index') }}"
+                class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.sessions') ? 'bg-gray-700' : '' }} mb-2">
+                <i class="w-5 mr-3 text-center fas fa-calendar-alt"></i>
+                <span class="flex-1">Sessions de formation</span>
+                @if($activeSessionsCount > 0)
+                <span class="px-2 py-1 text-xs text-center text-white bg-green-500 rounded-full min-w-6">
+                    {{ $activeSessionsCount }}
+                </span>
+                @endif
+            </a>
+
+            <!-- PAIEMENTS -->
             <a href="{{ route('admin.paiements.index') }}"
                 class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.paiements') ? 'bg-gray-700' : '' }} mb-2">
                 <i class="w-5 mr-3 text-center fas fa-credit-card"></i>
@@ -82,7 +98,7 @@
                 @endif
             </a>
 
-            <!-- PARTICIPANTS - AJOUTÉ ICI -->
+            <!-- PARTICIPANTS -->
             <a href="{{ route('admin.participants.index') }}"
                 class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.participants') ? 'bg-gray-700' : '' }} mb-2">
                 <i class="w-5 mr-3 text-center fas fa-user-graduate"></i>
@@ -95,7 +111,7 @@
             </a>
 
             <!-- ============================================ -->
-            <!-- ARTICLES DU BLOG - SECTION AJOUTÉE -->
+            <!-- ARTICLES DU BLOG - SECTION -->
             <!-- ============================================ -->
             <div class="pt-4 mt-4 mb-4 border-t border-gray-700">
                 <p class="px-4 mb-2 text-xs font-semibold tracking-wider text-gray-400 uppercase">Blog</p>
@@ -106,8 +122,7 @@
                     <i class="w-5 mr-3 text-center fas fa-newspaper"></i>
                     <span class="flex-1">Articles</span>
                     @if($pendingArticlesCount > 0)
-                    <span
-                        class="px-2 py-1 text-xs text-center text-white bg-yellow-500 rounded-full min-w-6 animate-pulse">
+                    <span class="px-2 py-1 text-xs text-center text-white bg-yellow-500 rounded-full min-w-6 animate-pulse">
                         {{ $pendingArticlesCount }}
                     </span>
                     @endif
@@ -171,14 +186,13 @@
                     <span>Réservations Location</span>
                 </a>
 
-                <!-- RÉSERVATIONS VTC - NOUVEAU LIEN -->
+                <!-- RÉSERVATIONS VTC -->
                 <a href="{{ route('admin.reservations.index') }}"
                     class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.reservations') ? 'bg-gray-700' : '' }} mb-2">
                     <i class="w-5 mr-3 text-center fas fa-taxi"></i>
                     <span class="flex-1">Réservations VTC</span>
                     @if($pendingReservationsCount > 0)
-                    <span
-                        class="px-2 py-1 text-xs text-center text-white bg-yellow-500 rounded-full min-w-6 animate-pulse">
+                    <span class="px-2 py-1 text-xs text-center text-white bg-yellow-500 rounded-full min-w-6 animate-pulse">
                         {{ $pendingReservationsCount }}
                     </span>
                     @endif
@@ -224,7 +238,7 @@
                     <span>QCM</span>
                 </a>
 
-                <!-- SESSIONS ACTIVES E-LEARNING - NOUVEAU LIEN AJOUTÉ -->
+                <!-- SESSIONS ACTIVES E-LEARNING -->
                 <a href="{{ route('admin.elearning.sessions.active') }}"
                     class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.elearning.sessions') ? 'bg-gray-700' : '' }} mb-2">
                     <i class="w-5 mr-3 text-center fas fa-user-clock"></i>
@@ -232,7 +246,7 @@
                 </a>
             </div>
 
-            <!-- NEWSLETTER - SECTION AJOUTÉE -->
+            <!-- NEWSLETTER - SECTION -->
             <div class="pt-4 mt-4 mb-4 border-t border-gray-700">
                 <p class="px-4 mb-2 text-xs font-semibold tracking-wider text-gray-400 uppercase">Newsletter</p>
 
@@ -242,8 +256,7 @@
                     <i class="w-5 mr-3 text-center fas fa-users"></i>
                     <span class="flex-1">Abonnés</span>
                     @if($pendingNewsletterCount > 0)
-                    <span
-                        class="px-2 py-1 text-xs text-center text-white bg-yellow-500 rounded-full min-w-6 animate-pulse">
+                    <span class="px-2 py-1 text-xs text-center text-white bg-yellow-500 rounded-full min-w-6 animate-pulse">
                         {{ $pendingNewsletterCount }}
                     </span>
                     @endif
@@ -376,12 +389,11 @@
             @php
             $currentRoute = request()->route()->getName();
             $pendingCount = \App\Models\Contact::where('status', 'new')->count();
-            $pendingInternationalCount = \App\Models\DemandeFormationInternationale::where('statut',
-            'nouveau')->count();
+            $pendingInternationalCount = \App\Models\DemandeFormationInternationale::where('statut', 'nouveau')->count();
             $pendingConciergerieCount = \App\Models\ConciergerieDemande::where('statut', 'nouvelle')->count();
             $pendingParticipantsCount = \App\Models\Participant::where('statut', 'en_attente')->count();
 
-            // AJOUTER LE COMPTEUR D'ARTICLES POUR MOBILE
+            // Compteur articles pour mobile
             $pendingArticlesCount = \App\Models\Article::where('published', false)->count();
 
             // Compteurs newsletter pour mobile
@@ -389,14 +401,19 @@
             $draftCampaignsCount = \App\Models\NewsletterCampaign::where('status', 'draft')->count();
             $scheduledCampaignsCount = \App\Models\NewsletterCampaign::where('status', 'scheduled')->count();
 
-            // Compteur paiements pour mobile (AJOUTÉ)
+            // Compteur paiements pour mobile
             $pendingPaiementsCount = \App\Models\Paiement::where('status', 'pending')->count();
 
-            // Compteur réservations pour mobile (AJOUTÉ)
+            // Compteur réservations pour mobile
             $pendingReservationsCount = \App\Models\Reservation::where('status', 'pending')->count();
+
+            // Compteur des sessions actives à venir pour mobile
+            $activeSessionsCount = \App\Models\FormationSession::where('is_active', true)
+                ->where('start_date', '>=', now())
+                ->count();
             @endphp
 
-            <!-- Les mêmes liens que le sidebar desktop -->
+            <!-- Dashboard Mobile -->
             <a href="{{ route('admin.dashboard') }}"
                 class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.dashboard') ? 'bg-gray-700' : '' }} mb-2"
                 @click="sidebarOpen = false">
@@ -404,6 +421,7 @@
                 <span>Tableau de bord</span>
             </a>
 
+            <!-- Utilisateurs Mobile -->
             <a href="{{ route('admin.users.index') }}"
                 class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.users') ? 'bg-gray-700' : '' }} mb-2"
                 @click="sidebarOpen = false">
@@ -411,7 +429,7 @@
                 <span>Utilisateurs</span>
             </a>
 
-            <!-- Services (Mobile) -->
+            <!-- Services Mobile -->
             <a href="{{ route('admin.services.index') }}"
                 class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.services') ? 'bg-gray-700' : '' }} mb-2"
                 @click="sidebarOpen = false">
@@ -419,6 +437,7 @@
                 <span>Services</span>
             </a>
 
+            <!-- Formations Mobile -->
             <a href="{{ route('admin.formations.index') }}"
                 class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.formations') ? 'bg-gray-700' : '' }} mb-2"
                 @click="sidebarOpen = false">
@@ -426,7 +445,20 @@
                 <span>Formations</span>
             </a>
 
-            <!-- PAIEMENTS MOBILE - AJOUTÉ ICI -->
+            <!-- SESSIONS DE FORMATION MOBILE - NOUVEAU LIEN -->
+            <a href="{{ route('admin.sessions.index') }}"
+                class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.sessions') ? 'bg-gray-700' : '' }} mb-2"
+                @click="sidebarOpen = false">
+                <i class="w-5 mr-3 text-center fas fa-calendar-alt"></i>
+                <span class="flex-1">Sessions de formation</span>
+                @if($activeSessionsCount > 0)
+                <span class="px-2 py-1 text-xs text-center text-white bg-green-500 rounded-full min-w-6">
+                    {{ $activeSessionsCount }}
+                </span>
+                @endif
+            </a>
+
+            <!-- PAIEMENTS MOBILE -->
             <a href="{{ route('admin.paiements.index') }}"
                 class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.paiements') ? 'bg-gray-700' : '' }} mb-2"
                 @click="sidebarOpen = false">
@@ -453,7 +485,7 @@
             </a>
 
             <!-- ============================================ -->
-            <!-- ARTICLES DU BLOG MOBILE - SECTION AJOUTÉE -->
+            <!-- ARTICLES DU BLOG MOBILE - SECTION -->
             <!-- ============================================ -->
             <div class="pt-4 mt-4 mb-4 border-t border-gray-700">
                 <p class="px-4 mb-2 text-xs font-semibold tracking-wider text-gray-400 uppercase">Blog</p>
@@ -465,8 +497,7 @@
                     <i class="w-5 mr-3 text-center fas fa-newspaper"></i>
                     <span class="flex-1">Articles</span>
                     @if($pendingArticlesCount > 0)
-                    <span
-                        class="px-2 py-1 text-xs text-center text-white bg-yellow-500 rounded-full min-w-6 animate-pulse">
+                    <span class="px-2 py-1 text-xs text-center text-white bg-yellow-500 rounded-full min-w-6 animate-pulse">
                         {{ $pendingArticlesCount }}
                     </span>
                     @endif
@@ -482,6 +513,7 @@
             </div>
             <!-- ============================================ -->
 
+            <!-- Formation Internationale Mobile -->
             <a href="{{ route('admin.demandes-formation-internationale.index') }}"
                 class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.demandes-formation-internationale') ? 'bg-gray-700' : '' }} mb-2"
                 @click="sidebarOpen = false">
@@ -494,6 +526,7 @@
                 @endif
             </a>
 
+            <!-- Conciergerie Mobile -->
             <a href="{{ route('admin.conciergerie-demandes.index') }}"
                 class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.conciergerie-demandes') ? 'bg-gray-700' : '' }} mb-2"
                 @click="sidebarOpen = false">
@@ -518,6 +551,14 @@
                     <span>Véhicules</span>
                 </a>
 
+                <!-- Catégories de véhicules Mobile -->
+                <a href="{{ route('admin.vehicle-categories.index') }}"
+                    class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.vehicle-categories') ? 'bg-gray-700' : '' }} mb-2"
+                    @click="sidebarOpen = false">
+                    <i class="w-5 mr-3 text-center fas fa-tags"></i>
+                    <span>Catégories véhicules</span>
+                </a>
+
                 <!-- Réservations Location Mobile -->
                 <a href="{{ route('admin.location-reservations.index') }}"
                     class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.location-reservations') ? 'bg-gray-700' : '' }} mb-2"
@@ -526,15 +567,14 @@
                     <span>Réservations Location</span>
                 </a>
 
-                <!-- RÉSERVATIONS VTC MOBILE - NOUVEAU LIEN -->
+                <!-- RÉSERVATIONS VTC MOBILE -->
                 <a href="{{ route('admin.reservations.index') }}"
                     class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.reservations') ? 'bg-gray-700' : '' }} mb-2"
                     @click="sidebarOpen = false">
                     <i class="w-5 mr-3 text-center fas fa-taxi"></i>
                     <span class="flex-1">Réservations VTC</span>
                     @if($pendingReservationsCount > 0)
-                    <span
-                        class="px-2 py-1 text-xs text-center text-white bg-yellow-500 rounded-full min-w-6 animate-pulse">
+                    <span class="px-2 py-1 text-xs text-center text-white bg-yellow-500 rounded-full min-w-6 animate-pulse">
                         {{ $pendingReservationsCount }}
                     </span>
                     @endif
@@ -585,7 +625,7 @@
                     <span>QCM</span>
                 </a>
 
-                <!-- SESSIONS ACTIVES E-LEARNING MOBILE - NOUVEAU LIEN AJOUTÉ -->
+                <!-- SESSIONS ACTIVES E-LEARNING MOBILE -->
                 <a href="{{ route('admin.elearning.sessions.active') }}"
                     class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.elearning.sessions') ? 'bg-gray-700' : '' }} mb-2"
                     @click="sidebarOpen = false">
@@ -594,7 +634,7 @@
                 </a>
             </div>
 
-            <!-- NEWSLETTER MOBILE - SECTION AJOUTÉE -->
+            <!-- NEWSLETTER MOBILE - SECTION -->
             <div class="pt-4 mt-4 mb-4 border-t border-gray-700">
                 <p class="px-4 mb-2 text-xs font-semibold tracking-wider text-gray-400 uppercase">Newsletter</p>
 
@@ -605,8 +645,7 @@
                     <i class="w-5 mr-3 text-center fas fa-users"></i>
                     <span class="flex-1">Abonnés</span>
                     @if($pendingNewsletterCount > 0)
-                    <span
-                        class="px-2 py-1 text-xs text-center text-white bg-yellow-500 rounded-full min-w-6 animate-pulse">
+                    <span class="px-2 py-1 text-xs text-center text-white bg-yellow-500 rounded-full min-w-6 animate-pulse">
                         {{ $pendingNewsletterCount }}
                     </span>
                     @endif
@@ -653,6 +692,7 @@
                 </a>
             </div>
 
+            <!-- Messages Mobile -->
             <a href="{{ route('admin.contacts.index') }}"
                 class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.contacts') ? 'bg-gray-700' : '' }} mb-2"
                 @click="sidebarOpen = false">
@@ -665,6 +705,7 @@
                 @endif
             </a>
 
+            <!-- Statistiques Mobile -->
             <a href="{{ route('admin.statistics') }}"
                 class="flex items-center py-3 px-4 rounded-lg hover:bg-gray-700 {{ str_starts_with($currentRoute, 'admin.statistics') ? 'bg-gray-700' : '' }} mb-2"
                 @click="sidebarOpen = false">

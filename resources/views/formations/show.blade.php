@@ -119,22 +119,14 @@
                         <i class="fas fa-certificate mr-1"></i>{{ __('formation_show.badge_certified') }}
                     </span>
                     @endif
-
-                    <!-- CPF -->
-                    @if($formation->is_financeable_cpf)
-                    <span class="px-3 py-1.5 text-sm font-medium rounded-full"
-                        style="background: rgba(168, 85, 247, 0.2); color: #a855f7;">
-                        <i class="fas fa-euro-sign mr-1"></i>{{ __('formation_show.badge_cpf') }}
-                    </span>
-                    @endif
                 </div>
 
                 <p class="text-lg mb-6 max-w-3xl" style="color: #ccc;">
                     {{ Str::limit(strip_tags($formation->description), 200) }}
                 </p>
 
-                <!-- Bouton Télécharger le programme PDF -->
-                @if($formation->program || $formation->programme_pdf_exists)
+                <!-- Bouton Télécharger le programme PDF - NE S'AFFICHE QUE SI PDF UPLOADÉ -->
+                @if($formation->programme_pdf_exists)
                 <div class="mt-6">
                     <a href="{{ $formation->programme_pdf_route }}" target="_blank"
                         class="inline-flex items-center px-6 py-3 font-semibold transition-all duration-300 hover:bg-blue-800 rounded-lg"
@@ -220,8 +212,8 @@
                         {{ __('formation_show.more_info_button') }}
                     </a>
 
-                    <!-- Bouton Programme PDF (version compacte) -->
-                    @if($formation->program || $formation->programme_pdf_exists)
+                    <!-- Bouton Programme PDF (version compacte) - NE S'AFFICHE QUE SI PDF UPLOADÉ -->
+                    @if($formation->programme_pdf_exists)
                     <div class="mt-4">
                         <a href="{{ $formation->programme_pdf_route }}" target="_blank"
                             class="w-full inline-flex items-center justify-center px-4 py-2.5 font-semibold transition-all duration-300 hover:bg-blue-800 rounded"
@@ -489,8 +481,8 @@
                             <div style="color: #888;">{{ __('formation_show.price_ttc') }}</div>
                         </div>
 
-                        <!-- Bouton Programme PDF dans la carte fixe -->
-                        @if($formation->program || $formation->programme_pdf_exists)
+                        <!-- Bouton Programme PDF dans la carte fixe - NE S'AFFICHE QUE SI PDF UPLOADÉ -->
+                        @if($formation->programme_pdf_exists)
                         <div class="mb-4">
                             <a href="{{ $formation->programme_pdf_route }}" target="_blank"
                                 class="w-full inline-flex items-center justify-center px-4 py-3 font-semibold transition-all duration-300 hover:bg-blue-800 rounded"
@@ -557,31 +549,18 @@
                             </div>
                         </div>
 
-                        <!-- Financement -->
-                        @if($formation->is_financeable_cpf)
-                        <div class="mt-6 p-4 rounded-lg" style="background: rgba(168, 85, 247, 0.1);">
-                            <h4 class="font-bold mb-2 flex items-center" style="color: #a855f7;">
-                                <i class="fas fa-euro-sign mr-2"></i>
-                                {{ __('formation_show.cpf_funding') }}
-                            </h4>
-                            <p class="text-sm" style="color: #d8b4fe;">
-                                {{ __('formation_show.cpf_funding_desc') }}
-                            </p>
-                        </div>
-                        @endif
-
                         <!-- Contact rapide -->
                         <div class="mt-6 pt-6" style="border-top: 1px solid #333;">
                             <h4 class="font-bold mb-3" style="color: white;">{{ __('formation_show.quick_questions') }}
                             </h4>
                             <div class="space-y-2">
-                                <a href="tel:0176380017"
+                                <a href="tel:0699164455"
                                     class="flex items-center transition-colors duration-200 hover:text-var(--gold)"
                                     style="color: #ccc;">
                                     <i class="fas fa-phone-alt mr-3" style="color: var(--gold);"></i>
                                     <span>{{ __('formation_show.quick_contact_phone') }}</span>
                                 </a>
-                                <a href="mailto:formation@djokprestige.com"
+                                <a href="mailto:contact@djokprestige.com"
                                     class="flex items-center transition-colors duration-200 hover:text-var(--gold)"
                                     style="color: #ccc;">
                                     <i class="fas fa-envelope mr-3" style="color: var(--gold);"></i>
@@ -617,8 +596,8 @@
                                     }}</h4>
                                 <div class="text-sm mb-2" style="color: #888;">{{ $similar->duree ??
                                     $similar->duration_hours.'h' }}</div>
-                                <!-- Bouton Programme PDF pour les formations similaires -->
-                                @if($similar->program || $similar->programme_pdf_exists)
+                                <!-- Bouton Programme PDF pour les formations similaires - NE S'AFFICHE QUE SI PDF UPLOADÉ -->
+                                @if($similar->programme_pdf_exists)
                                 <div class="mt-2">
                                     <a href="{{ $similar->programme_pdf_route }}" target="_blank"
                                         class="inline-flex items-center px-3 py-1.5 text-xs font-semibold transition-all duration-300 hover:bg-blue-800 rounded"
@@ -767,8 +746,8 @@
                                         __('formation_show.type_presentiel') }}
                                     </span>
                                 </div>
-                                <!-- Bouton Programme PDF dans le formulaire -->
-                                @if($formation->program || $formation->programme_pdf_exists)
+                                <!-- Bouton Programme PDF dans le formulaire - NE S'AFFICHE QUE SI PDF UPLOADÉ -->
+                                @if($formation->programme_pdf_exists)
                                 <div class="mt-3">
                                     <a href="{{ $formation->programme_pdf_route }}" target="_blank"
                                         class="inline-flex items-center px-3 py-2 text-xs font-semibold transition-all duration-300 hover:bg-blue-800 rounded"
@@ -862,11 +841,6 @@
                                             }}
                                         </p>
                                         <p style="color: #888;">{{ __('formation_show.faq_payment_answer') }}</p>
-                                    </div>
-                                    <div class="text-sm">
-                                        <p class="font-medium" style="color: white;">{{ __('formation_show.faq_cpf') }}
-                                        </p>
-                                        <p style="color: #888;">{{ __('formation_show.faq_cpf_answer') }}</p>
                                     </div>
                                     <div class="text-sm">
                                         <p class="font-medium" style="color: white;">{{ __('formation_show.faq_start')
@@ -988,7 +962,6 @@
 
         // Fonction de tracking pour les téléchargements PDF
         function trackPdfView(formationTitle) {
-            // Envoyer un événement à Google Analytics (si configuré)
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'pdf_download', {
                     'event_category': 'Formation',
@@ -997,7 +970,6 @@
                 });
             }
 
-            // Optionnel : envoyer une requête à votre backend pour tracker
             fetch('/api/track-pdf-download', {
                 method: 'POST',
                 headers: {
@@ -1012,7 +984,6 @@
             }).catch(error => console.log('Tracking error:', error));
         }
 
-        // Exposer la fonction globalement
         window.trackPdfView = trackPdfView;
     });
 </script>

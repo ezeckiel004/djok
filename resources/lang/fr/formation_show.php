@@ -89,8 +89,8 @@ return [
 
     // Contact rapide
     'quick_questions' => 'Questions ?',
-    'quick_contact_phone' => '01 76 38 00 17',
-    'quick_contact_email' => 'formation@djokprestige.com',
+    'quick_contact_phone' => '06 99 16 44 55',
+    'quick_contact_email' => 'contact@djokprestige.com',
 
     // Formations similaires
     'similar_formations' => 'Formations similaires',

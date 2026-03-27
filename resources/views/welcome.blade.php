@@ -628,6 +628,115 @@
         </div>
     </div>
 </section>
+
+<!-- ============================================ -->
+<!-- SESSIONS DE FORMATION À VENIR - NOUVEAU -->
+<!-- ============================================ -->
+@php
+$upcomingSessions = App\Models\FormationSession::with('formation')
+    ->where('is_active', true)
+    ->where('start_date', '>=', now())
+    ->where('available_places', '>', 0)
+    ->orderBy('start_date', 'asc')
+    ->limit(6)
+    ->get();
+@endphp
+
+@if($upcomingSessions->count() > 0)
+<section class="py-20" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);">
+    <div class="container px-4 mx-auto md:px-6">
+        <div class="mb-12 text-center">
+            <h2 class="mb-4 text-3xl font-bold md:text-4xl" style="color: #b69246;">
+                Sessions de formation à venir
+            </h2>
+            <p class="max-w-2xl mx-auto text-lg text-gray-400">
+                Inscrivez-vous dès maintenant aux prochaines sessions de formation
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            @foreach($upcomingSessions as $session)
+            <div class="group relative overflow-hidden transition-all duration-300 rounded-xl hover:transform hover:scale-105"
+                style="background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%); border: 1px solid rgba(182, 146, 70, 0.3);">
+
+                <!-- Badge formation -->
+                <div class="absolute top-4 right-4 z-10">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full"
+                        style="background: rgba(182, 146, 70, 0.2); color: #b69246; backdrop-filter: blur(4px);">
+                        {{ $session->formation->title }}
+                    </span>
+                </div>
+
+                <div class="p-6">
+                    <!-- Titre session -->
+                    <h3 class="text-xl font-bold text-white mb-3 pr-24">{{ $session->name }}</h3>
+
+                    <!-- Dates et informations -->
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center text-gray-300">
+                            <i class="fas fa-calendar-alt w-5" style="color: #b69246;"></i>
+                            <span class="ml-3">{{ $session->formatted_dates }}</span>
+                        </div>
+                        @if($session->formatted_schedule)
+                        <div class="flex items-center text-gray-300">
+                            <i class="fas fa-clock w-5" style="color: #b69246;"></i>
+                            <span class="ml-3">{{ $session->formatted_schedule }}</span>
+                        </div>
+                        @endif
+                        @if($session->location)
+                        <div class="flex items-center text-gray-300">
+                            <i class="fas fa-map-marker-alt w-5" style="color: #b69246;"></i>
+                            <span class="ml-3">{{ $session->location }}</span>
+                        </div>
+                        @endif
+                    </div>
+
+                    <!-- Prix et places -->
+                    <div class="flex justify-between items-center pt-4 mt-2 border-t border-gray-800">
+                        <div>
+                            <span class="text-2xl font-bold" style="color: #b69246;">{{ $session->formatted_price }}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-gray-500">Places restantes</span>
+                            <div class="text-lg font-semibold text-white">
+                                {{ $session->places_remaining }} / {{ $session->max_places }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bouton inscription -->
+                    @if($session->is_full)
+                    <button disabled
+                            class="w-full mt-6 py-3 rounded-lg font-semibold cursor-not-allowed transition-all duration-300"
+                            style="background: #4a5568; color: #a0aec0;">
+                        <i class="fas fa-times-circle mr-2"></i>COMPLET
+                    </button>
+                    @else
+                    <a href="{{ route('formation.inscrire.presentiel', $session->formation_id) }}?session_id={{ $session->id }}"
+                       class="block w-full mt-6 py-3 text-center font-semibold rounded-lg transition-all duration-300 hover:scale-105"
+                       style="background: #b69246; color: black;">
+                        <i class="fas fa-user-plus mr-2"></i>S'inscrire
+                    </a>
+                    @endif
+                </div>
+            </div>
+            @endforeach
+        </div>
+
+        @if($upcomingSessions->count() > 6)
+        <div class="text-center mt-12">
+            <a href="{{ route('formation') }}"
+               class="inline-flex items-center px-6 py-3 font-semibold rounded-lg transition-all duration-300 hover:scale-105"
+               style="background: transparent; border: 1px solid #b69246; color: #b69246;">
+                Voir toutes les sessions
+                <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+        @endif
+    </div>
+</section>
+@endif
+
 <!-- NOUVELLE SECTION AVIS CLIENTS AVEC SLIDER -->
 <section id="testimonials" class="py-20 bg-black">
     <div class="px-4 mx-auto max-w-7xl">
@@ -1205,7 +1314,6 @@
             min-width: 280px;
         }
 
-        /* Ajustement pour la carte entreprise sur mobile */
         .company-card {
             align-items: center;
             text-align: center;
@@ -1291,7 +1399,6 @@
             display: none;
         }
 
-        /* Correction pour le conteneur des cartes de services */
         .justify-items-center {
             justify-items: center;
         }
@@ -1347,7 +1454,6 @@
             el: ".swiper-pagination",
             clickable: true,
         },
-        // PAS de autoplay - défilement manuel seulement avec pagination
     });
 
     document.addEventListener('DOMContentLoaded', function() {

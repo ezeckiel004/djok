@@ -32,4 +32,10 @@ class Inscription extends Model
     {
         return $this->belongsTo(Formation::class);
     }
+
+        public function session()
+    {
+        return $this->belongsTo(FormationSession::class, 'session_id');
+    }
+
 }
