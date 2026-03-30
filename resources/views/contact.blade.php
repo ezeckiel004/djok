@@ -297,7 +297,7 @@
                                     <h4 class="font-semibold" style="color: white;">{{ __('contact.by_phone') }}</h4>
                                 </div>
                             </div>
-                            <a href="tel:0176380017" class="text-lg font-medium hover:text-var(--gold)"
+                            <a href="tel:0699164455" class="text-lg font-medium hover:text-var(--gold)"
                                 style="color: var(--gold);">
                                 06 99 16 44 55
                             </a>

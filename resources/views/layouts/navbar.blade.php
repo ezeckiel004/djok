@@ -124,7 +124,7 @@
             </div>
 
             <!-- Sélecteur de langue mobile -->
-            <div class="mobile-language-selector">
+            {{-- <div class="mobile-language-selector">
                 <form action="{{ route('language.switch') }}" method="POST">
                     @csrf
                     <select name="locale" class="language-select-mobile">
@@ -139,7 +139,7 @@
                         </option>
                     </select>
                 </form>
-            </div>
+            </div> --}}
 
             <a href="{{ url('/') }}" class="mobile-link">{{ __('navbar.home') }}</a>
             <a href="{{ route('about') }}" class="mobile-link">{{ __('navbar.about') }}</a>
@@ -187,7 +187,7 @@
             <!-- Contact Mobile -->
             <div class="mobile-contact">
                 <div class="mobile-phone">
-                    <i class="fa-solid fa-phone text-yellow-600"></i> {{ __('navbar.phone') }}
+                    <i class="fa-solid fa-phone text-black-600"></i> {{ __('navbar.phone') }}
                 </div>
             </div>
         </div>
