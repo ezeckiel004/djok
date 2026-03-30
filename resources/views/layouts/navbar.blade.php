@@ -882,6 +882,11 @@
             display: none;
         }
 
+        /* CACHER LES ICÔNES SOCIALES DANS LE HEADER-TOP SUR MOBILE */
+        .social-top {
+            display: none;
+        }
+
         .mobile-menu-btn {
             display: flex;
         }

@@ -12,6 +12,7 @@ use App\Mail\ElearningPurchaseAdminNotification;
 use App\Mail\FormationInscriptionConfirmation;
 use App\Mail\FormationInscriptionAdminNotification;
 use App\Models\FormationSession;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -71,7 +72,7 @@ class FormationController extends Controller
     }
 
     /**
-     * Page d'inscription pour présentiel
+     * Page d'inscription pour présentiel - ACCESSIBLE SANS AUTHENTIFICATION
      */
     public function inscrirePresentiel($id)
     {
@@ -83,134 +84,182 @@ class FormationController extends Controller
         return view('formations.inscrire-presentiel', compact('formation'));
     }
 
- /**
- * Traiter l'inscription présentiel
- */
-public function storeInscriptionPresentiel(Request $request, $id)
-{
-    $formation = Formation::findOrFail($id);
-
-    $validated = $request->validate([
-        'nom' => 'required|string|max:255',
-        'prenom' => 'required|string|max:255',
-        'email' => 'required|email',
-        'telephone' => 'required|string|max:20',
-        'adresse' => 'required|string',
-        'ville' => 'required|string',
-        'code_postal' => 'required|string',
-        'date_naissance' => 'required|date',
-        'permis_date' => 'required|date',
-        'message' => 'nullable|string',
-        'financement' => 'required|in:perso,cpf,pole_emploi',
-        'terms' => 'required|accepted',
-        'session_id' => 'nullable|exists:formation_sessions,id', // <-- AJOUT
-    ]);
-
-    try {
-        $user = auth()->user();
-
-        // Récupérer la session si spécifiée
-        $session = null;
-        if ($request->filled('session_id')) {
-            $session = FormationSession::where('id', $request->session_id)
-                ->where('formation_id', $formation->id)
-                ->where('is_active', true)
-                ->where('start_date', '>=', now())
-                ->where('available_places', '>', 0)
-                ->first();
-
-            if (!$session) {
-                return redirect()->back()
-                    ->with('error', 'Cette session n\'est plus disponible.')
-                    ->withInput();
-            }
-        }
-
-        DB::beginTransaction();
-
-        // Créer le participant AVEC session_id
-        $participant = Participant::create([
-            'formation_id' => $formation->id,
-            'session_id' => $session ? $session->id : null, // <-- LA CLÉ !
-            'user_id' => $user ? $user->id : null,
-            'paiement_id' => null,
-            'nom' => $validated['nom'],
-            'prenom' => $validated['prenom'],
-            'email' => $validated['email'],
-            'telephone' => $validated['telephone'],
-            'adresse' => $validated['adresse'],
-            'ville' => $validated['ville'],
-            'code_postal' => $validated['code_postal'],
-            'date_naissance' => $validated['date_naissance'],
-            'permis_date' => $validated['permis_date'],
-            'type_formation' => 'presentiel',
-            'statut' => 'en_attente',
-            'progression' => 0,
-            'notes' => $validated['message'] ?? null,
-            'donnees_supplementaires' => [
-                'financement' => $validated['financement'],
-                'inscription_date' => now()->format('Y-m-d H:i:s'),
-                'formation_title' => $formation->title,
-                'formation_price' => $formation->price,
-                'formation_duree' => $formation->duree,
-                'formation_format' => $formation->format_affichage,
-                'frais_examen' => $formation->frais_examen,
-                'session_name' => $session ? $session->name : null,
-                'session_dates' => $session ? $session->formatted_dates : null,
-            ],
-        ]);
-
-        Log::info('Nouvelle inscription présentielle', [
-            'participant_id' => $participant->id,
-            'formation_id' => $formation->id,
-            'session_id' => $session ? $session->id : null,
-            'email' => $validated['email'],
-        ]);
-
-        // Réduire les places disponibles de la session
-        if ($session) {
-            $session->decrement('available_places');
-            Log::info('Places de la session mises à jour', [
-                'session_id' => $session->id,
-                'places_restantes' => $session->available_places
-            ]);
-        }
-
-        DB::commit();
-
-        // Envoi des emails
-        try {
-            Mail::to($validated['email'])->send(new FormationInscriptionConfirmation($participant, $formation, $session));
-            Log::info('Email de confirmation envoyé à: ' . $validated['email']);
-
-            $adminEmail = config('mail.admin_email', 'formation@djokprestige.com');
-            Mail::to($adminEmail)->send(new FormationInscriptionAdminNotification($participant, $formation, $session));
-            Log::info('Email de notification envoyé à l\'admin: ' . $adminEmail);
-        } catch (\Exception $emailException) {
-            Log::error('Erreur lors de l\'envoi des emails', [
-                'error' => $emailException->getMessage(),
-                'participant_id' => $participant->id,
-            ]);
-        }
-
-        return redirect()->route('formation')
-            ->with('success', 'Votre inscription a été envoyée avec succès. Un email de confirmation vous a été envoyé.');
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error('Erreur lors de l\'inscription présentielle', [
-            'error' => $e->getMessage(),
-            'formation_id' => $id,
-            'email' => $validated['email'] ?? 'N/A',
-        ]);
-
-        return redirect()->back()
-            ->with('error', 'Une erreur est survenue lors de votre inscription. Veuillez réessayer ou nous contacter.')
-            ->withInput();
-    }
-}
     /**
-     * Page d'achat pour e-learning
+     * Traiter l'inscription présentiel - ACCESSIBLE SANS AUTHENTIFICATION
+     */
+    public function storeInscriptionPresentiel(Request $request, $id)
+    {
+        $formation = Formation::findOrFail($id);
+
+        $validated = $request->validate([
+            'nom' => 'required|string|max:255',
+            'prenom' => 'required|string|max:255',
+            'email' => 'required|email',
+            'telephone' => 'required|string|max:20',
+            'adresse' => 'required|string',
+            'ville' => 'required|string',
+            'code_postal' => 'required|string',
+            'date_naissance' => 'required|date',
+            'permis_date' => 'required|date',
+            'message' => 'nullable|string',
+            'financement' => 'required|in:perso,cpf,pole_emploi',
+            'terms' => 'required|accepted',
+            'session_id' => 'nullable|exists:formation_sessions,id',
+        ]);
+
+        try {
+            $user = auth()->user();
+
+            // Si l'utilisateur n'est pas connecté, vérifier si un compte existe déjà
+            if (!$user) {
+                $existingUser = \App\Models\User::where('email', $validated['email'])->first();
+
+                if ($existingUser) {
+                    $user = $existingUser;
+                    Log::info('Utilisateur existant trouvé', ['user_id' => $user->id, 'email' => $validated['email']]);
+                } else {
+                    // Récupérer le rôle client (par défaut)
+                    $clientRole = Role::where('name', 'client')->first();
+
+                    if (!$clientRole) {
+                        Log::error('Rôle client non trouvé dans la base de données');
+                        throw new \Exception('Configuration des rôles incorrecte. Contactez l\'administrateur.');
+                    }
+
+                    // Créer un compte utilisateur automatiquement
+                    $tempPassword = Str::random(12);
+                    $user = \App\Models\User::create([
+                        'name' => $validated['prenom'] . ' ' . $validated['nom'],
+                        'email' => $validated['email'],
+                        'password' => bcrypt($tempPassword),
+                        'phone' => $validated['telephone'],
+                        'email_verified_at' => now(),
+                        'role_id' => $clientRole->id, // Utiliser role_id pour la relation
+                    ]);
+
+                    Log::info('Nouvel utilisateur créé automatiquement', [
+                        'user_id' => $user->id,
+                        'email' => $validated['email'],
+                        'role_id' => $clientRole->id,
+                        'temp_password' => $tempPassword
+                    ]);
+                }
+            }
+
+            // Récupérer la session si spécifiée
+            $session = null;
+            if ($request->filled('session_id')) {
+                $session = FormationSession::where('id', $request->session_id)
+                    ->where('formation_id', $formation->id)
+                    ->where('is_active', true)
+                    ->where('start_date', '>=', now())
+                    ->where('available_places', '>', 0)
+                    ->first();
+
+                if (!$session) {
+                    return redirect()->back()
+                        ->with('error', 'Cette session n\'est plus disponible.')
+                        ->withInput();
+                }
+            }
+
+            DB::beginTransaction();
+
+            // Créer le participant AVEC session_id
+            $participant = Participant::create([
+                'formation_id' => $formation->id,
+                'session_id' => $session ? $session->id : null,
+                'user_id' => $user ? $user->id : null,
+                'paiement_id' => null,
+                'nom' => $validated['nom'],
+                'prenom' => $validated['prenom'],
+                'email' => $validated['email'],
+                'telephone' => $validated['telephone'],
+                'adresse' => $validated['adresse'],
+                'ville' => $validated['ville'],
+                'code_postal' => $validated['code_postal'],
+                'date_naissance' => $validated['date_naissance'],
+                'permis_date' => $validated['permis_date'],
+                'type_formation' => 'presentiel',
+                'statut' => 'en_attente',
+                'progression' => 0,
+                'notes' => $validated['message'] ?? null,
+                'donnees_supplementaires' => [
+                    'financement' => $validated['financement'],
+                    'inscription_date' => now()->format('Y-m-d H:i:s'),
+                    'formation_title' => $formation->title,
+                    'formation_price' => $formation->price,
+                    'formation_duree' => $formation->duree,
+                    'formation_format' => $formation->format_affichage,
+                    'frais_examen' => $formation->frais_examen,
+                    'session_name' => $session ? $session->name : null,
+                    'session_dates' => $session ? $session->formatted_dates : null,
+                    'user_created_automatically' => isset($user->wasRecentlyCreated) ? $user->wasRecentlyCreated : false,
+                ],
+            ]);
+
+            Log::info('Nouvelle inscription présentielle', [
+                'participant_id' => $participant->id,
+                'formation_id' => $formation->id,
+                'session_id' => $session ? $session->id : null,
+                'email' => $validated['email'],
+                'user_connected' => auth()->check(),
+                'user_created' => isset($user->wasRecentlyCreated) ? $user->wasRecentlyCreated : false,
+            ]);
+
+            // Réduire les places disponibles de la session
+            if ($session) {
+                $session->decrement('available_places');
+                Log::info('Places de la session mises à jour', [
+                    'session_id' => $session->id,
+                    'places_restantes' => $session->available_places
+                ]);
+            }
+
+            DB::commit();
+
+            // Envoi des emails
+            try {
+                Mail::to($validated['email'])->send(new FormationInscriptionConfirmation($participant, $formation, $session));
+                Log::info('Email de confirmation envoyé à: ' . $validated['email']);
+
+                $adminEmail = config('mail.admin_email', 'formation@djokprestige.com');
+                Mail::to($adminEmail)->send(new FormationInscriptionAdminNotification($participant, $formation, $session));
+                Log::info('Email de notification envoyé à l\'admin: ' . $adminEmail);
+            } catch (\Exception $emailException) {
+                Log::error('Erreur lors de l\'envoi des emails', [
+                    'error' => $emailException->getMessage(),
+                    'participant_id' => $participant->id,
+                ]);
+            }
+
+            // Message de succès avec information sur le compte créé
+            $successMessage = 'Votre inscription a été envoyée avec succès. Un email de confirmation vous a été envoyé.';
+
+            if (isset($user->wasRecentlyCreated) && $user->wasRecentlyCreated) {
+                $successMessage .= ' Un compte client a été automatiquement créé avec votre email. Vous pourrez vous connecter pour suivre votre dossier.';
+            }
+
+            return redirect()->route('formation')
+                ->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erreur lors de l\'inscription présentielle', [
+                'error' => $e->getMessage(),
+                'formation_id' => $id,
+                'email' => $validated['email'] ?? 'N/A',
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Une erreur est survenue lors de votre inscription. Veuillez réessayer ou nous contacter.')
+                ->withInput();
+        }
+    }
+
+    /**
+     * Page d'achat pour e-learning - NÉCESSITE AUTHENTIFICATION
      */
     public function acheterElearning($id)
     {
@@ -236,7 +285,7 @@ public function storeInscriptionPresentiel(Request $request, $id)
     }
 
     /**
-     * Créer une session de paiement
+     * Créer une session de paiement - NÉCESSITE AUTHENTIFICATION
      */
     public function createPaymentSession(Request $request, $id)
     {

@@ -630,7 +630,7 @@
 </section>
 
 <!-- ============================================ -->
-<!-- SESSIONS DE FORMATION À VENIR -->
+<!-- SESSIONS DE FORMATION À VENIR - VERSION MODIFIÉE -->
 <!-- ============================================ -->
 @if(isset($upcomingSessions) && $upcomingSessions->count() > 0)
 <section class="py-20" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);">
@@ -694,7 +694,7 @@
                         </div>
                     </div>
 
-                    <!-- Bouton inscription -->
+                    <!-- Bouton inscription - ACCÈS DIRECT SANS AUTHENTIFICATION -->
                     @if($session->is_full)
                     <button disabled
                             class="w-full mt-6 py-3 rounded-lg font-semibold cursor-not-allowed transition-all duration-300"

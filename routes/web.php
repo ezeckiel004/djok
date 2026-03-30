@@ -57,10 +57,16 @@ Route::get('/elearning/qcm/{qcmId}', [ElearningController::class, 'showQcm'])->n
 Route::post('/elearning/qcm/{qcmId}/submit', [ElearningController::class, 'submitQcm'])->name('elearning.qcm.submit');
 
 // ==============================================
-// Formations
+// Formations - ROUTES PUBLIQUES (sans authentification)
 // ==============================================
 Route::get('/formation', [FormationController::class, 'index'])->name('formation');
 Route::get('/formation/{slug}', [FormationController::class, 'show'])->name('formation.show');
+
+// === ROUTES D'INSCRIPTION PRÉSENTIEL - ACCESSIBLES SANS AUTHENTIFICATION ===
+Route::get('/formation/{id}/inscrire-presentiel', [FormationController::class, 'inscrirePresentiel'])
+    ->name('formation.inscrire.presentiel');
+Route::post('/formation/{id}/inscrire-presentiel', [FormationController::class, 'storeInscriptionPresentiel'])
+    ->name('formation.inscrire.presentiel.store');
 
 // PDF Programme des formations
 Route::get('/formation/{id}/programme-pdf', [ProgrammePdfController::class, 'show'])
@@ -210,14 +216,10 @@ Route::get('/mes-formations', function () {
 })->name('formations.mes-formations-redirect');
 
 // ==============================================
-// FORMATIONS UTILISATEUR (authentification requise)
+// ROUTES AVEC AUTHENTIFICATION REQUISE
 // ==============================================
 Route::middleware(['auth'])->group(function () {
-    // Routes d'achat/inscription seulement
-    Route::get('/formation/{id}/inscrire-presentiel', [FormationController::class, 'inscrirePresentiel'])
-        ->name('formation.inscrire.presentiel');
-    Route::post('/formation/{id}/inscrire-presentiel', [FormationController::class, 'storeInscriptionPresentiel'])
-        ->name('formation.inscrire.presentiel.store');
+    // Routes d'achat e-learning (seulement)
     Route::get('/formation/{id}/acheter-elearning', [FormationController::class, 'acheterElearning'])
         ->name('formation.acheter.elearning');
     Route::post('/formation/{id}/create-payment-session', [FormationController::class, 'createPaymentSession'])
