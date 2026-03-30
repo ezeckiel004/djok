@@ -630,7 +630,7 @@
 </section>
 
 <!-- ============================================ -->
-<!-- SESSIONS DE FORMATION À VENIR - VERSION MODIFIÉE -->
+<!-- SESSIONS DE FORMATION À VENIR -->
 <!-- ============================================ -->
 @if(isset($upcomingSessions) && $upcomingSessions->count() > 0)
 <section class="py-20" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);">
@@ -689,13 +689,13 @@
                         <div class="text-right">
                             <span class="text-xs text-gray-500">Places restantes</span>
                             <div class="text-lg font-semibold text-white">
-                                {{ $session->places_remaining }} / {{ $session->max_places }}
+                                {{ $session->available_places }} / {{ $session->max_places }}
                             </div>
                         </div>
                     </div>
 
-                    <!-- Bouton inscription - ACCÈS DIRECT SANS AUTHENTIFICATION -->
-                    @if($session->is_full)
+                    <!-- Bouton inscription -->
+                    @if($session->available_places <= 0)
                     <button disabled
                             class="w-full mt-6 py-3 rounded-lg font-semibold cursor-not-allowed transition-all duration-300"
                             style="background: #4a5568; color: #a0aec0;">
@@ -725,11 +725,17 @@
         @endif
     </div>
 </section>
-@else
-<!-- Si aucune session n'est disponible, on peut afficher un message (optionnel) -->
-@if(isset($upcomingSessions))
+@elseif(isset($upcomingSessions))
 <section class="py-20" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);">
     <div class="container px-4 mx-auto md:px-6">
+        <div class="mb-12 text-center">
+            <h2 class="mb-4 text-3xl font-bold md:text-4xl" style="color: #b69246;">
+                Sessions de formation à venir
+            </h2>
+            <p class="max-w-2xl mx-auto text-lg text-gray-400">
+                Inscrivez-vous dès maintenant aux prochaines sessions de formation
+            </p>
+        </div>
         <div class="text-center py-12">
             <div class="text-gray-400 mb-3">
                 <i class="fas fa-calendar-alt text-5xl"></i>
@@ -742,7 +748,6 @@
         </div>
     </div>
 </section>
-@endif
 @endif
 
 <!-- NOUVELLE SECTION AVIS CLIENTS AVEC SLIDER -->
@@ -789,16 +794,16 @@
                 <div class="flex gap-6 pb-4 overflow-x-auto reviews-slider scroll-smooth" id="reviewsSlider"
                     style="scrollbar-width: none;">
 
-                    <!-- Avis 1 -->
+                    @for($i = 1; $i <= 10; $i++)
                     <div class="review min-w-[280px] bg-white/5 p-6 rounded-xl border border-white/10 mx-2 md:mx-0">
                         <div class="flex items-center gap-3 mb-3 review-header">
                             <div class="flex items-center justify-center w-10 h-10 rounded-full avatar"
                                 style="background: #b8b2a8;">
-                                <span class="font-bold">L</span>
+                                <span class="font-bold">{{ substr(__('home.review' . $i . '_name'), 0, 1) }}</span>
                             </div>
                             <div>
-                                <h4 class="font-bold">Lalla Guindo</h4>
-                                <small class="text-sm text-gray-400">{{ __('home.years_ago', ['count' => 2]) }}</small>
+                                <h4 class="font-bold">{{ __('home.review' . $i . '_name') }}</h4>
+                                <small class="text-sm text-gray-400">{{ __('home.review' . $i . '_date') }}</small>
                             </div>
                             <i class="ml-auto fab fa-google" style="color: #4285F4;"></i>
                         </div>
@@ -806,188 +811,9 @@
                             <span class="text-xl" style="color: #b69246;">★★★★★</span>
                             <i class="ml-1 text-sm fas fa-check-circle" style="color: #4285F4;"></i>
                         </div>
-                        <p class="text-gray-300">{{ __('home.review1_text') }}</p>
+                        <p class="text-gray-300">{{ __('home.review' . $i . '_text') }}</p>
                     </div>
-
-                    <!-- Avis 2 -->
-                    <div class="review min-w-[280px] bg-white/5 p-6 rounded-xl border border-white/10 mx-2 md:mx-0">
-                        <div class="flex items-center gap-3 mb-3 review-header">
-                            <div class="flex items-center justify-center w-10 h-10 rounded-full avatar"
-                                style="background: #6c7cff;">
-                                <span class="font-bold text-white">B</span>
-                            </div>
-                            <div>
-                                <h4 class="font-bold">Bruno Bouet</h4>
-                                <small class="text-sm text-gray-400">{{ __('home.years_ago', ['count' => 2]) }}</small>
-                            </div>
-                            <i class="ml-auto fab fa-google" style="color: #4285F4;"></i>
-                        </div>
-                        <div class="mb-3 review-stars">
-                            <span class="text-xl" style="color: #b69246;">★★★★★</span>
-                            <i class="ml-1 text-sm fas fa-check-circle" style="color: #4285F4;"></i>
-                        </div>
-                        <p class="text-gray-300">{{ __('home.review2_text') }}</p>
-                    </div>
-
-                    <!-- Avis 3 -->
-                    <div class="review min-w-[280px] bg-white/5 p-6 rounded-xl border border-white/10 mx-2 md:mx-0">
-                        <div class="flex items-center gap-3 mb-3 review-header">
-                            <div class="flex items-center justify-center w-10 h-10 rounded-full avatar"
-                                style="background: #4f6b6f;">
-                                <span class="font-bold text-white">A</span>
-                            </div>
-                            <div>
-                                <h4 class="font-bold">Aminta B.</h4>
-                                <small class="text-sm text-gray-400">{{ __('home.years_ago', ['count' => 2]) }}</small>
-                            </div>
-                            <i class="ml-auto fab fa-google" style="color: #4285F4;"></i>
-                        </div>
-                        <div class="mb-3 review-stars">
-                            <span class="text-xl" style="color: #b69246;">★★★★★</span>
-                            <i class="ml-1 text-sm fas fa-check-circle" style="color: #4285F4;"></i>
-                        </div>
-                        <p class="text-gray-300">{{ __('home.review3_text') }}</p>
-                    </div>
-
-                    <!-- Avis 4 -->
-                    <div class="review min-w-[280px] bg-white/5 p-6 rounded-xl border border-white/10 mx-2 md:mx-0">
-                        <div class="flex items-center gap-3 mb-3 review-header">
-                            <div class="flex items-center justify-center w-10 h-10 rounded-full avatar"
-                                style="background: #ff6b6b;">
-                                <span class="font-bold text-white">M</span>
-                            </div>
-                            <div>
-                                <h4 class="font-bold">Marie Dubois</h4>
-                                <small class="text-sm text-gray-400">{{ __('home.year_ago') }}</small>
-                            </div>
-                            <i class="ml-auto fab fa-google" style="color: #4285F4;"></i>
-                        </div>
-                        <div class="mb-3 review-stars">
-                            <span class="text-xl" style="color: #b69246;">★★★★★</span>
-                            <i class="ml-1 text-sm fas fa-check-circle" style="color: #4285F4;"></i>
-                        </div>
-                        <p class="text-gray-300">{{ __('home.review4_text') }}</p>
-                    </div>
-
-                    <!-- Avis 5 -->
-                    <div class="review min-w-[280px] bg-white/5 p-6 rounded-xl border border-white/10 mx-2 md:mx-0">
-                        <div class="flex items-center gap-3 mb-3 review-header">
-                            <div class="flex items-center justify-center w-10 h-10 rounded-full avatar"
-                                style="background: #5cd85c;">
-                                <span class="font-bold text-white">T</span>
-                            </div>
-                            <div>
-                                <h4 class="font-bold">Thomas Martin</h4>
-                                <small class="text-sm text-gray-400">{{ __('home.months_ago', ['count' => 8]) }}</small>
-                            </div>
-                            <i class="ml-auto fab fa-google" style="color: #4285F4;"></i>
-                        </div>
-                        <div class="mb-3 review-stars">
-                            <span class="text-xl" style="color: #b69246;">★★★★★</span>
-                            <i class="ml-1 text-sm fas fa-check-circle" style="color: #4285F4;"></i>
-                        </div>
-                        <p class="text-gray-300">{{ __('home.review5_text') }}</p>
-                    </div>
-
-                    <!-- Avis 6 -->
-                    <div class="review min-w-[280px] bg-white/5 p-6 rounded-xl border border-white/10 mx-2 md:mx-0">
-                        <div class="flex items-center gap-3 mb-3 review-header">
-                            <div class="flex items-center justify-center w-10 h-10 rounded-full avatar"
-                                style="background: #ffa500;">
-                                <span class="font-bold text-white">S</span>
-                            </div>
-                            <div>
-                                <h4 class="font-bold">Sophie Laurent</h4>
-                                <small class="text-sm text-gray-400">{{ __('home.months_ago', ['count' => 6]) }}</small>
-                            </div>
-                            <i class="ml-auto fab fa-google" style="color: #4285F4;"></i>
-                        </div>
-                        <div class="mb-3 review-stars">
-                            <span class="text-xl" style="color: #b69246;">★★★★★</span>
-                            <i class="ml-1 text-sm fas fa-check-circle" style="color: #4285F4;"></i>
-                        </div>
-                        <p class="text-gray-300">{{ __('home.review6_text') }}</p>
-                    </div>
-
-                    <!-- Avis 7 -->
-                    <div class="review min-w-[280px] bg-white/5 p-6 rounded-xl border border-white/10 mx-2 md:mx-0">
-                        <div class="flex items-center gap-3 mb-3 review-header">
-                            <div class="flex items-center justify-center w-10 h-10 rounded-full avatar"
-                                style="background: #9b59b6;">
-                                <span class="font-bold text-white">K</span>
-                            </div>
-                            <div>
-                                <h4 class="font-bold">Karim S.</h4>
-                                <small class="text-sm text-gray-400">{{ __('home.months_ago', ['count' => 3]) }}</small>
-                            </div>
-                            <i class="ml-auto fab fa-google" style="color: #4285F4;"></i>
-                        </div>
-                        <div class="mb-3 review-stars">
-                            <span class="text-xl" style="color: #b69246;">★★★★★</span>
-                            <i class="ml-1 text-sm fas fa-check-circle" style="color: #4285F4;"></i>
-                        </div>
-                        <p class="text-gray-300">{{ __('home.review7_text') }}</p>
-                    </div>
-
-                    <!-- Avis 8 -->
-                    <div class="review min-w-[280px] bg-white/5 p-6 rounded-xl border border-white/10 mx-2 md:mx-0">
-                        <div class="flex items-center gap-3 mb-3 review-header">
-                            <div class="flex items-center justify-center w-10 h-10 rounded-full avatar"
-                                style="background: #3498db;">
-                                <span class="font-bold text-white">J</span>
-                            </div>
-                            <div>
-                                <h4 class="font-bold">Jean Dupont</h4>
-                                <small class="text-sm text-gray-400">{{ __('home.months_ago', ['count' => 1]) }}</small>
-                            </div>
-                            <i class="ml-auto fab fa-google" style="color: #4285F4;"></i>
-                        </div>
-                        <div class="mb-3 review-stars">
-                            <span class="text-xl" style="color: #b69246;">★★★★★</span>
-                            <i class="ml-1 text-sm fas fa-check-circle" style="color: #4285F4;"></i>
-                        </div>
-                        <p class="text-gray-300">{{ __('home.review8_text') }}</p>
-                    </div>
-
-                    <!-- Avis 9 -->
-                    <div class="review min-w-[280px] bg-white/5 p-6 rounded-xl border border-white/10 mx-2 md:mx-0">
-                        <div class="flex items-center gap-3 mb-3 review-header">
-                            <div class="flex items-center justify-center w-10 h-10 rounded-full avatar"
-                                style="background: #e74c3c;">
-                                <span class="font-bold text-white">A</span>
-                            </div>
-                            <div>
-                                <h4 class="font-bold">Alice R.</h4>
-                                <small class="text-sm text-gray-400">{{ __('home.weeks_ago', ['count' => 2]) }}</small>
-                            </div>
-                            <i class="ml-auto fab fa-google" style="color: #4285F4;"></i>
-                        </div>
-                        <div class="mb-3 review-stars">
-                            <span class="text-xl" style="color: #b69246;">★★★★★</span>
-                            <i class="ml-1 text-sm fas fa-check-circle" style="color: #4285F4;"></i>
-                        </div>
-                        <p class="text-gray-300">{{ __('home.review9_text') }}</p>
-                    </div>
-
-                    <!-- Avis 10 -->
-                    <div class="review min-w-[280px] bg-white/5 p-6 rounded-xl border border-white/10 mx-2 md:mx-0">
-                        <div class="flex items-center gap-3 mb-3 review-header">
-                            <div class="flex items-center justify-center w-10 h-10 rounded-full avatar"
-                                style="background: #2ecc71;">
-                                <span class="font-bold text-white">P</span>
-                            </div>
-                            <div>
-                                <h4 class="font-bold">Paul G.</h4>
-                                <small class="text-sm text-gray-400">{{ __('home.weeks_ago', ['count' => 1]) }}</small>
-                            </div>
-                            <i class="ml-auto fab fa-google" style="color: #4285F4;"></i>
-                        </div>
-                        <div class="mb-3 review-stars">
-                            <span class="text-xl" style="color: #b69246;">★★★★★</span>
-                            <i class="ml-1 text-sm fas fa-check-circle" style="color: #4285F4;"></i>
-                        </div>
-                        <p class="text-gray-300">{{ __('home.review10_text') }}</p>
-                    </div>
+                    @endfor
                 </div>
             </div>
         </div>
@@ -995,7 +821,7 @@
 </section>
 
 <style>
-    /* HERO SECTION - MODIFIÉ POUR CORRIGER L'OPACITÉ */
+    /* HERO SECTION */
     .hero {
         min-height: 100vh;
         position: relative;
@@ -1151,7 +977,6 @@
         background: #d4af37;
     }
 
-    /* BOUTONS DE PAGINATION */
     .swiper-pagination {
         position: relative;
         margin: 12px 0 4px;
@@ -1296,7 +1121,6 @@
         }
     }
 
-    /* CORRECTIONS MOBILE POUR LES CARTES */
     @media (max-width: 767px) {
         .hero-right {
             width: 90%;
@@ -1333,7 +1157,6 @@
         }
     }
 
-    /* Styles existants pour le reste de la page */
     .banner-section {
         position: relative;
         scroll-margin-top: 0;
@@ -1374,7 +1197,6 @@
         animation: bounce 2s infinite;
     }
 
-    /* Responsive */
     @media (max-width: 768px) {
         .grid-cols-2 {
             grid-template-columns: 1fr !important;
@@ -1412,12 +1234,10 @@
         }
     }
 
-    /* Amélioration du scroll */
     html {
         scroll-behavior: smooth;
     }
 
-    /* Styles pour le slider d'avis */
     .reviews-slider {
         scrollbar-width: none;
         -ms-overflow-style: none;
@@ -1441,7 +1261,6 @@
         transition: all 0.3s ease;
     }
 
-    /* Styles pour les images de certification */
     .w-20.h-20 img {
         object-fit: cover;
     }
@@ -1480,7 +1299,6 @@
             });
         }, observerOptions);
 
-        // Observer les éléments des bannières
         document.querySelectorAll('.banner-section .relative.z-10').forEach(el => {
             el.style.opacity = '0';
             el.style.transform = 'translateY(20px)';

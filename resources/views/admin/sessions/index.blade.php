@@ -110,7 +110,7 @@
                                    class="text-yellow-600 hover:text-yellow-800" title="Modifier">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button type="button" onclick="toggleStatus({{ $session->id }}, {{ $session->is_active ? 'true' : 'false' }})"
+                                {{-- <button type="button" onclick="toggleStatus({{ $session->id }}, {{ $session->is_active ? 'true' : 'false' }})"
                                         class="text-{{ $session->is_active ? 'green' : 'gray' }}-600 hover:text-{{ $session->is_active ? 'green' : 'gray' }}-800"
                                         title="{{ $session->is_active ? 'Désactiver' : 'Activer' }}">
                                     <i class="fas fa-{{ $session->is_active ? 'toggle-on' : 'toggle-off' }}"></i>
@@ -118,7 +118,7 @@
                                 <button type="button" onclick="adjustPlaces({{ $session->id }})"
                                         class="text-purple-600 hover:text-purple-800" title="Ajuster les places">
                                     <i class="fas fa-users"></i>
-                                </button>
+                                </button> --}}
                                 <form action="{{ route('admin.sessions.destroy', $session) }}" method="POST" class="inline-block">
                                     @csrf
                                     @method('DELETE')
