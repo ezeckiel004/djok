@@ -173,4 +173,30 @@ return [
 'tailored_support_desc' => 'Un suivi personnalisé pour chaque projet',
 'growing_community' => 'Une communauté en développement',
 'growing_community_desc' => 'Rejoignez un réseau dynamique et en expansion',
+
+// Dans resources/lang/fr/home.php, ajoutez après la section des avis existants :
+
+// Noms des clients pour les avis
+'review1_name' => 'Lalla Guindo',
+'review2_name' => 'Bruno Bouet',
+'review3_name' => 'Aminta B.',
+'review4_name' => 'Marie Dubois',
+'review5_name' => 'Thomas Martin',
+'review6_name' => 'Sophie Laurent',
+'review7_name' => 'Karim S.',
+'review8_name' => 'Jean Dupont',
+'review9_name' => 'Alice R.',
+'review10_name' => 'Paul G.',
+
+// Dates des avis
+'review1_date' => 'il y a 2 ans',
+'review2_date' => 'il y a 2 ans',
+'review3_date' => 'il y a 2 ans',
+'review4_date' => 'il y a 1 an',
+'review5_date' => 'il y a 8 mois',
+'review6_date' => 'il y a 6 mois',
+'review7_date' => 'il y a 3 mois',
+'review8_date' => 'il y a 1 mois',
+'review9_date' => 'il y a 2 semaines',
+'review10_date' => 'il y a 1 semaine',
 ];

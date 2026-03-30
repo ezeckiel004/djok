@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class FormationController extends Controller
 {
@@ -73,11 +74,12 @@ class FormationController extends Controller
 
     /**
      * Page d'inscription pour présentiel - ACCESSIBLE SANS AUTHENTIFICATION
+     * SANS RESTRICTION SUR LE TYPE DE FORMATION
      */
     public function inscrirePresentiel($id)
     {
+        // Ne pas filtrer par type_formation, juste vérifier que la formation existe et est active
         $formation = Formation::where('id', $id)
-            ->where('type_formation', 'presentiel')
             ->where('is_active', true)
             ->firstOrFail();
 
@@ -134,7 +136,7 @@ class FormationController extends Controller
                         'password' => bcrypt($tempPassword),
                         'phone' => $validated['telephone'],
                         'email_verified_at' => now(),
-                        'role_id' => $clientRole->id, // Utiliser role_id pour la relation
+                        'role_id' => $clientRole->id,
                     ]);
 
                     Log::info('Nouvel utilisateur créé automatiquement', [
@@ -146,13 +148,13 @@ class FormationController extends Controller
                 }
             }
 
-            // Récupérer la session si spécifiée
+            // Récupérer la session si spécifiée - CORRIGÉ AVEC startOfDay()
             $session = null;
             if ($request->filled('session_id')) {
                 $session = FormationSession::where('id', $request->session_id)
                     ->where('formation_id', $formation->id)
                     ->where('is_active', true)
-                    ->where('start_date', '>=', now())
+                    ->where('start_date', '>=', Carbon::now()->startOfDay())
                     ->where('available_places', '>', 0)
                     ->first();
 

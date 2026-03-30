@@ -597,33 +597,6 @@
                         </div>
                     </div>
                 </a>
-
-                <!-- Card 3 - Datadock (conservé mais commenté) -->
-                {{-- <a href="{{ route('pdf.arrete-modificatif') }}" target="_blank" class="block no-underline">
-                    <div class="p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer h-full flex flex-col"
-                        style="background: #111; border: 1px solid #333;">
-                        <div class="flex-grow">
-                            <div class="w-20 h-20 flex items-center justify-center rounded-full mx-auto mb-6 overflow-hidden transition-all duration-300 hover:scale-110 hover:rotate-12"
-                                style="background: var(--gold);">
-                                <img src="{{ asset('ac3.JPG') }}" alt="Datadock Certification"
-                                    class="object-cover w-full h-full rounded-full">
-                            </div>
-                            <h3 class="text-xl font-bold mb-4" style="color: white;">{{ __('home.datadock') }}</h3>
-                            <p class="text-gray-400 mb-3">{{ __('home.datadock_description') }}</p>
-                            <p class="text-sm text-gray-500">{{ __('home.datadock_detail') }}</p>
-                        </div>
-                        <div class="mt-6">
-                            <div class="text-sm" style="color: var(--gold);">
-                                <i class="fas fa-file-pdf mr-2"></i>
-                                <span>{{ __('home.view_arrete_pdf') }}</span>
-                            </div>
-                            <div class="mt-1 text-xs text-gray-500">
-                                <i class="fas fa-info-circle mr-1"></i>
-                                {{ __('home.pdf_label') }}
-                            </div>
-                        </div>
-                    </div>
-                </a> --}}
             </div>
         </div>
     </div>
@@ -650,14 +623,14 @@
                 style="background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%); border: 1px solid rgba(182, 146, 70, 0.3);">
 
                 <!-- Badge formation -->
-                <div class="absolute top-4 right-4 z-10">
+                <div class="absolute top-4 right-4 z-20">
                     <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full"
                         style="background: rgba(182, 146, 70, 0.2); color: #b69246; backdrop-filter: blur(4px);">
                         {{ $session->formation->title }}
                     </span>
                 </div>
 
-                <div class="p-6">
+                <div class="p-6 relative z-10">
                     <!-- Titre session -->
                     <h3 class="text-xl font-bold text-white mb-3 pr-24">{{ $session->name }}</h3>
 
@@ -794,16 +767,31 @@
                 <div class="flex gap-6 pb-4 overflow-x-auto reviews-slider scroll-smooth" id="reviewsSlider"
                     style="scrollbar-width: none;">
 
-                    @for($i = 1; $i <= 10; $i++)
+                    @php
+                        $reviews = [
+                            ['name' => 'Lalla Guindo', 'date' => 'il y a 2 ans', 'text' => 'Entreprise au top ! Service impeccable et professionnel.'],
+                            ['name' => 'Bruno Bouet', 'date' => 'il y a 2 ans', 'text' => 'Directrice très expérimentée et très compétente. Je recommande !'],
+                            ['name' => 'Aminta B.', 'date' => 'il y a 2 ans', 'text' => 'J\'ai fait appel à Djok Prestige pour une prestation ! Je recommande fortement !!'],
+                            ['name' => 'Marie Dubois', 'date' => 'il y a 1 an', 'text' => 'Service de VTC excellent, ponctuel et très professionnel.'],
+                            ['name' => 'Thomas Martin', 'date' => 'il y a 8 mois', 'text' => 'Formation VTC de qualité, équipe pédagogique compétente et à l\'écoute.'],
+                            ['name' => 'Sophie Laurent', 'date' => 'il y a 6 mois', 'text' => 'Location de véhicule sans souci, entretien parfait et tarif compétitif.'],
+                            ['name' => 'Karim S.', 'date' => 'il y a 3 mois', 'text' => 'Accompagnement entrepreneurial exceptionnel pour mon projet en Afrique.'],
+                            ['name' => 'Jean Dupont', 'date' => 'il y a 1 mois', 'text' => 'Service conciergerie parfait pour mon arrivée en France. Très professionnel.'],
+                            ['name' => 'Alice R.', 'date' => 'il y a 2 semaines', 'text' => 'Chauffeur VTC très courtois, voiture propre et trajet en toute sécurité.'],
+                            ['name' => 'Paul G.', 'date' => 'il y a 1 semaine', 'text' => 'Excellent rapport qualité-prix, je reviendrai certainement pour mes futurs besoins.'],
+                        ];
+                    @endphp
+
+                    @foreach($reviews as $review)
                     <div class="review min-w-[280px] bg-white/5 p-6 rounded-xl border border-white/10 mx-2 md:mx-0">
                         <div class="flex items-center gap-3 mb-3 review-header">
                             <div class="flex items-center justify-center w-10 h-10 rounded-full avatar"
                                 style="background: #b8b2a8;">
-                                <span class="font-bold">{{ substr(__('home.review' . $i . '_name'), 0, 1) }}</span>
+                                <span class="font-bold">{{ substr($review['name'], 0, 1) }}</span>
                             </div>
                             <div>
-                                <h4 class="font-bold">{{ __('home.review' . $i . '_name') }}</h4>
-                                <small class="text-sm text-gray-400">{{ __('home.review' . $i . '_date') }}</small>
+                                <h4 class="font-bold">{{ $review['name'] }}</h4>
+                                <small class="text-sm text-gray-400">{{ $review['date'] }}</small>
                             </div>
                             <i class="ml-auto fab fa-google" style="color: #4285F4;"></i>
                         </div>
@@ -811,9 +799,9 @@
                             <span class="text-xl" style="color: #b69246;">★★★★★</span>
                             <i class="ml-1 text-sm fas fa-check-circle" style="color: #4285F4;"></i>
                         </div>
-                        <p class="text-gray-300">{{ __('home.review' . $i . '_text') }}</p>
+                        <p class="text-gray-300">{{ $review['text'] }}</p>
                     </div>
-                    @endfor
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -1167,7 +1155,6 @@
             opacity: 0;
             transform: translateY(20px);
         }
-
         to {
             opacity: 1;
             transform: translateY(0);
@@ -1175,19 +1162,12 @@
     }
 
     @keyframes bounce {
-
-        0%,
-        20%,
-        50%,
-        80%,
-        100% {
+        0%, 20%, 50%, 80%, 100% {
             transform: translateY(0) translateX(-50%);
         }
-
         40% {
             transform: translateY(-10px) translateX(-50%);
         }
-
         60% {
             transform: translateY(-5px) translateX(-50%);
         }
@@ -1201,34 +1181,27 @@
         .grid-cols-2 {
             grid-template-columns: 1fr !important;
         }
-
         .grid-cols-5 {
             grid-template-columns: repeat(2, 1fr) !important;
         }
-
         .grid-cols-3 {
             grid-template-columns: 1fr !important;
             gap: 20px;
         }
-
         .relative.h-48 {
             height: 200px;
         }
-
         .flex-col.lg\:flex-row {
             flex-direction: column;
         }
-
         .lg\:w-1\/4,
         .lg\:w-3\/4 {
             width: 100%;
         }
-
         .arrow.left,
         .arrow.right {
             display: none;
         }
-
         .justify-items-center {
             justify-items: center;
         }
@@ -1263,6 +1236,16 @@
 
     .w-20.h-20 img {
         object-fit: cover;
+    }
+
+    /* Correction pour les badges de session */
+    .group .absolute.top-4.right-4 {
+        z-index: 30 !important;
+    }
+
+    .group .p-6 {
+        position: relative;
+        z-index: 10;
     }
 </style>
 
