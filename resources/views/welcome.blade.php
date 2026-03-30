@@ -561,7 +561,7 @@
                         <div class="mt-6">
                             <div class="text-sm" style="color: var(--gold);">
                                 <i class="fas fa-file-pdf mr-2"></i>
-                                <span>{{ __('home.view_arrete_pdf') }}</span>
+                                <span>{{ __('home.qualiopi') }}</span>
                             </div>
                             <div class="mt-1 text-xs text-gray-500">
                                 <i class="fas fa-info-circle mr-1"></i>
@@ -588,7 +588,7 @@
                         <div class="mt-6">
                             <div class="text-sm" style="color: var(--gold);">
                                 <i class="fas fa-file-pdf mr-2"></i>
-                                <span>{{ __('home.view_arrete_pdf') }}</span>
+                                <span>{{ __('home.prefectoral') }}</span>
                             </div>
                             <div class="mt-1 text-xs text-gray-500">
                                 <i class="fas fa-info-circle mr-1"></i>

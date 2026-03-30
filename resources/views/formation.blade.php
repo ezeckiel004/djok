@@ -477,10 +477,10 @@
                 style="background: #b89449; color: black;">
                 {{ trans('formation.register_now') }}
             </a>
-            <a href="#" class="inline-flex items-center px-6 py-2 text-base font-semibold transition-all duration-300"
+            {{-- <a href="#" class="inline-flex items-center px-6 py-2 text-base font-semibold transition-all duration-300"
                 style="background: #111; color: white; border: 1px solid #333;">
                 {{ trans('formation.download_brochure') }}
-            </a>
+            </a> --}}
         </div>
     </div>
 </section>
