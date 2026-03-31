@@ -603,7 +603,7 @@
 </section>
 
 <!-- ============================================ -->
-<!-- SESSIONS DE FORMATION À VENIR - CARTES ÉLARGIES -->
+<!-- SESSIONS DE FORMATION À VENIR - VERSION RESPONSIVE OPTIMISÉE -->
 <!-- ============================================ -->
 @if(isset($upcomingSessions) && $upcomingSessions->count() > 0)
 <section class="py-20" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);">
@@ -617,40 +617,40 @@
             </p>
         </div>
 
-        <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             @foreach($upcomingSessions as $session)
             <div class="group relative overflow-hidden transition-all duration-300 rounded-xl hover:transform hover:scale-105"
-                style="background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%); border: 1px solid rgba(182, 146, 70, 0.3); min-width: 0;">
+                style="background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%); border: 1px solid rgba(182, 146, 70, 0.3);">
 
-                <!-- Badge formation - Positionné à droite avec espace -->
-                <div class="absolute top-4 right-4 z-20" style="right: 20px; max-width: 45%;">
-                    <span class="inline-block px-3 py-1.5 text-xs font-semibold rounded-full whitespace-normal break-words text-center"
-                        style="background: rgba(182, 146, 70, 0.2); color: #b69246; backdrop-filter: blur(4px); max-width: 200px; line-height: 1.3;">
+                <!-- Badge formation - Position adaptative selon écran -->
+                <div class="absolute z-20 session-badge" style="top: 16px; right: 16px;">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full whitespace-normal break-words text-center"
+                        style="background: rgba(182, 146, 70, 0.2); color: #b69246; backdrop-filter: blur(4px); max-width: 180px; line-height: 1.3;">
                         {{ $session->formation->title }}
                     </span>
                 </div>
 
                 <div class="p-6 relative z-10">
-                    <!-- Titre session - Espace suffisant à droite -->
-                    <h3 class="text-xl font-bold text-white mb-3" style="padding-right: 48%; line-height: 1.3; word-break: break-word;">
+                    <!-- Titre session - Marge dynamique selon écran -->
+                    <h3 class="text-xl font-bold text-white mb-3 session-title" style="line-height: 1.3;">
                         {{ $session->name }}
                     </h3>
 
                     <!-- Dates et informations -->
                     <div class="space-y-3 mb-6">
-                        <div class="flex items-start text-gray-300">
-                            <i class="fas fa-calendar-alt w-5 flex-shrink-0 mt-0.5" style="color: #b69246;"></i>
+                        <div class="flex items-center text-gray-300">
+                            <i class="fas fa-calendar-alt w-5 flex-shrink-0" style="color: #b69246;"></i>
                             <span class="ml-3 text-sm break-words">{{ $session->formatted_dates }}</span>
                         </div>
                         @if($session->formatted_schedule)
-                        <div class="flex items-start text-gray-300">
-                            <i class="fas fa-clock w-5 flex-shrink-0 mt-0.5" style="color: #b69246;"></i>
+                        <div class="flex items-center text-gray-300">
+                            <i class="fas fa-clock w-5 flex-shrink-0" style="color: #b69246;"></i>
                             <span class="ml-3 text-sm">{{ $session->formatted_schedule }}</span>
                         </div>
                         @endif
                         @if($session->location)
-                        <div class="flex items-start text-gray-300">
-                            <i class="fas fa-map-marker-alt w-5 flex-shrink-0 mt-0.5" style="color: #b69246;"></i>
+                        <div class="flex items-center text-gray-300">
+                            <i class="fas fa-map-marker-alt w-5 flex-shrink-0" style="color: #b69246;"></i>
                             <span class="ml-3 text-sm break-words">{{ $session->location }}</span>
                         </div>
                         @endif
@@ -1146,84 +1146,79 @@
             text-align: center !important;
         }
 
-        /* Ajustements mobiles pour les cartes de session */
-        .group .p-6 h3 {
-            padding-right: 38% !important;
-            font-size: 16px !important;
+        /* Styles responsive pour les cartes de session - Version existante inchangée */
+        .session-badge {
+            position: relative !important;
+            top: 0 !important;
+            right: 0 !important;
+            margin-bottom: 12px !important;
+            display: inline-block !important;
+            width: auto !important;
         }
 
-        .group .absolute.top-4.right-4 {
-            max-width: 45% !important;
-            right: 12px !important;
+        .session-badge span {
+            display: inline-block !important;
+            max-width: 100% !important;
+            font-size: 11px !important;
         }
 
-        .group .absolute.top-4.right-4 span {
-            font-size: 10px !important;
-            max-width: 140px !important;
-            padding: 2px 8px !important;
-        }
-
-        .grid-cols-1 {
-            gap: 1rem !important;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .group .p-6 h3 {
-            padding-right: 42% !important;
-            font-size: 14px !important;
-        }
-
-        .group .absolute.top-4.right-4 {
-            max-width: 42% !important;
-            right: 10px !important;
-        }
-
-        .group .absolute.top-4.right-4 span {
-            font-size: 9px !important;
-            max-width: 120px !important;
-        }
-    }
-
-    /* Styles pour les écrans très larges (desktop) */
-    @media (min-width: 1280px) {
-        .grid-cols-1 {
-            gap: 2rem !important;
-        }
-
-        .group .p-6 h3 {
-            padding-right: 52% !important;
-            font-size: 1.25rem !important;
-        }
-
-        .group .absolute.top-4.right-4 {
-            max-width: 40% !important;
-            right: 24px !important;
-        }
-
-        .group .absolute.top-4.right-4 span {
-            font-size: 0.75rem !important;
-            max-width: 220px !important;
-            padding: 6px 12px !important;
+        .session-title {
+            padding-right: 0 !important;
+            margin-top: 0 !important;
         }
 
         .group .p-6 {
-            padding: 1.75rem !important;
+            display: flex;
+            flex-direction: column;
+        }
+    }
+
+    @media (min-width: 768px) {
+        /* Styles desktop : badge à droite avec espace - Version existante inchangée */
+        .session-badge {
+            position: absolute !important;
+            top: 16px !important;
+            right: 16px !important;
+        }
+
+        .session-title {
+            padding-right: 130px !important;
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 1024px) {
+        .session-title {
+            padding-right: 110px !important;
+        }
+    }
+
+    /* MODIFICATIONS UNIQUEMENT POUR GRAND ÉCRAN (≥ 1280px) */
+    @media (min-width: 1280px) {
+        .session-title {
+            padding-right: 52% !important;
+        }
+
+        .session-badge {
+            right: 24px !important;
+        }
+
+        .session-badge span {
+            font-size: 0.75rem !important;
+            padding: 6px 12px !important;
+            max-width: 220px !important;
         }
     }
 
     @media (min-width: 1536px) {
-        .group .p-6 h3 {
+        .session-title {
             padding-right: 55% !important;
-            font-size: 1.35rem !important;
         }
 
-        .group .absolute.top-4.right-4 {
-            max-width: 38% !important;
+        .session-badge {
             right: 28px !important;
         }
 
-        .group .absolute.top-4.right-4 span {
+        .session-badge span {
             font-size: 0.8rem !important;
             max-width: 250px !important;
         }
