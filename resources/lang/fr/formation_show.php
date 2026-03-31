@@ -118,7 +118,7 @@ return [
     'phone_hours' => 'Lun-Ven: 9h-19h | Sam: 9h-13h',
     'by_email' => 'Par email',
     'our_center' => 'Notre centre',
-    'center_address' => 'DJOK PRESTIGE Formation<br>123 Avenue des Champs-Élysées<br>75008 Paris',
+    'center_address' => 'DJOK PRESTIGE Formation<br>66 Avenue des Champs-Élysées<br>75008 Paris',
 
     // FAQ
     'faq' => 'Questions fréquentes',

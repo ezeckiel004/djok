@@ -192,7 +192,21 @@
                                                     {{ __('À partir de') }} {{ number_format($service->price_from, 0,
                                                     ',', ' ') }}€
                                                     @if($service->price_unit)
-                                                    {{ __('contact.' . $service->price_unit) }}
+                                                        @php
+                                                            $unitMapping = [
+                                                                'jour' => 'per_day',
+                                                                'heure' => 'per_hour',
+                                                                'mois' => 'per_month',
+                                                                'forfait' => 'one_time',
+                                                                'trajet' => 'per_trip',
+                                                                'formation' => 'per_formation',
+                                                                'journée' => 'per_day',
+                                                                'semaine' => 'per_week',
+                                                                'personne' => 'per_person',
+                                                            ];
+                                                            $transKey = $unitMapping[$service->price_unit] ?? $service->price_unit;
+                                                        @endphp
+                                                        / {{ __('contact.' . $transKey) }}
                                                     @endif
                                                 </p>
                                                 @endif

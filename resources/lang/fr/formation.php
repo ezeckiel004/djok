@@ -219,7 +219,7 @@ return [
     'weekdays' => 'Lundi - Vendredi : 9h00 - 19h00',
     'saturday' => 'Samedi : 9h00 - 13h00',
     'center_address' => 'Adresse du centre :',
-    'address' => 'DJOK PRESTIGE Formation<br>123 Avenue des Champs-Élysées<br>75008 Paris',
+    'address' => 'DJOK PRESTIGE Formation<br>66 Avenue des Champs-Élysées<br>75008 Paris',
     'review_trainings' => 'Revoir nos formations',
 
     // Catégories

@@ -52,7 +52,7 @@ return [
     'by_whatsapp' => 'WhatsApp',
     'whatsapp_available' => 'Disponible 24h/24 pour les urgences',
     'our_center' => 'Notre centre',
-    'center_address_line1' => '123 Avenue des Champs-Élysées',
+    'center_address_line1' => '66 Avenue des Champs-Élysées',
     'center_address_line2' => '75008 Paris',
 
     // Services populaires
@@ -77,4 +77,10 @@ return [
     'invalid_email' => 'Veuillez entrer une adresse email valide',
     'min_length' => 'Minimum :min caractères',
     'max_length' => 'Maximum :max caractères',
+
+    // Ajoutez à la fin du fichier, dans la section des unités de prix
+'per_trip' => 'trajet',
+'per_formation' => 'formation',
+'per_week' => 'semaine',
+'per_person' => 'personne',
 ];

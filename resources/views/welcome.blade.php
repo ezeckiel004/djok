@@ -561,7 +561,7 @@
                         <div class="mt-6">
                             <div class="text-sm" style="color: var(--gold);">
                                 <i class="fas fa-file-pdf mr-2"></i>
-                                <span>{{ __('home.qualiopi') }}</span>
+                                <span>{{ __('home.view_arrete_pdf') }}</span>
                             </div>
                             <div class="mt-1 text-xs text-gray-500">
                                 <i class="fas fa-info-circle mr-1"></i>
@@ -588,7 +588,7 @@
                         <div class="mt-6">
                             <div class="text-sm" style="color: var(--gold);">
                                 <i class="fas fa-file-pdf mr-2"></i>
-                                <span>{{ __('home.prefectoral') }}</span>
+                                <span>{{ __('home.view_arrete_pdf') }}</span>
                             </div>
                             <div class="mt-1 text-xs text-gray-500">
                                 <i class="fas fa-info-circle mr-1"></i>
@@ -603,7 +603,7 @@
 </section>
 
 <!-- ============================================ -->
-<!-- SESSIONS DE FORMATION À VENIR -->
+<!-- SESSIONS DE FORMATION À VENIR - VERSION RESPONSIVE OPTIMISÉE -->
 <!-- ============================================ -->
 @if(isset($upcomingSessions) && $upcomingSessions->count() > 0)
 <section class="py-20" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);">
@@ -622,34 +622,36 @@
             <div class="group relative overflow-hidden transition-all duration-300 rounded-xl hover:transform hover:scale-105"
                 style="background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%); border: 1px solid rgba(182, 146, 70, 0.3);">
 
-                <!-- Badge formation -->
-                <div class="absolute top-4 right-4 z-20">
-                    <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full"
-                        style="background: rgba(182, 146, 70, 0.2); color: #b69246; backdrop-filter: blur(4px);">
+                <!-- Badge formation - Position adaptative selon écran -->
+                <div class="absolute z-20 session-badge" style="top: 16px; right: 16px;">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full whitespace-normal break-words text-center"
+                        style="background: rgba(182, 146, 70, 0.2); color: #b69246; backdrop-filter: blur(4px); max-width: 180px; line-height: 1.3;">
                         {{ $session->formation->title }}
                     </span>
                 </div>
 
                 <div class="p-6 relative z-10">
-                    <!-- Titre session -->
-                    <h3 class="text-xl font-bold text-white mb-3 pr-24">{{ $session->name }}</h3>
+                    <!-- Titre session - Marge dynamique selon écran -->
+                    <h3 class="text-xl font-bold text-white mb-3 session-title" style="line-height: 1.3;">
+                        {{ $session->name }}
+                    </h3>
 
                     <!-- Dates et informations -->
                     <div class="space-y-3 mb-6">
                         <div class="flex items-center text-gray-300">
-                            <i class="fas fa-calendar-alt w-5" style="color: #b69246;"></i>
-                            <span class="ml-3">{{ $session->formatted_dates }}</span>
+                            <i class="fas fa-calendar-alt w-5 flex-shrink-0" style="color: #b69246;"></i>
+                            <span class="ml-3 text-sm break-words">{{ $session->formatted_dates }}</span>
                         </div>
                         @if($session->formatted_schedule)
                         <div class="flex items-center text-gray-300">
-                            <i class="fas fa-clock w-5" style="color: #b69246;"></i>
-                            <span class="ml-3">{{ $session->formatted_schedule }}</span>
+                            <i class="fas fa-clock w-5 flex-shrink-0" style="color: #b69246;"></i>
+                            <span class="ml-3 text-sm">{{ $session->formatted_schedule }}</span>
                         </div>
                         @endif
                         @if($session->location)
                         <div class="flex items-center text-gray-300">
-                            <i class="fas fa-map-marker-alt w-5" style="color: #b69246;"></i>
-                            <span class="ml-3">{{ $session->location }}</span>
+                            <i class="fas fa-map-marker-alt w-5 flex-shrink-0" style="color: #b69246;"></i>
+                            <span class="ml-3 text-sm break-words">{{ $session->location }}</span>
                         </div>
                         @endif
                     </div>
@@ -1143,6 +1145,51 @@
         .company-info {
             text-align: center !important;
         }
+
+        /* Styles responsive pour les cartes de session */
+        .session-badge {
+            position: relative !important;
+            top: 0 !important;
+            right: 0 !important;
+            margin-bottom: 12px !important;
+            display: inline-block !important;
+            width: auto !important;
+        }
+
+        .session-badge span {
+            display: inline-block !important;
+            max-width: 100% !important;
+            font-size: 11px !important;
+        }
+
+        .session-title {
+            padding-right: 0 !important;
+            margin-top: 0 !important;
+        }
+
+        .group .p-6 {
+            display: flex;
+            flex-direction: column;
+        }
+    }
+
+    @media (min-width: 768px) {
+        /* Styles desktop : badge à droite avec espace */
+        .session-badge {
+            position: absolute !important;
+            top: 16px !important;
+            right: 16px !important;
+        }
+
+        .session-title {
+            padding-right: 130px !important;
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 1024px) {
+        .session-title {
+            padding-right: 110px !important;
+        }
     }
 
     .banner-section {
@@ -1238,14 +1285,18 @@
         object-fit: cover;
     }
 
-    /* Correction pour les badges de session */
-    .group .absolute.top-4.right-4 {
-        z-index: 30 !important;
-    }
-
     .group .p-6 {
         position: relative;
         z-index: 10;
+    }
+
+    .break-words {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .whitespace-normal {
+        white-space: normal;
     }
 </style>
 

@@ -10,6 +10,7 @@ use App\Models\ElearningQcm;
 use App\Models\ElearningProgression;
 use App\Models\ElearningSession;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
@@ -261,34 +262,68 @@ class AdminElearningController extends Controller
         }
     }
 
-    public function destroyForfait($id)
-    {
-        Log::info('Suppression de forfait demandée', ['forfait_id' => $id]);
+    /**
+ * Supprimer un forfait (suppression définitive même avec accès)
+ */
+public function destroyForfait($id)
+{
+    Log::info('Suppression définitive de forfait demandée', ['forfait_id' => $id]);
 
-        $forfait = ElearningForfait::findOrFail($id);
+    $forfait = ElearningForfait::findOrFail($id);
 
-        // Vérifier s'il y a des accès associés
-        if ($forfait->acces()->exists()) {
-            Log::warning('Impossible de supprimer le forfait - accès associés existent', ['forfait_id' => $id]);
-            return back()->with('error', 'Impossible de supprimer ce forfait car il y a des accès associés.');
+    // Compter le nombre d'accès associés
+    $accesCount = $forfait->acces()->count();
+
+    try {
+        DB::beginTransaction();
+
+        if ($accesCount > 0) {
+            Log::info('Suppression des accès associés', ['count' => $accesCount]);
+
+            // Récupérer tous les accès avec leurs relations
+            $accesList = $forfait->acces()->with(['sessions', 'progressions'])->get();
+
+            foreach ($accesList as $acces) {
+                // Supprimer les sessions associées
+                $acces->sessions()->delete();
+
+                // Supprimer les progressions associées
+                $acces->progressions()->delete();
+
+                // Supprimer l'accès lui-même
+                $acces->delete();
+            }
         }
 
-        try {
-            $forfait->delete();
-            Log::info('Forfait supprimé avec succès', ['forfait_id' => $id]);
+        // Supprimer le forfait
+        $forfait->delete();
 
-            return redirect()->route('admin.elearning.forfaits')
-                ->with('success', 'Forfait supprimé avec succès.');
-        } catch (\Exception $e) {
-            Log::error('Erreur lors de la suppression du forfait', [
-                'forfait_id' => $id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+        DB::commit();
 
-            return back()->with('error', 'Erreur lors de la suppression du forfait: ' . $e->getMessage());
+        $message = 'Forfait supprimé avec succès.';
+        if ($accesCount > 0) {
+            $message .= " {$accesCount} accès associés ont également été supprimés.";
         }
+
+        Log::info('Forfait supprimé définitivement', [
+            'forfait_id' => $id,
+            'acces_deleted' => $accesCount
+        ]);
+
+        return redirect()->route('admin.elearning.forfaits')
+            ->with('warning', $message);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Erreur lors de la suppression du forfait', [
+            'forfait_id' => $id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return back()->with('error', 'Erreur lors de la suppression du forfait: ' . $e->getMessage());
     }
+}
 
     /**
      * Gestion des accès
