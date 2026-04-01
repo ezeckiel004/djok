@@ -647,7 +647,7 @@
 </section>
 
 <!-- Formation e-learning - Style sobre -->
-<section class="py-16" style="background: #000;">
+{{-- <section class="py-16" style="background: #000;">
     <div class="container px-4 mx-auto md:px-6">
         <div class="grid items-center grid-cols-1 gap-8 lg:grid-cols-2 md:gap-12">
             <div class="text-white">
@@ -701,7 +701,7 @@
             </div>
         </div>
     </div>
-</section>
+</section> --}}
 
 <!-- Conditions d'inscription - Style sobre -->
 <section class="py-16" style="background: #111;">
@@ -803,13 +803,13 @@
         </div>
 
         <div class="grid grid-cols-1 gap-6 mb-12 md:grid-cols-2 lg:grid-cols-3">
-            <div class="p-6" style="background: #111; border: 1px solid #333;">
+            {{-- <div class="p-6" style="background: #111; border: 1px solid #333;">
                 <div class="mb-4 text-xl" style="color: #b89449;">
                     <i class="fas fa-certificate"></i>
                 </div>
                 <h4 class="mb-2 text-lg font-bold text-white">{{ trans('formation.why_1') }}</h4>
                 <p class="text-gray-400">{{ trans('formation.why_1_desc') }}</p>
-            </div>
+            </div> --}}
 
             <div class="p-6" style="background: #111; border: 1px solid #333;">
                 <div class="mb-4 text-xl" style="color: #b89449;">
