@@ -164,18 +164,14 @@
                     {{ __('home.rental_description') }}
                 </p>
 
-                <!-- Nouvelles cartes avec images - CORRIGÉ POUR MOBILE -->
+                <!-- Nouvelles cartes avec images -->
                 <div class="grid max-w-6xl grid-cols-1 gap-8 mx-auto mb-16 md:grid-cols-3">
                     <!-- Véhicule Électrique -->
-                    <div
-                        class="relative overflow-hidden transition-all duration-300 border group rounded-xl border-white/10 bg-white/5 backdrop-blur-sm hover:transform hover:scale-105 hover:border-b69246/30 mx-auto w-full max-w-md md:max-w-none">
+                    <div class="relative overflow-hidden transition-all duration-300 border group rounded-xl border-white/10 bg-white/5 backdrop-blur-sm hover:transform hover:scale-105 hover:border-b69246/30 mx-auto w-full max-w-md md:max-w-none">
                         <div class="relative h-48 overflow-hidden">
                             <img src="{{ asset('v_electrique.webp') }}" alt="{{ __('home.electric_vehicle') }}"
                                 class="absolute inset-0 object-cover w-full h-full transition-transform duration-500 group-hover:scale-110">
-                            <!-- Overlay pour rendre le texte lisible -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                            </div>
-                            <!-- Badge de capacité -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                             <div class="absolute flex items-center justify-between bottom-4 left-4 right-4">
                                 <div class="flex items-center px-3 py-1 space-x-2 rounded-full bg-black/70">
                                     <i class="text-sm fas fa-users" style="color: #b69246;"></i>
@@ -189,9 +185,7 @@
                         </div>
                         <div class="p-6">
                             <h3 class="mb-3 text-xl font-bold">{{ __('home.electric_vehicle') }}</h3>
-                            <p class="mb-4 text-sm text-gray-300">
-                                {{ __('home.electric_description') }}
-                            </p>
+                            <p class="mb-4 text-sm text-gray-300">{{ __('home.electric_description') }}</p>
                             <div class="flex items-center text-sm">
                                 <i class="mr-2 fas fa-bolt" style="color: #b69246;"></i>
                                 <span>{{ __('home.fully_electric') }}</span>
@@ -200,15 +194,11 @@
                     </div>
 
                     <!-- Véhicule Berline -->
-                    <div
-                        class="relative overflow-hidden transition-all duration-300 border group rounded-xl border-white/10 bg-white/5 backdrop-blur-sm hover:transform hover:scale-105 hover:border-b69246/30 mx-auto w-full max-w-md md:max-w-none">
+                    <div class="relative overflow-hidden transition-all duration-300 border group rounded-xl border-white/10 bg-white/5 backdrop-blur-sm hover:transform hover:scale-105 hover:border-b69246/30 mx-auto w-full max-w-md md:max-w-none">
                         <div class="relative h-48 overflow-hidden">
                             <img src="{{ asset('v_berline.webp') }}" alt="{{ __('home.premium_sedan') }}"
                                 class="absolute inset-0 object-cover w-full h-full transition-transform duration-500 group-hover:scale-110">
-                            <!-- Overlay pour rendre le texte lisible -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                            </div>
-                            <!-- Badge de capacité -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                             <div class="absolute flex items-center justify-between bottom-4 left-4 right-4">
                                 <div class="flex items-center px-3 py-1 space-x-2 rounded-full bg-black/70">
                                     <i class="text-sm fas fa-users" style="color: #b69246;"></i>
@@ -222,9 +212,7 @@
                         </div>
                         <div class="p-6">
                             <h3 class="mb-3 text-xl font-bold">{{ __('home.premium_sedan') }}</h3>
-                            <p class="mb-4 text-sm text-gray-300">
-                                {{ __('home.sedan_description') }}
-                            </p>
+                            <p class="mb-4 text-sm text-gray-300">{{ __('home.sedan_description') }}</p>
                             <div class="flex items-center text-sm">
                                 <i class="mr-2 fas fa-star" style="color: #b69246;"></i>
                                 <span>{{ __('home.business_class') }}</span>
@@ -233,15 +221,11 @@
                     </div>
 
                     <!-- Véhicule VAN -->
-                    <div
-                        class="relative overflow-hidden transition-all duration-300 border group rounded-xl border-white/10 bg-white/5 backdrop-blur-sm hover:transform hover:scale-105 hover:border-b69246/30 mx-auto w-full max-w-md md:max-w-none">
+                    <div class="relative overflow-hidden transition-all duration-300 border group rounded-xl border-white/10 bg-white/5 backdrop-blur-sm hover:transform hover:scale-105 hover:border-b69246/30 mx-auto w-full max-w-md md:max-w-none">
                         <div class="relative h-48 overflow-hidden">
                             <img src="{{ asset('v_VAN.webp') }}" alt="{{ __('home.van_7seats') }}"
                                 class="absolute inset-0 object-cover w-full h-full transition-transform duration-500 group-hover:scale-110">
-                            <!-- Overlay pour rendre le texte lisible -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                            </div>
-                            <!-- Badge de capacité -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                             <div class="absolute flex items-center justify-between bottom-4 left-4 right-4">
                                 <div class="flex items-center px-3 py-1 space-x-2 rounded-full bg-black/70">
                                     <i class="text-sm fas fa-users" style="color: #b69246;"></i>
@@ -255,9 +239,7 @@
                         </div>
                         <div class="p-6">
                             <h3 class="mb-3 text-xl font-bold">{{ __('home.van_7seats') }}</h3>
-                            <p class="mb-4 text-sm text-gray-300">
-                                {{ __('home.van_description') }}
-                            </p>
+                            <p class="mb-4 text-sm text-gray-300">{{ __('home.van_description') }}</p>
                             <div class="flex items-center text-sm">
                                 <i class="mr-2 fas fa-shield-alt" style="color: #b69246;"></i>
                                 <span>{{ __('home.group_comfort') }}</span>
@@ -318,7 +300,7 @@
     </div>
 </header>
 
-<!-- SERVICES SECTION AVEC NOUVEAU DESIGN - CORRIGÉ POUR MOBILE -->
+<!-- SERVICES SECTION -->
 <section id="services" class="py-20 bg-black">
     <div class="px-4 mx-auto max-w-7xl">
         <h2 class="mb-4 text-4xl font-bold text-center" style="color: var(--gold);">{{ __('home.our_services') }}</h2>
@@ -336,9 +318,7 @@
                 </div>
                 <div class="flex flex-col justify-center flex-grow p-6 text-center">
                     <h3 class="mb-3 text-2xl font-bold">{{ __('home.trainings') }}</h3>
-                    <p class="mb-6 text-gray-700">
-                        {{ __('home.trainings_description') }}
-                    </p>
+                    <p class="mb-6 text-gray-700">{{ __('home.trainings_description') }}</p>
                     <a href="{{ route('formation') }}">
                         <button class="self-center px-8 py-3 font-semibold transition-all duration-300"
                             style="background: var(--gold); color: black; border: 2px solid black;"
@@ -359,9 +339,7 @@
                 </div>
                 <div class="flex flex-col justify-center flex-grow p-6 text-center">
                     <h3 class="mb-3 text-2xl font-bold">{{ __('home.international_training') }}</h3>
-                    <p class="mb-6 text-gray-700">
-                        {{ __('home.international_description') }}
-                    </p>
+                    <p class="mb-6 text-gray-700">{{ __('home.international_description') }}</p>
                     <a href="{{ route('formation.international') }}">
                         <button class="self-center px-8 py-3 font-semibold transition-all duration-300"
                             style="background: var(--gold); color: black; border: 2px solid black;"
@@ -382,9 +360,7 @@
                 </div>
                 <div class="flex flex-col justify-center flex-grow p-6 text-center">
                     <h3 class="mb-3 text-2xl font-bold">{{ __('home.vtc_reservation') }}</h3>
-                    <p class="mb-6 text-gray-700">
-                        {{ __('home.vtc_reservation_description') }}
-                    </p>
+                    <p class="mb-6 text-gray-700">{{ __('home.vtc_reservation_description') }}</p>
                     <a href="{{ route('reservation') }}">
                         <button class="self-center px-8 py-3 font-semibold transition-all duration-300"
                             style="background: var(--gold); color: black; border: 2px solid black;"
@@ -396,7 +372,7 @@
                 </div>
             </div>
 
-            <!-- Location (Nouvelle carte) -->
+            <!-- Location -->
             <div class="flex flex-col bg-white text-black min-h-[280px] border-2 w-full max-w-md md:max-w-none"
                 style="border-color: var(--gold);">
                 <div class="h-48">
@@ -405,9 +381,7 @@
                 </div>
                 <div class="flex flex-col justify-center flex-grow p-6 text-center">
                     <h3 class="mb-3 text-2xl font-bold">{{ __('home.rental') }}</h3>
-                    <p class="mb-6 text-gray-700">
-                        {{ __('home.rental_description') }}
-                    </p>
+                    <p class="mb-6 text-gray-700">{{ __('home.rental_description') }}</p>
                     <a href="{{ route('location') }}">
                         <button class="self-center px-8 py-3 font-semibold transition-all duration-300"
                             style="background: var(--gold); color: black; border: 2px solid black;"
@@ -419,7 +393,7 @@
                 </div>
             </div>
 
-            <!-- Conciergerie (Nouvelle carte) -->
+            <!-- Conciergerie -->
             <div class="flex flex-col bg-white text-black min-h-[280px] border-2 w-full max-w-md md:max-w-none"
                 style="border-color: var(--gold);">
                 <div class="h-48">
@@ -428,9 +402,7 @@
                 </div>
                 <div class="flex flex-col justify-center flex-grow p-6 text-center">
                     <h3 class="mb-3 text-2xl font-bold">{{ __('home.concierge') }}</h3>
-                    <p class="mb-6 text-gray-700">
-                        {{ __('home.concierge_description') }}
-                    </p>
+                    <p class="mb-6 text-gray-700">{{ __('home.concierge_description') }}</p>
                     <a href="{{ route('conciergerie') }}">
                         <button class="self-center px-8 py-3 font-semibold transition-all duration-300"
                             style="background: var(--gold); color: black; border: 2px solid black;"
@@ -451,12 +423,10 @@
                 </div>
                 <div class="flex flex-col justify-center flex-grow p-6 text-center">
                     <h3 class="mb-3 text-2xl font-bold">{{ __('home.client_space') }}</h3>
-                    <p class="mb-6 text-gray-700">
-                        {{ __('home.client_space_description') }}
-                    </p>
+                    <p class="mb-6 text-gray-700">{{ __('home.client_space_description') }}</p>
                     <a href="{{ route('espaceclient') }}">
                         <button
-                            class="self-center px-8 py-3 font-semibold text-white transition-all duration-300 bg-black border-2 border-black hover:bg-white hover:text-black hover:border-black"
+                            class="self-center px-8 py-3 font-semibold text-white transition-all duration-300 bg-black border-2 border-black"
                             onmouseover="this.style.background='white'; this.style.color='black'; this.style.borderColor='black'"
                             onmouseout="this.style.background='black'; this.style.color='white'; this.style.borderColor='black'">
                             {{ __('home.login') }}
@@ -468,72 +438,143 @@
     </div>
 </section>
 
-<!-- Statistics Section - CORRIGÉE avec espacement et icônes -->
-<section id="stats" class="py-20 text-white bg-dark">
+<!-- INDICATEURS DE PERFORMANCE -->
+<section class="py-20" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);">
     <div class="px-4 mx-auto max-w-7xl">
-        <h2 class="mb-4 text-4xl font-bold text-center" style="color: #b69246;">{{ __('home.numbers_title') }}</h2>
-        <p class="mt-4 text-center text-gray-300">{{ __('home.numbers_subtitle') }}</p>
-
-        <div class="grid grid-cols-1 gap-12 mt-16 md:grid-cols-2 lg:grid-cols-4">
-            <!-- Réseau d'experts -->
-            <div class="flex flex-col items-center text-center group">
-                <div class="flex items-center justify-center w-20 h-20 mb-6 transition-all duration-300 rounded-full bg-gradient-to-br from-amber-600/20 to-amber-800/20 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-amber-900/30">
-                    <i class="text-3xl fas fa-handshake" style="color: #b69246;"></i>
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+            <!-- Carte Personnes Formées -->
+            <div class="relative overflow-hidden transition-all duration-500 group rounded-2xl"
+                style="background: linear-gradient(135deg, rgba(182, 146, 70, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%); border: 1px solid rgba(182, 146, 70, 0.3);">
+                <div class="p-8 text-center">
+                    <div class="flex items-center justify-center mb-6">
+                        <div class="relative">
+                            <div class="absolute inset-0 rounded-full animate-ping"
+                                style="background: rgba(182, 146, 70, 0.3); width: 80px; height: 80px; border-radius: 50%;"></div>
+                            <div class="relative flex items-center justify-center w-20 h-20 rounded-full"
+                                style="background: linear-gradient(135deg, #b69246 0%, #d4af37 100%);">
+                                <i class="text-3xl fas fa-users" style="color: #000;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <span class="text-6xl font-bold" style="color: #b69246; text-shadow: 0 0 20px rgba(182, 146, 70, 0.5);">
+                            <span class="counter" data-target="8">0</span>
+                        </span>
+                        <span class="text-3xl font-bold" style="color: #b69246;">+</span>
+                    </div>
+                    <h3 class="mb-3 text-2xl font-bold text-white">Personnes Formées</h3>
+                    <p class="text-gray-400">
+                        Des professionnels formés avec succès à nos différentes certifications VTC
+                    </p>
+                    <div class="mt-6">
+                        <div class="h-1 overflow-hidden rounded-full bg-gray-700">
+                            <div class="h-full transition-all duration-1000 rounded-full" style="width: 100%; background: #b69246;"></div>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Objectif 2025 : 25+ formés</p>
+                    </div>
                 </div>
-                <h3 class="mb-3 text-xl font-bold leading-tight md:text-2xl" style="color: #b69246;">
-                    {{ __('home.experts_network') }}
-                </h3>
-                <p class="max-w-xs text-sm text-gray-300 md:text-base">
-                    {{ __('home.experts_network_desc') }}
-                </p>
             </div>
 
-            <!-- Formations pratiques -->
-            <div class="flex flex-col items-center text-center group">
-                <div class="flex items-center justify-center w-20 h-20 mb-6 transition-all duration-300 rounded-full bg-gradient-to-br from-amber-600/20 to-amber-800/20 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-amber-900/30">
-                    <i class="text-3xl fas fa-chalkboard-teacher" style="color: #b69246;"></i>
+            <!-- Carte Taux de Satisfaction -->
+            <div class="relative overflow-hidden transition-all duration-500 group rounded-2xl"
+                style="background: linear-gradient(135deg, rgba(182, 146, 70, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%); border: 1px solid rgba(182, 146, 70, 0.3);">
+                <div class="p-8 text-center">
+                    <div class="flex items-center justify-center mb-6">
+                        <div class="relative">
+                            <div class="absolute inset-0 rounded-full animate-ping"
+                                style="background: rgba(182, 146, 70, 0.3); width: 80px; height: 80px; border-radius: 50%;"></div>
+                            <div class="relative flex items-center justify-center w-20 h-20 rounded-full"
+                                style="background: linear-gradient(135deg, #b69246 0%, #d4af37 100%);">
+                                <i class="text-3xl fas fa-star" style="color: #000;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <span class="text-6xl font-bold" style="color: #b69246; text-shadow: 0 0 20px rgba(182, 146, 70, 0.5);">
+                            <span class="counter" data-target="100">0</span>
+                        </span>
+                        <span class="text-3xl font-bold" style="color: #b69246;">%</span>
+                    </div>
+                    <h3 class="mb-3 text-2xl font-bold text-white">Taux de Satisfaction</h3>
+                    <p class="text-gray-400">
+                        De nos apprenants, basé sur nos enquêtes de satisfaction post-formation
+                    </p>
+                    <div class="mt-6">
+                        <div class="flex justify-center gap-1">
+                            <i class="fas fa-star" style="color: #b69246;"></i>
+                            <i class="fas fa-star" style="color: #b69246;"></i>
+                            <i class="fas fa-star" style="color: #b69246;"></i>
+                            <i class="fas fa-star" style="color: #b69246;"></i>
+                            <i class="fas fa-star" style="color: #b69246;"></i>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Note moyenne : 5/5 sur 12 avis</p>
+                    </div>
                 </div>
-                <h3 class="mb-3 text-xl font-bold leading-tight md:text-2xl" style="color: #b69246;">
-                    {{ __('home.practical_trainings') }}
-                </h3>
-                <p class="max-w-xs text-sm text-gray-300 md:text-base">
-                    {{ __('home.practical_trainings_desc') }}
-                </p>
             </div>
+        </div>
 
-            <!-- Accompagnement sur mesure -->
-            <div class="flex flex-col items-center text-center group">
-                <div class="flex items-center justify-center w-20 h-20 mb-6 transition-all duration-300 rounded-full bg-gradient-to-br from-amber-600/20 to-amber-800/20 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-amber-900/30">
-                    <i class="text-3xl fas fa-user-check" style="color: #b69246;"></i>
-                </div>
-                <h3 class="mb-3 text-xl font-bold leading-tight md:text-2xl" style="color: #b69246;">
-                    {{ __('home.tailored_support') }}
-                </h3>
-                <p class="max-w-xs text-sm text-gray-300 md:text-base">
-                    {{ __('home.tailored_support_desc') }}
-                </p>
-            </div>
-
-            <!-- Communauté en développement -->
-            <div class="flex flex-col items-center text-center group">
-                <div class="flex items-center justify-center w-20 h-20 mb-6 transition-all duration-300 rounded-full bg-gradient-to-br from-amber-600/20 to-amber-800/20 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-amber-900/30">
-                    <i class="text-3xl fas fa-users" style="color: #b69246;"></i>
-                </div>
-                <h3 class="mb-3 text-xl font-bold leading-tight md:text-2xl" style="color: #b69246;">
-                    {{ __('home.growing_community') }}
-                </h3>
-                <p class="max-w-xs text-sm text-gray-300 md:text-base">
-                    {{ __('home.growing_community_desc') }}
+        <!-- Bandeau récapitulatif -->
+        <div class="max-w-3xl mx-auto mt-12 text-center">
+            <div class="p-6 rounded-xl" style="background: rgba(182, 146, 70, 0.05); border: 1px solid rgba(182, 146, 70, 0.2);">
+                <p class="text-lg text-gray-300">
+                    <i class="mr-2 fas fa-chart-line" style="color: #b69246;"></i>
+                    <strong class="text-white">+8 professionnels formés</strong> et prêts à réussir dans le secteur VTC,
+                    avec un <strong class="text-white">taux de satisfaction de 100%</strong> auprès de nos apprenants.
                 </p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Certifications Section - Avec images et liens PDF -->
+<!-- Statistics Section -->
+<section id="stats" class="py-20 text-white bg-dark">
+    <div class="px-4 mx-auto max-w-7xl">
+        <h2 class="mb-4 text-4xl font-bold text-center" style="color: #b69246;">{{ __('home.numbers_title') }}</h2>
+        <p class="mt-4 text-center text-gray-300">{{ __('home.numbers_subtitle') }}</p>
+
+        <div class="grid grid-cols-1 gap-12 mt-16 md:grid-cols-2 lg:grid-cols-4">
+            <div class="flex flex-col items-center text-center group">
+                <div class="flex items-center justify-center w-20 h-20 mb-6 transition-all duration-300 rounded-full bg-gradient-to-br from-amber-600/20 to-amber-800/20 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-amber-900/30">
+                    <i class="text-3xl fas fa-handshake" style="color: #b69246;"></i>
+                </div>
+                <h3 class="mb-3 text-xl font-bold leading-tight md:text-2xl" style="color: #b69246;">{{ __('home.experts_network') }}</h3>
+                <p class="max-w-xs text-sm text-gray-300 md:text-base">{{ __('home.experts_network_desc') }}</p>
+            </div>
+
+            <div class="flex flex-col items-center text-center group">
+                <div class="flex items-center justify-center w-20 h-20 mb-6 transition-all duration-300 rounded-full bg-gradient-to-br from-amber-600/20 to-amber-800/20 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-amber-900/30">
+                    <i class="text-3xl fas fa-chalkboard-teacher" style="color: #b69246;"></i>
+                </div>
+                <h3 class="mb-3 text-xl font-bold leading-tight md:text-2xl" style="color: #b69246;">{{ __('home.practical_trainings') }}</h3>
+                <p class="max-w-xs text-sm text-gray-300 md:text-base">{{ __('home.practical_trainings_desc') }}</p>
+            </div>
+
+            <div class="flex flex-col items-center text-center group">
+                <div class="flex items-center justify-center w-20 h-20 mb-6 transition-all duration-300 rounded-full bg-gradient-to-br from-amber-600/20 to-amber-800/20 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-amber-900/30">
+                    <i class="text-3xl fas fa-user-check" style="color: #b69246;"></i>
+                </div>
+                <h3 class="mb-3 text-xl font-bold leading-tight md:text-2xl" style="color: #b69246;">{{ __('home.tailored_support') }}</h3>
+                <p class="max-w-xs text-sm text-gray-300 md:text-base">{{ __('home.tailored_support_desc') }}</p>
+            </div>
+
+            <div class="flex flex-col items-center text-center group">
+                <div class="flex items-center justify-center w-20 h-20 mb-6 transition-all duration-300 rounded-full bg-gradient-to-br from-amber-600/20 to-amber-800/20 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-amber-900/30">
+                    <i class="text-3xl fas fa-users" style="color: #b69246;"></i>
+                </div>
+                <h3 class="mb-3 text-xl font-bold leading-tight md:text-2xl" style="color: #b69246;">{{ __('home.growing_community') }}</h3>
+                <p class="max-w-xs text-sm text-gray-300 md:text-base">{{ __('home.growing_community_desc') }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CERTIFICATIONS SECTION - BANNIÈRE QUALIOPI HORIZONTALE       -->
+<!-- ============================================================ -->
 <section class="py-16" style="background: #000;">
     <div class="container mx-auto px-4 md:px-6">
         <div class="max-w-6xl mx-auto">
+
             <div class="text-center mb-12">
                 <h2 class="text-2xl md:text-3xl font-bold mb-4" style="color: var(--gold);">
                     {{ __('home.certifications_title') }}
@@ -543,54 +584,61 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Card 1 - Qualiopi -->
-                <a href="{{ asset('Agrément_Qualiopi.pdf') }}" target="_blank" class="block no-underline">
-                    <div class="p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer h-full flex flex-col"
-                        style="background: #111; border: 1px solid #333;">
-                        <div class="flex-grow">
-                            <div class="w-20 h-20 flex items-center justify-center rounded-full mx-auto mb-6 overflow-hidden transition-all duration-300 hover:scale-110 hover:rotate-12"
-                                style="background: var(--gold);">
-                                <img src="{{ asset('ac1.WEBP') }}" alt="Qualiopi Certification"
-                                    class="object-cover w-full h-full rounded-full">
-                            </div>
-                            <h3 class="text-xl font-bold mb-4" style="color: white;">{{ __('home.qualiopi') }}</h3>
-                            <p class="text-gray-400 mb-3">{{ __('home.qualiopi_description') }}</p>
-                            <p class="text-sm text-gray-500">{{ __('home.qualiopi_detail') }}</p>
-                        </div>
-                        <div class="mt-6">
-                            <div class="text-sm" style="color: var(--gold);">
-                                <i class="fas fa-file-pdf mr-2"></i>
-                                <span>{{ __('home.qualiopi') }}</span>
-                            </div>
-                            <div class="mt-1 text-xs text-gray-500">
-                                <i class="fas fa-info-circle mr-1"></i>
-                                {{ __('home.pdf_label') }}
-                            </div>
-                        </div>
-                    </div>
-                </a>
+            <!-- BANNIÈRE QUALIOPI HORIZONTALE FIDÈLE À L'ORIGINAL -->
+            <div class="qualiopi-banner">
 
-                <!-- Card 2 - Préfectoral (avec lien PDF) -->
+                <!-- BLOC GAUCHE -->
+                <div class="qualiopi-left">
+                    <img src="{{ asset('Qualiopi2.png') }}"
+                         alt="Qualiopi processus certifié"
+                         class="qualiopi-logo-img">
+
+                    <div class="republique-row">
+                        <img src="{{ asset('Marianne2.png') }}"
+                             alt="Marianne République Française"
+                             class="marianne-img">
+                        <span class="republique-label">République Française</span>
+                    </div>
+
+                    <p class="certification-mention">
+                        La certification qualité a été délivrée au titre de la catégorie d'action
+                        suivante&nbsp;: <strong>actions de formation</strong>.
+                    </p>
+                </div>
+
+                <!-- SÉPARATEUR VERTICAL -->
+                <div class="qualiopi-separator"></div>
+
+                <!-- BLOC DROIT -->
+                <div class="qualiopi-right">
+                    <p class="download-title">Téléchargez notre certificat</p>
+                    <a href="{{ asset('Agrément_Qualiopi.pdf') }}" target="_blank" class="download-btn-qualiopi">
+                        Certificat Qualiopi &nbsp;<i class="fas fa-download"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 2 - Préfectoral (conservée) -->
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-8 mt-8">
                 <a href="{{ asset('Agrément_préfecture.pdf') }}" target="_blank" class="block no-underline">
-                    <div class="p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer h-full flex flex-col"
+                    <div class="p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer flex flex-col md:flex-row items-center gap-6"
                         style="background: #111; border: 1px solid #333;">
-                        <div class="flex-grow">
-                            <div class="w-20 h-20 flex items-center justify-center rounded-full mx-auto mb-6 overflow-hidden transition-all duration-300 hover:scale-110 hover:rotate-12"
-                                style="background: var(--gold);">
-                                <img src="{{ asset('ac2.PNG') }}" alt="Arrêté Préfectoral"
-                                    class="object-cover w-full h-full rounded-full">
-                            </div>
-                            <h3 class="text-xl font-bold mb-4" style="color: white;">{{ __('home.prefectoral') }}</h3>
-                            <p class="text-gray-400 mb-3">{{ __('home.prefectoral_description') }}</p>
+                        <div class="w-20 h-20 flex-shrink-0 flex items-center justify-center rounded-full overflow-hidden"
+                            style="background: var(--gold);">
+                            <img src="{{ asset('ac2.PNG') }}" alt="Arrêté Préfectoral"
+                                class="object-cover w-full h-full rounded-full">
+                        </div>
+                        <div class="flex-grow text-left">
+                            <h3 class="text-xl font-bold mb-2" style="color: white;">{{ __('home.prefectoral') }}</h3>
+                            <p class="text-gray-400 mb-1">{{ __('home.prefectoral_description') }}</p>
                             <p class="text-sm text-gray-500">{{ __('home.prefectoral_detail') }}</p>
                         </div>
-                        <div class="mt-6">
-                            <div class="text-sm" style="color: var(--gold);">
+                        <div class="flex-shrink-0 text-center">
+                            <div class="text-sm mb-1" style="color: var(--gold);">
                                 <i class="fas fa-file-pdf mr-2"></i>
                                 <span>{{ __('home.prefectoral') }}</span>
                             </div>
-                            <div class="mt-1 text-xs text-gray-500">
+                            <div class="text-xs text-gray-500">
                                 <i class="fas fa-info-circle mr-1"></i>
                                 {{ __('home.pdf_label') }}
                             </div>
@@ -598,13 +646,12 @@
                     </div>
                 </a>
             </div>
+
         </div>
     </div>
 </section>
 
-<!-- ============================================ -->
-<!-- SESSIONS DE FORMATION À VENIR - VERSION RESPONSIVE OPTIMISÉE -->
-<!-- ============================================ -->
+<!-- SESSIONS DE FORMATION À VENIR -->
 @if(isset($upcomingSessions) && $upcomingSessions->count() > 0)
 <section class="py-20" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);">
     <div class="container px-4 mx-auto md:px-6">
@@ -622,7 +669,6 @@
             <div class="group relative overflow-hidden transition-all duration-300 rounded-xl hover:transform hover:scale-105"
                 style="background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%); border: 1px solid rgba(182, 146, 70, 0.3);">
 
-                <!-- Badge formation - Position adaptative selon écran -->
                 <div class="absolute z-20 session-badge" style="top: 16px; right: 16px;">
                     <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full whitespace-normal break-words text-center"
                         style="background: rgba(182, 146, 70, 0.2); color: #b69246; backdrop-filter: blur(4px); max-width: 180px; line-height: 1.3;">
@@ -631,12 +677,10 @@
                 </div>
 
                 <div class="p-6 relative z-10">
-                    <!-- Titre session - Marge dynamique selon écran -->
                     <h3 class="text-xl font-bold text-white mb-3 session-title" style="line-height: 1.3;">
                         {{ $session->name }}
                     </h3>
 
-                    <!-- Dates et informations -->
                     <div class="space-y-3 mb-6">
                         <div class="flex items-center text-gray-300">
                             <i class="fas fa-calendar-alt w-5 flex-shrink-0" style="color: #b69246;"></i>
@@ -656,7 +700,6 @@
                         @endif
                     </div>
 
-                    <!-- Prix et places -->
                     <div class="flex justify-between items-center pt-4 mt-2 border-t border-gray-800">
                         <div>
                             <span class="text-2xl font-bold" style="color: #b69246;">{{ $session->formatted_price }}</span>
@@ -669,7 +712,6 @@
                         </div>
                     </div>
 
-                    <!-- Bouton inscription -->
                     @if($session->available_places <= 0)
                     <button disabled
                             class="w-full mt-6 py-3 rounded-lg font-semibold cursor-not-allowed transition-all duration-300"
@@ -725,7 +767,7 @@
 </section>
 @endif
 
-<!-- NOUVELLE SECTION AVIS CLIENTS AVEC SLIDER -->
+<!-- AVIS CLIENTS -->
 <section id="testimonials" class="py-20 bg-black">
     <div class="px-4 mx-auto max-w-7xl">
         <div class="flex flex-col items-start gap-10 lg:flex-row">
@@ -754,21 +796,17 @@
 
             <!-- Zone slider avec avis -->
             <div class="relative w-full lg:w-3/4">
-                <!-- Flèches de navigation -->
                 <div class="arrow left absolute top-1/2 -left-5 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full border border-var(--gold) bg-black/80 flex items-center justify-center cursor-pointer hover:bg-b69246 hover:text-black transition-all duration-300 hidden md:flex"
                     style="color: #b69246;" onclick="scrollReviews(-1)">
                     <i class="fas fa-chevron-left"></i>
                 </div>
-
                 <div class="arrow right absolute top-1/2 -right-5 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full border border-var(--gold) bg-black/80 flex items-center justify-center cursor-pointer hover:bg-b69246 hover:text-black transition-all duration-300 hidden md:flex"
                     style="color: #b69246;" onclick="scrollReviews(1)">
                     <i class="fas fa-chevron-right"></i>
                 </div>
 
-                <!-- Slider d'avis -->
                 <div class="flex gap-6 pb-4 overflow-x-auto reviews-slider scroll-smooth" id="reviewsSlider"
                     style="scrollbar-width: none;">
-
                     @php
                         $reviews = [
                             ['name' => 'Lalla Guindo', 'date' => 'il y a 2 ans', 'text' => 'Entreprise au top ! Service impeccable et professionnel.'],
@@ -811,7 +849,7 @@
 </section>
 
 <style>
-    /* HERO SECTION */
+    /* ===================== HERO ===================== */
     .hero {
         min-height: 100vh;
         position: relative;
@@ -821,541 +859,258 @@
         gap: 40px;
         overflow: hidden;
     }
-
-    .hero-left {
-        flex: 1;
-        color: #fff;
-        position: relative;
-        z-index: 10;
-    }
-
-    .hero-left h1 {
-        font-size: 48px;
-        font-weight: 700;
-        color: #fff;
-        margin-bottom: 15px;
-    }
-
-    .hero-subtitle {
-        font-size: 28px;
-        font-weight: 600;
-        color: #fff;
-        margin-bottom: 10px;
-    }
-
-    .hero-description {
-        font-size: 18px;
-        line-height: 1.6;
-        color: rgba(255, 255, 255, 0.9);
-        max-width: 500px;
-    }
+    .hero-left { flex: 1; color: #fff; position: relative; z-index: 10; }
+    .hero-left h1 { font-size: 48px; font-weight: 700; color: #fff; margin-bottom: 15px; }
+    .hero-subtitle { font-size: 28px; font-weight: 600; color: #fff; margin-bottom: 10px; }
+    .hero-description { font-size: 18px; line-height: 1.6; color: rgba(255,255,255,0.9); max-width: 500px; }
 
     .devis-btn {
-        position: absolute;
-        left: -40px;
-        bottom: 120px;
-        background: #b69246;
-        color: #fff;
-        text-decoration: none;
-        padding: 18px 60px;
-        font-size: 15px;
-        font-weight: 500;
-        border-radius: 0 6px 6px 0;
-        z-index: 20;
-        transition: 0.3s;
+        position: absolute; left: -40px; bottom: 120px;
+        background: #b69246; color: #fff; text-decoration: none;
+        padding: 18px 60px; font-size: 15px; font-weight: 500;
+        border-radius: 0 6px 6px 0; z-index: 20; transition: 0.3s;
     }
-
-    .devis-btn:hover {
-        padding-left: 80px;
-        background: #d4af37;
-    }
+    .devis-btn:hover { padding-left: 80px; background: #d4af37; }
 
     .hero-right {
-        width: 400px;
-        margin-right: 120px;
-        background: #fff;
-        border-radius: 28px;
+        width: 400px; margin-right: 120px;
+        background: #fff; border-radius: 28px;
         padding: 32px 28px;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
-        position: relative;
-        z-index: 10;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+        position: relative; z-index: 10;
     }
 
-    /* SWIPER */
-    .swiper {
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .swiper-wrapper {
-        flex: 1;
-    }
-
-    .swiper-slide {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 0 8px 12px;
-    }
-
-    .slide h2 {
-        text-align: center;
-        font-size: 20px;
-        margin-bottom: 20px;
-        line-height: 1.3;
-        color: #333;
-    }
-
-    .slide p {
-        font-size: 14px;
-        line-height: 1.7;
-        color: #333;
-        margin-bottom: 8px;
-    }
-
-    .question {
-        font-weight: 500;
-        margin: 4px 0;
-        color: #333;
-    }
-
-    .document-list {
-        padding-left: 20px;
-        margin: 12px 0;
-    }
-
-    .document-list li {
-        font-size: 14px;
-        color: #333;
-        line-height: 1.6;
-        margin-bottom: 4px;
-    }
-
-    .objective {
-        background: #f8f4e8;
-        padding: 12px;
-        border-radius: 8px;
-        margin: 12px 0;
-        border-left: 4px solid #b69246;
-    }
-
-    .objective strong {
-        color: #333;
-    }
-
+    /* ===================== SWIPER ===================== */
+    .swiper { width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+    .swiper-wrapper { flex: 1; }
+    .swiper-slide { display: flex; flex-direction: column; justify-content: space-between; padding: 0 8px 12px; }
+    .slide h2 { text-align: center; font-size: 20px; margin-bottom: 20px; line-height: 1.3; color: #333; }
+    .slide p { font-size: 14px; line-height: 1.7; color: #333; margin-bottom: 8px; }
+    .question { font-weight: 500; margin: 4px 0; color: #333; }
+    .document-list { padding-left: 20px; margin: 12px 0; }
+    .document-list li { font-size: 14px; color: #333; line-height: 1.6; margin-bottom: 4px; }
+    .objective { background: #f8f4e8; padding: 12px; border-radius: 8px; margin: 12px 0; border-left: 4px solid #b69246; }
+    .objective strong { color: #333; }
     .slide .btn {
-        display: block;
-        text-align: center;
-        background: #b69246;
-        color: #fff;
-        text-decoration: none;
-        padding: 14px 20px;
-        border-radius: 35px;
-        font-weight: 600;
-        margin: 12px 0 8px;
-        transition: 0.3s;
-        font-size: 13px;
-        text-transform: uppercase;
+        display: block; text-align: center; background: #b69246; color: #fff;
+        text-decoration: none; padding: 14px 20px; border-radius: 35px;
+        font-weight: 600; margin: 12px 0 8px; transition: 0.3s;
+        font-size: 13px; text-transform: uppercase;
     }
+    .slide .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); background: #d4af37; }
+    .swiper-pagination { position: relative; margin: 12px 0 4px; text-align: center; }
+    .swiper-pagination-bullet { background: #ccc; opacity: 1; width: 9px; height: 9px; margin: 0 5px !important; }
+    .swiper-pagination-bullet-active { background: #111; }
 
-    .slide .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        background: #d4af37;
-    }
-
-    .swiper-pagination {
-        position: relative;
-        margin: 12px 0 4px;
-        text-align: center;
-    }
-
-    .swiper-pagination-bullet {
-        background: #ccc;
-        opacity: 1;
-        width: 9px;
-        height: 9px;
-        margin: 0 5px !important;
-    }
-
-    .swiper-pagination-bullet-active {
-        background: #111;
-    }
-
-    /* ICONES FLOTTANTES */
+    /* ===================== FLOATING ICONS ===================== */
     .floating-icons {
-        position: absolute;
-        right: 30px;
-        top: 50%;
-        transform: translateY(-50%);
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        z-index: 20;
-        align-items: flex-end;
+        position: absolute; right: 30px; top: 50%; transform: translateY(-50%);
+        display: flex; flex-direction: column; gap: 16px; z-index: 20; align-items: flex-end;
     }
-
     .icon-item {
+        display: flex; align-items: center; justify-content: flex-start;
+        width: 52px; height: 52px; border-radius: 14px; background: #b69246;
+        cursor: pointer; overflow: hidden; transition: width 0.4s ease, box-shadow 0.4s ease;
+        position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-decoration: none;
+    }
+    .icon-item i { font-size: 20px; color: #fff; width: 52px; min-width: 52px; text-align: center; line-height: 52px; flex-shrink: 0; z-index: 2; position: relative; }
+    .icon-item span { color: #fff; font-size: 14px; font-weight: 500; padding: 0 18px 0 12px; opacity: 0; transform: translateX(-10px); transition: opacity 0.3s ease, transform 0.3s ease; white-space: nowrap; z-index: 1; position: relative; }
+    .icon-item:hover { width: 240px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); background: #d4af37; }
+    .icon-item:hover span { opacity: 1; transform: translateX(0); }
+
+    /* ===================== QUALIOPI BANNER ===================== */
+    .qualiopi-banner {
         display: flex;
         align-items: center;
-        justify-content: flex-start;
-        width: 52px;
-        height: 52px;
-        border-radius: 14px;
-        background: #b69246;
-        cursor: pointer;
-        overflow: hidden;
-        transition: width 0.4s ease, box-shadow 0.4s ease;
-        position: relative;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        text-decoration: none;
+        justify-content: space-between;
+        background: #ffffff;
+        padding: 40px 60px;
+        gap: 40px;
+        border-radius: 4px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
-
-    .icon-item i {
-        font-size: 20px;
-        color: #fff;
-        width: 52px;
-        min-width: 52px;
-        text-align: center;
-        line-height: 52px;
-        flex-shrink: 0;
-        z-index: 2;
-        position: relative;
+    .qualiopi-left {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        flex: 1;
     }
-
-    .icon-item span {
-        color: #fff;
+    .qualiopi-logo-img {
+        height: 150px;
+        object-fit: contain;
+        object-position: left center;
+    }
+    .republique-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .marianne-img {
+        height: 12px;
+        object-fit: contain;
+    }
+    .republique-label {
+        font-size: 15px;
+        font-weight: 700;
+        color: #1a1a1a;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .certification-mention {
         font-size: 14px;
-        font-weight: 500;
-        padding: 0 18px 0 12px;
-        opacity: 0;
-        transform: translateX(-10px);
-        transition: opacity 0.3s ease, transform 0.3s ease;
+        color: #333;
+        line-height: 1.65;
+        max-width: 480px;
+    }
+    .qualiopi-separator {
+        width: 1px;
+        min-height: 130px;
+        align-self: stretch;
+        background: #e0e0e0;
+        flex-shrink: 0;
+    }
+    .qualiopi-right {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        min-width: 260px;
+    }
+    .download-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #111;
+        text-align: center;
+        line-height: 1.3;
+    }
+    .download-btn-qualiopi {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 2px solid #111;
+        border-radius: 50px;
+        padding: 12px 30px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #111;
+        text-decoration: none;
+        background: transparent;
+        transition: background 0.25s, color 0.25s;
         white-space: nowrap;
-        z-index: 1;
-        position: relative;
+    }
+    .download-btn-qualiopi:hover {
+        background: #111;
+        color: #fff;
     }
 
-    .icon-item:hover {
-        width: 240px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-        background: #d4af37;
-    }
-
-    .icon-item:hover span {
-        opacity: 1;
-        transform: translateX(0);
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 1024px) {
-        .hero {
+    /* Responsive bannière Qualiopi */
+    @media (max-width: 768px) {
+        .qualiopi-banner {
             flex-direction: column;
-            gap: 40px;
-            padding: 40px 20px;
+            padding: 30px 24px;
+            gap: 24px;
+            align-items: flex-start;
         }
-
-        .hero-right {
+        .qualiopi-separator {
             width: 100%;
-            max-width: 420px;
-            margin-right: 0;
-            margin-left: auto;
-            margin-right: auto;
+            min-height: 1px;
+            height: 1px;
+            align-self: auto;
         }
-
-        .floating-icons {
-            display: none;
+        .qualiopi-right {
+            width: 100%;
+            min-width: unset;
+            align-items: flex-start;
         }
-
-        .devis-btn {
-            left: 0;
-            bottom: 20px;
-            padding: 16px 28px;
-            border-radius: 0 8px 8px 0;
-            position: relative;
-            margin: 20px auto 0;
-            display: block;
-            width: fit-content;
-            left: 0;
-            transform: none;
-            border-radius: 8px;
-        }
-
-        .hero-left h1 {
-            font-size: 36px;
-            text-align: center;
-        }
-
-        .hero-subtitle {
-            font-size: 24px;
-            text-align: center;
-        }
-
-        .hero-description {
-            font-size: 16px;
-            text-align: center;
-            margin: 0 auto;
-        }
+        .download-title { text-align: left; }
+        .qualiopi-logo-img { height: 120px; }
+        .marianne-img { height: 12px; }
     }
 
+    /* ===================== RESPONSIVE GLOBAL ===================== */
+    @media (max-width: 1024px) {
+        .hero { flex-direction: column; gap: 40px; padding: 40px 20px; }
+        .hero-right { width: 100%; max-width: 420px; margin: 0 auto; }
+        .floating-icons { display: none; }
+        .devis-btn { left: 0; bottom: 20px; padding: 16px 28px; position: relative; margin: 20px auto 0; display: block; width: fit-content; border-radius: 8px; }
+        .hero-left h1 { font-size: 36px; text-align: center; }
+        .hero-subtitle { font-size: 24px; text-align: center; }
+        .hero-description { font-size: 16px; text-align: center; margin: 0 auto; }
+    }
     @media (max-width: 1200px) {
-        .hero-right {
-            margin-right: 80px;
-        }
-
-        .floating-icons {
-            right: 20px;
-        }
+        .hero-right { margin-right: 80px; }
+        .floating-icons { right: 20px; }
     }
-
     @media (max-width: 767px) {
-        .hero-right {
-            width: 90%;
-            max-width: 420px;
-            margin: 0 auto;
-        }
-
-        .grid-cols-1 {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .max-w-md {
-            max-width: 320px;
-        }
-
-        .reviews-slider {
-            padding: 0 16px;
-        }
-
-        .review {
-            min-width: 280px;
-        }
-
-        .company-card {
-            align-items: center;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .company-info {
-            text-align: center !important;
-        }
-
-        /* Styles responsive pour les cartes de session - Version existante inchangée */
-        .session-badge {
-            position: relative !important;
-            top: 0 !important;
-            right: 0 !important;
-            margin-bottom: 12px !important;
-            display: inline-block !important;
-            width: auto !important;
-        }
-
-        .session-badge span {
-            display: inline-block !important;
-            max-width: 100% !important;
-            font-size: 11px !important;
-        }
-
-        .session-title {
-            padding-right: 0 !important;
-            margin-top: 0 !important;
-        }
-
-        .group .p-6 {
-            display: flex;
-            flex-direction: column;
-        }
+        .hero-right { width: 90%; max-width: 420px; margin: 0 auto; }
+        .reviews-slider { padding: 0 16px; }
+        .review { min-width: 280px; }
+        .company-card { align-items: center; text-align: center; margin-bottom: 20px; }
+        .company-info { text-align: center !important; }
+        .session-badge { position: relative !important; top: 0 !important; right: 0 !important; margin-bottom: 12px !important; display: inline-block !important; }
+        .session-badge span { display: inline-block !important; max-width: 100% !important; font-size: 11px !important; }
+        .session-title { padding-right: 0 !important; margin-top: 0 !important; }
     }
-
     @media (min-width: 768px) {
-        /* Styles desktop : badge à droite avec espace - Version existante inchangée */
-        .session-badge {
-            position: absolute !important;
-            top: 16px !important;
-            right: 16px !important;
-        }
-
-        .session-title {
-            padding-right: 130px !important;
-        }
+        .session-badge { position: absolute !important; top: 16px !important; right: 16px !important; }
+        .session-title { padding-right: 130px !important; }
     }
-
     @media (min-width: 768px) and (max-width: 1024px) {
-        .session-title {
-            padding-right: 110px !important;
-        }
+        .session-title { padding-right: 110px !important; }
     }
-
-    /* MODIFICATIONS UNIQUEMENT POUR GRAND ÉCRAN (≥ 1280px) */
     @media (min-width: 1280px) {
-        .session-title {
-            padding-right: 52% !important;
-        }
-
-        .session-badge {
-            right: 24px !important;
-        }
-
-        .session-badge span {
-            font-size: 0.75rem !important;
-            padding: 6px 12px !important;
-            max-width: 220px !important;
-        }
+        .session-title { padding-right: 52% !important; }
+        .session-badge { right: 24px !important; }
+        .session-badge span { font-size: 0.75rem !important; padding: 6px 12px !important; max-width: 220px !important; }
     }
-
     @media (min-width: 1536px) {
-        .session-title {
-            padding-right: 55% !important;
-        }
-
-        .session-badge {
-            right: 28px !important;
-        }
-
-        .session-badge span {
-            font-size: 0.8rem !important;
-            max-width: 250px !important;
-        }
+        .session-title { padding-right: 55% !important; }
+        .session-badge { right: 28px !important; }
+        .session-badge span { font-size: 0.8rem !important; max-width: 250px !important; }
+    }
+    @media (max-width: 768px) {
+        .grid-cols-2 { grid-template-columns: 1fr !important; }
+        .grid-cols-3 { grid-template-columns: 1fr !important; gap: 20px; }
+        .relative.h-48 { height: 200px; }
+        .flex-col.lg\:flex-row { flex-direction: column; }
+        .lg\:w-1\/4, .lg\:w-3\/4 { width: 100%; }
+        .arrow.left, .arrow.right { display: none; }
     }
 
-    .banner-section {
-        position: relative;
-        scroll-margin-top: 0;
-    }
-
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+    html { scroll-behavior: smooth; }
+    .banner-section { position: relative; scroll-margin-top: 0; }
 
     @keyframes bounce {
-        0%, 20%, 50%, 80%, 100% {
-            transform: translateY(0) translateX(-50%);
-        }
-        40% {
-            transform: translateY(-10px) translateX(-50%);
-        }
-        60% {
-            transform: translateY(-5px) translateX(-50%);
-        }
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
+        40% { transform: translateY(-10px) translateX(-50%); }
+        60% { transform: translateY(-5px) translateX(-50%); }
     }
+    .animate-bounce { animation: bounce 2s infinite; }
 
-    .animate-bounce {
-        animation: bounce 2s infinite;
-    }
-
-    @media (max-width: 768px) {
-        .grid-cols-2 {
-            grid-template-columns: 1fr !important;
-        }
-        .grid-cols-5 {
-            grid-template-columns: repeat(2, 1fr) !important;
-        }
-        .grid-cols-3 {
-            grid-template-columns: 1fr !important;
-            gap: 20px;
-        }
-        .relative.h-48 {
-            height: 200px;
-        }
-        .flex-col.lg\:flex-row {
-            flex-direction: column;
-        }
-        .lg\:w-1\/4,
-        .lg\:w-3\/4 {
-            width: 100%;
-        }
-        .arrow.left,
-        .arrow.right {
-            display: none;
-        }
-        .justify-items-center {
-            justify-items: center;
-        }
-    }
-
-    html {
-        scroll-behavior: smooth;
-    }
-
-    .reviews-slider {
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-
-    .reviews-slider::-webkit-scrollbar {
-        display: none;
-    }
-
-    .review {
-        flex: 0 0 auto;
-        transition: transform 0.3s ease;
-    }
-
-    .review:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    .arrow {
-        transition: all 0.3s ease;
-    }
-
-    .w-20.h-20 img {
-        object-fit: cover;
-    }
-
-    .group .p-6 {
-        position: relative;
-        z-index: 10;
-    }
-
-    .break-words {
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-    }
-
-    .whitespace-normal {
-        white-space: normal;
-    }
+    .reviews-slider { scrollbar-width: none; -ms-overflow-style: none; }
+    .reviews-slider::-webkit-scrollbar { display: none; }
+    .review { flex: 0 0 auto; transition: transform 0.3s ease; }
+    .review:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+    .arrow { transition: all 0.3s ease; }
+    .break-words { word-wrap: break-word; overflow-wrap: break-word; }
+    .whitespace-normal { white-space: normal; }
 </style>
 
-<!-- Scripts pour la page -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
 <script>
-    // Initialisation du Swiper
     new Swiper(".swiper", {
         loop: false,
         speed: 600,
         slidesPerView: 1,
         spaceBetween: 0,
-        pagination: {
-            el: ".swiper-pagination",
-            clickable: true,
-        },
+        pagination: { el: ".swiper-pagination", clickable: true },
     });
 
     document.addEventListener('DOMContentLoaded', function() {
-        // Animation d'apparition progressive
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
+        const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -1364,20 +1119,62 @@
                 }
             });
         }, observerOptions);
-
         document.querySelectorAll('.banner-section .relative.z-10').forEach(el => {
             el.style.opacity = '0';
             el.style.transform = 'translateY(20px)';
             el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
             observer.observe(el);
         });
+
+        // Script pour l'animation des compteurs
+        const counters = document.querySelectorAll('.counter');
+
+        const animateCounter = (counter) => {
+            const target = parseInt(counter.getAttribute('data-target'));
+            let current = 0;
+            const increment = target / 50;
+            const updateCounter = () => {
+                current += increment;
+                if (current < target) {
+                    counter.innerText = Math.ceil(current);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.innerText = target;
+                }
+            };
+            updateCounter();
+        };
+
+        // Observer pour déclencher l'animation des compteurs
+        const counterObserverOptions = {
+            threshold: 0.3,
+            rootMargin: '0px'
+        };
+
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const sectionCounters = entry.target.querySelectorAll('.counter');
+                    sectionCounters.forEach(counter => {
+                        if (counter.innerText === '0') {
+                            animateCounter(counter);
+                        }
+                    });
+                    counterObserver.unobserve(entry.target);
+                }
+            });
+        }, counterObserverOptions);
+
+        // Observer la section des indicateurs
+        const indicatorsSection = document.querySelector('.py-20[style*="linear-gradient"]');
+        if (indicatorsSection) {
+            counterObserver.observe(indicatorsSection);
+        }
     });
 
-    // Fonction pour le slider d'avis
     const slider = document.getElementById('reviewsSlider');
     function scrollReviews(dir) {
-        const scrollAmount = 320;
-        slider.scrollBy({ left: dir * scrollAmount, behavior: 'smooth' });
+        slider.scrollBy({ left: dir * 320, behavior: 'smooth' });
     }
 </script>
 @endsection
