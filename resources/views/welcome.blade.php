@@ -439,7 +439,7 @@
 </section>
 
 <!-- INDICATEURS DE PERFORMANCE -->
-<section class="py-20" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);">
+{{-- <section class="py-20" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);">
     <div class="px-4 mx-auto max-w-7xl">
         <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
             <!-- Carte Personnes Formées -->
@@ -524,7 +524,7 @@
             </div>
         </div>
     </div>
-</section>
+</section> --}}
 
 <!-- Statistics Section -->
 <section id="stats" class="py-20 text-white bg-dark">

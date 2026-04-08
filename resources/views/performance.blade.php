@@ -21,63 +21,96 @@
                 @endforeach
             </div>
 
-            <!-- Tableau des indicateurs -->
-            <div class="mb-12 overflow-hidden rounded-lg shadow">
-                <div class="px-6 py-4 bg-gray-900">
-                    <h2 class="text-xl font-bold text-white">{{ __('performance.tableau_performance.title') }}</h2>
-                </div>
-                <table class="min-w-full bg-white">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-gray-700 border-b">{{
-                                __('performance.tableau_performance.headers.indicateur') }}</th>
-                            <th class="px-6 py-4 text-left text-gray-700 border-b">{{
-                                __('performance.tableau_performance.headers.resultat_2024') }}</th>
-                            <th class="px-6 py-4 text-left text-gray-700 border-b">{{
-                                __('performance.tableau_performance.headers.evolution_vs_2023') }}</th>
-                            <th class="px-6 py-4 text-left text-gray-700 border-b">{{
-                                __('performance.tableau_performance.headers.objectif_2025') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (__('performance.tableau_performance.indicateurs') as $indicateur)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 border-b">
-                                <div class="flex items-center">
-                                    <div
-                                        class="flex items-center justify-center w-8 h-8 mr-3 text-white bg-{{ $indicateur['color'] }}-600 rounded-full">
-                                        <i class="{{ $indicateur['icon'] }}"></i>
+            <!-- INDICATEURS DE PERFORMANCE -->
+            <section class="py-12" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%); border-radius: 1rem; margin-bottom: 2rem;">
+                <div class="px-4 mx-auto max-w-7xl">
+                    <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+                        <!-- Carte Personnes Formées -->
+                        <div class="relative overflow-hidden transition-all duration-500 group rounded-2xl"
+                            style="background: linear-gradient(135deg, rgba(182, 146, 70, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%); border: 1px solid rgba(182, 146, 70, 0.3);">
+                            <div class="p-8 text-center">
+                                <div class="flex items-center justify-center mb-6">
+                                    <div class="relative">
+                                        <div class="absolute inset-0 rounded-full animate-ping"
+                                            style="background: rgba(182, 146, 70, 0.3); width: 80px; height: 80px; border-radius: 50%;"></div>
+                                        <div class="relative flex items-center justify-center w-20 h-20 rounded-full"
+                                            style="background: linear-gradient(135deg, #b69246 0%, #d4af37 100%);">
+                                            <i class="text-3xl fas fa-users" style="color: #000;"></i>
+                                        </div>
                                     </div>
-                                    <span class="font-medium">{{ $indicateur['nom'] }}</span>
                                 </div>
-                            </td>
-                            <td class="px-6 py-4 text-lg font-bold border-b text-{{ $indicateur['color'] }}-700">
-                                {{ $indicateur['resultat'] }}
-                            </td>
-                            <td class="px-6 py-4 border-b">
-                                @php
-                                $evolutionClass = __('performance.tableau_performance.evolution_labels.' .
-                                $indicateur['evolution_type'] . '.class');
-                                $evolutionIcon = __('performance.tableau_performance.evolution_labels.' .
-                                $indicateur['evolution_type'] . '.icon');
-                                @endphp
-                                <span
-                                    class="inline-flex items-center px-3 py-1 text-sm font-semibold rounded-full {{ $evolutionClass }}">
-                                    @if($evolutionIcon)
-                                    <i class="mr-1 {{ $evolutionIcon }}"></i>
-                                    @endif
-                                    {{ $indicateur['evolution'] }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-gray-600 border-b">{{ $indicateur['objectif'] }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                                <div class="mb-4">
+                                    <span class="text-6xl font-bold" style="color: #b69246; text-shadow: 0 0 20px rgba(182, 146, 70, 0.5);">
+                                        <span class="counter" data-target="8">0</span>
+                                    </span>
+                                    <span class="text-3xl font-bold" style="color: #b69246;">+</span>
+                                </div>
+                                <h3 class="mb-3 text-2xl font-bold text-white">Personnes Formées</h3>
+                                <p class="text-gray-400">
+                                    Des professionnels formés avec succès à nos différentes certifications VTC
+                                </p>
+                                <div class="mt-6">
+                                    <div class="h-1 overflow-hidden rounded-full bg-gray-700">
+                                        <div class="h-full transition-all duration-1000 rounded-full" style="width: 100%; background: #b69246;"></div>
+                                    </div>
+                                    <p class="mt-2 text-sm text-gray-500">Objectif 2025 : 25+ formés</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Carte Taux de Satisfaction -->
+                        <div class="relative overflow-hidden transition-all duration-500 group rounded-2xl"
+                            style="background: linear-gradient(135deg, rgba(182, 146, 70, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%); border: 1px solid rgba(182, 146, 70, 0.3);">
+                            <div class="p-8 text-center">
+                                <div class="flex items-center justify-center mb-6">
+                                    <div class="relative">
+                                        <div class="absolute inset-0 rounded-full animate-ping"
+                                            style="background: rgba(182, 146, 70, 0.3); width: 80px; height: 80px; border-radius: 50%;"></div>
+                                        <div class="relative flex items-center justify-center w-20 h-20 rounded-full"
+                                            style="background: linear-gradient(135deg, #b69246 0%, #d4af37 100%);">
+                                            <i class="text-3xl fas fa-star" style="color: #000;"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <span class="text-6xl font-bold" style="color: #b69246; text-shadow: 0 0 20px rgba(182, 146, 70, 0.5);">
+                                        <span class="counter" data-target="100">0</span>
+                                    </span>
+                                    <span class="text-3xl font-bold" style="color: #b69246;">%</span>
+                                </div>
+                                <h3 class="mb-3 text-2xl font-bold text-white">Taux de Satisfaction</h3>
+                                <p class="text-gray-400">
+                                    De nos apprenants, basé sur nos enquêtes de satisfaction post-formation
+                                </p>
+                                <div class="mt-6">
+                                    <div class="flex justify-center gap-1">
+                                        <i class="fas fa-star" style="color: #b69246;"></i>
+                                        <i class="fas fa-star" style="color: #b69246;"></i>
+                                        <i class="fas fa-star" style="color: #b69246;"></i>
+                                        <i class="fas fa-star" style="color: #b69246;"></i>
+                                        <i class="fas fa-star" style="color: #b69246;"></i>
+                                    </div>
+                                    <p class="mt-2 text-sm text-gray-500">Note moyenne : 5/5 sur 12 avis</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bandeau récapitulatif -->
+                    <div class="max-w-3xl mx-auto mt-12 text-center">
+                        <div class="p-6 rounded-xl" style="background: rgba(182, 146, 70, 0.05); border: 1px solid rgba(182, 146, 70, 0.2);">
+                            <p class="text-lg text-gray-300">
+                                <i class="mr-2 fas fa-chart-line" style="color: #b69246;"></i>
+                                <strong class="text-white">+8 professionnels formés</strong> et prêts à réussir dans le secteur VTC,
+                                avec un <strong class="text-white">taux de satisfaction de 100%</strong> auprès de nos apprenants.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <!-- Méthodologie et explications -->
-            <div class="grid grid-cols-1 gap-8 mb-12 md:grid-cols-2">
+            <div class="grid grid-cols-1 gap-8 mt-12 mb-12 md:grid-cols-2">
                 <div class="p-6 bg-gray-50 rounded-lg">
                     <h3 class="mb-4 text-xl font-bold text-gray-900">
                         <i class="mr-2 {{ __('performance.methodologie.icon') }}"></i>
@@ -158,46 +191,101 @@
 
 <!-- Style supplémentaire -->
 <style>
-    table {
-        border-collapse: separate;
-        border-spacing: 0;
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
     }
 
-    th,
-    td {
-        border-bottom: 1px solid #e5e7eb;
+    @keyframes ping {
+        75%, 100% {
+            transform: scale(2);
+            opacity: 0;
+        }
     }
 
-    tr:last-child td {
-        border-bottom: none;
+    .animate-ping {
+        animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
     }
 
     @media (max-width: 768px) {
-        table {
-            display: block;
-            overflow-x: auto;
-            white-space: nowrap;
-        }
-
         .p-8 {
             padding: 1.5rem;
         }
     }
 </style>
 
-<!-- Script pour gérer les classes de couleur dynamiques -->
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<!-- Script pour l'animation des compteurs -->
 <script>
-    // Cette fonction assure que les classes de couleur Tailwind sont correctement appliquées
     document.addEventListener('DOMContentLoaded', function() {
-        // Pour chaque cellule de résultat, s'assurer que la couleur est correcte
-        const colorCells = document.querySelectorAll('td[class*="text-"]');
-        colorCells.forEach(cell => {
-            const classes = cell.className.split(' ');
-            classes.forEach(className => {
-                if (className.startsWith('text-') && className.endsWith('-700')) {
-                    // La classe de couleur est déjà présente
+        // Animation des compteurs
+        const counters = document.querySelectorAll('.counter');
+
+        const animateCounter = (counter) => {
+            const target = parseInt(counter.getAttribute('data-target'));
+            let current = 0;
+            const increment = target / 50;
+            const updateCounter = () => {
+                current += increment;
+                if (current < target) {
+                    counter.innerText = Math.ceil(current);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.innerText = target;
+                }
+            };
+            updateCounter();
+        };
+
+        // Observer pour déclencher l'animation des compteurs
+        const counterObserverOptions = {
+            threshold: 0.3,
+            rootMargin: '0px'
+        };
+
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const sectionCounters = entry.target.querySelectorAll('.counter');
+                    sectionCounters.forEach(counter => {
+                        if (counter.innerText === '0') {
+                            animateCounter(counter);
+                        }
+                    });
+                    counterObserver.unobserve(entry.target);
                 }
             });
+        }, counterObserverOptions);
+
+        // Observer la section des indicateurs
+        const indicatorsSection = document.querySelector('section[style*="linear-gradient"]');
+        if (indicatorsSection) {
+            counterObserver.observe(indicatorsSection);
+        }
+
+        // Animation d'apparition au scroll pour les cartes
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.group').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
         });
     });
 </script>
