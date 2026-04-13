@@ -196,10 +196,10 @@
              alt="Qualiopi processus certifié - République Française"
              class="qualiopi-logo-img">
 
-        <p class="certification-mention">
+        {{-- <p class="certification-mention">
             La certification qualité a été délivrée au titre de la catégorie d'action
             suivante&nbsp;: <strong>actions de formation</strong>.
-        </p>
+        </p> --}}
     </div>
 
     <!-- SÉPARATEUR VERTICAL -->
