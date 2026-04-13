@@ -46,14 +46,12 @@
                                     <span class="text-3xl font-bold" style="color: #b69246;">+</span>
                                 </div>
                                 <h3 class="mb-3 text-2xl font-bold text-white">Personnes Formées</h3>
-                                <p class="text-gray-400">
-                                    Des professionnels formés avec succès à nos différentes certifications VTC
-                                </p>
+
                                 <div class="mt-6">
                                     <div class="h-1 overflow-hidden rounded-full bg-gray-700">
                                         <div class="h-full transition-all duration-1000 rounded-full" style="width: 100%; background: #b69246;"></div>
                                     </div>
-                                    <p class="mt-2 text-sm text-gray-500">Objectif 2025 : 25+ formés</p>
+                                    <p class="mt-2 text-sm text-gray-500">Objectif 2026</p>
                                 </div>
                             </div>
                         </div>
@@ -97,15 +95,28 @@
                     </div>
 
                     <!-- Bandeau récapitulatif -->
-                    <div class="max-w-3xl mx-auto mt-12 text-center">
-                        <div class="p-6 rounded-xl" style="background: rgba(182, 146, 70, 0.05); border: 1px solid rgba(182, 146, 70, 0.2);">
-                            <p class="text-lg text-gray-300">
-                                <i class="mr-2 fas fa-chart-line" style="color: #b69246;"></i>
-                                <strong class="text-white">+8 professionnels formés</strong> et prêts à réussir dans le secteur VTC,
-                                avec un <strong class="text-white">taux de satisfaction de 100%</strong> auprès de nos apprenants.
-                            </p>
-                        </div>
-                    </div>
+<div class="max-w-3xl mx-auto mt-12 text-center">
+    <div class="p-6 rounded-xl" style="background: rgba(182, 146, 70, 0.05); border: 1px solid rgba(182, 146, 70, 0.2);">
+        <div class="space-y-3 text-center">
+            <p class="text-lg text-gray-300">
+                <i class="mr-2 fas fa-chart-line" style="color: #b69246;"></i>
+                <strong class="text-white">Taux de présentation à l'examen :</strong>
+                <span class="text-white"></span>
+            </p>
+            <p class="text-lg text-gray-300">
+                <i class="mr-2 fas fa-certificate" style="color: #b69246;"></i>
+                <strong class="text-white">Taux d'obtention de la certification :</strong>
+                <span class="text-white"></span>
+            </p>
+            <div class="pt-2 mt-2 border-t border-gray-700">
+                <p class="text-sm text-gray-500">
+                    <i class="mr-1 far fa-calendar-alt"></i>
+                    Prochaine mise à jour : <strong class="text-gray-400">Décembre 2026</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
                 </div>
             </section>
 
