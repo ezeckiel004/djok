@@ -24,99 +24,133 @@
             <!-- INDICATEURS DE PERFORMANCE -->
             <section class="py-12" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%); border-radius: 1rem; margin-bottom: 2rem;">
                 <div class="px-4 mx-auto max-w-7xl">
-                    <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
-                        <!-- Carte Personnes Formées -->
-                        <div class="relative overflow-hidden transition-all duration-500 group rounded-2xl"
-                            style="background: linear-gradient(135deg, rgba(182, 146, 70, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%); border: 1px solid rgba(182, 146, 70, 0.3);">
-                            <div class="p-8 text-center">
-                                <div class="flex items-center justify-center mb-6">
-                                    <div class="relative">
-                                        <div class="absolute inset-0 rounded-full animate-ping"
-                                            style="background: rgba(182, 146, 70, 0.3); width: 80px; height: 80px; border-radius: 50%;"></div>
-                                        <div class="relative flex items-center justify-center w-20 h-20 rounded-full"
-                                            style="background: linear-gradient(135deg, #b69246 0%, #d4af37 100%);">
-                                            <i class="text-3xl fas fa-users" style="color: #000;"></i>
+
+                    <!-- Section des cartes détaillées par formation -->
+                    <div>
+                        <h3 class="mb-8 text-2xl font-bold text-center text-white">Indicateurs Qualité et Résultats</h3>
+                        <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+
+                            <!-- Carte Formation Création Micro-entreprise -->
+                            <div class="overflow-hidden transition-all duration-300 rounded-xl hover:transform hover:scale-105"
+                                style="background: linear-gradient(135deg, rgba(182, 146, 70, 0.15) 0%, rgba(0, 0, 0, 0.7) 100%); border: 1px solid rgba(182, 146, 70, 0.3);">
+                                <div class="p-6">
+                                    <div class="flex items-center justify-center mb-4">
+                                        <div class="p-3 rounded-full" style="background: rgba(182, 146, 70, 0.2);">
+                                            <i class="text-3xl fas fa-chalkboard-user" style="color: #b69246;"></i>
+                                        </div>
+                                    </div>
+                                    <h4 class="mb-4 text-xl font-bold text-center text-white">Formation Création Micro-entreprise</h4>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between pb-2 border-b border-gray-700">
+                                            <span class="text-gray-400">Nombre de stagiaires formés</span>
+                                            <span class="font-bold text-white">1</span>
+                                        </div>
+                                        <div class="flex justify-between pb-2 border-b border-gray-700">
+                                            <span class="text-gray-400">Taux de satisfaction</span>
+                                            <span class="font-bold text-white">100%</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 text-center">
+                                        <div class="flex justify-center gap-1">
+                                            <i class="fas fa-star" style="color: #b69246;"></i>
+                                            <i class="fas fa-star" style="color: #b69246;"></i>
+                                            <i class="fas fa-star" style="color: #b69246;"></i>
+                                            <i class="fas fa-star" style="color: #b69246;"></i>
+                                            <i class="fas fa-star" style="color: #b69246;"></i>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="mb-4">
-                                    <span class="text-6xl font-bold" style="color: #b69246; text-shadow: 0 0 20px rgba(182, 146, 70, 0.5);">
-                                        <span class="counter" data-target="8">0</span>
-                                    </span>
-                                    <span class="text-3xl font-bold" style="color: #b69246;">+</span>
-                                </div>
-                                <h3 class="mb-3 text-2xl font-bold text-white">Personnes Formées</h3>
+                            </div>
 
-                                <div class="mt-6">
-                                    <div class="h-1 overflow-hidden rounded-full bg-gray-700">
-                                        <div class="h-full transition-all duration-1000 rounded-full" style="width: 100%; background: #b69246;"></div>
+                            <!-- Carte Formation Clientèle Privée -->
+                            <div class="overflow-hidden transition-all duration-300 rounded-xl hover:transform hover:scale-105"
+                                style="background: linear-gradient(135deg, rgba(182, 146, 70, 0.15) 0%, rgba(0, 0, 0, 0.7) 100%); border: 1px solid rgba(182, 146, 70, 0.3);">
+                                <div class="p-6">
+                                    <div class="flex items-center justify-center mb-4">
+                                        <div class="p-3 rounded-full" style="background: rgba(182, 146, 70, 0.2);">
+                                            <i class="text-3xl fas fa-handshake" style="color: #b69246;"></i>
+                                        </div>
                                     </div>
-                                    <p class="mt-2 text-sm text-gray-500">Objectif 2026</p>
+                                    <h4 class="mb-4 text-xl font-bold text-center text-white">Formation Clientèle Privée</h4>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between pb-2 border-b border-gray-700">
+                                            <span class="text-gray-400">Nombre de stagiaires formés</span>
+                                            <span class="font-bold text-white">1</span>
+                                        </div>
+                                        <div class="flex justify-between pb-2 border-b border-gray-700">
+                                            <span class="text-gray-400">Taux de satisfaction</span>
+                                            <span class="font-bold text-white">100%</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 text-center">
+                                        <div class="flex justify-center gap-1">
+                                            <i class="fas fa-star" style="color: #b69246;"></i>
+                                            <i class="fas fa-star" style="color: #b69246;"></i>
+                                            <i class="fas fa-star" style="color: #b69246;"></i>
+                                            <i class="fas fa-star" style="color: #b69246;"></i>
+                                            <i class="fas fa-star" style="color: #b69246;"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Carte Formation VTC -->
+                            <div class="overflow-hidden transition-all duration-300 rounded-xl hover:transform hover:scale-105"
+                                style="background: linear-gradient(135deg, rgba(182, 146, 70, 0.15) 0%, rgba(0, 0, 0, 0.7) 100%); border: 1px solid rgba(182, 146, 70, 0.3);">
+                                <div class="p-6">
+                                    <div class="flex items-center justify-center mb-4">
+                                        <div class="p-3 rounded-full" style="background: rgba(182, 146, 70, 0.2);">
+                                            <i class="text-3xl fas fa-car" style="color: #b69246;"></i>
+                                        </div>
+                                    </div>
+                                    <h4 class="mb-4 text-xl font-bold text-center text-white">Formation VTC</h4>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between pb-2 border-b border-gray-700">
+                                            <span class="text-gray-400">Nombre de stagiaires</span>
+                                            <span class="font-bold text-yellow-500">données à venir</span>
+                                        </div>
+                                        <div class="flex justify-between pb-2 border-b border-gray-700">
+                                            <span class="text-gray-400">Taux de satisfaction</span>
+                                            <span class="font-bold text-yellow-500">données à venir</span>
+                                        </div>
+                                        <div class="flex justify-between pb-2 border-b border-gray-700">
+                                            <span class="text-gray-400">Taux de présentation à l'examen</span>
+                                            <span class="font-bold text-yellow-500">données à venir</span>
+                                        </div>
+                                        <div class="flex justify-between pb-2 border-b border-gray-700">
+                                            <span class="text-gray-400">Taux d'obtention de la certification</span>
+                                            <span class="font-bold text-yellow-500">données à venir</span>
+                                        </div>
+                                    </div>
+                                    {{-- <div class="mt-4 text-center">
+                                        <i class="text-gray-500 fas fa-clock"></i>
+                                        <span class="text-sm text-gray-500"> En cours de déploiement</span>
+                                    </div> --}}
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Carte Taux de Satisfaction -->
-                        <div class="relative overflow-hidden transition-all duration-500 group rounded-2xl"
-                            style="background: linear-gradient(135deg, rgba(182, 146, 70, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%); border: 1px solid rgba(182, 146, 70, 0.3);">
-                            <div class="p-8 text-center">
-                                <div class="flex items-center justify-center mb-6">
-                                    <div class="relative">
-                                        <div class="absolute inset-0 rounded-full animate-ping"
-                                            style="background: rgba(182, 146, 70, 0.3); width: 80px; height: 80px; border-radius: 50%;"></div>
-                                        <div class="relative flex items-center justify-center w-20 h-20 rounded-full"
-                                            style="background: linear-gradient(135deg, #b69246 0%, #d4af37 100%);">
-                                            <i class="text-3xl fas fa-star" style="color: #000;"></i>
-                                        </div>
-                                    </div>
+                        <!-- Mention mise à jour -->
+                        <div class="max-w-2xl mx-auto mt-10 text-center">
+                            <div class="p-4 rounded-lg" style="background: rgba(182, 146, 70, 0.05); border: 1px solid rgba(182, 146, 70, 0.15);">
+                                <div class="flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
+                                    <i class="text-gray-400 fas fa-chart-simple"></i>
+                                    <p class="text-sm text-gray-400">
+                                        Données mises à jour une fois par an.
+                                    </p>
                                 </div>
-                                <div class="mb-4">
-                                    <span class="text-6xl font-bold" style="color: #b69246; text-shadow: 0 0 20px rgba(182, 146, 70, 0.5);">
-                                        <span class="counter" data-target="100">0</span>
-                                    </span>
-                                    <span class="text-3xl font-bold" style="color: #b69246;">%</span>
-                                </div>
-                                <h3 class="mb-3 text-2xl font-bold text-white">Taux de Satisfaction</h3>
-                                <p class="text-gray-400">
-                                    De nos apprenants, basé sur nos enquêtes de satisfaction post-formation
-                                </p>
-                                <div class="mt-6">
-                                    <div class="flex justify-center gap-1">
-                                        <i class="fas fa-star" style="color: #b69246;"></i>
-                                        <i class="fas fa-star" style="color: #b69246;"></i>
-                                        <i class="fas fa-star" style="color: #b69246;"></i>
-                                        <i class="fas fa-star" style="color: #b69246;"></i>
-                                        <i class="fas fa-star" style="color: #b69246;"></i>
-                                    </div>
-                                    <p class="mt-2 text-sm text-gray-500">Note moyenne : 5/5 sur 12 avis</p>
+                                <div class="flex flex-col items-center gap-2 mt-2 sm:flex-row sm:justify-center">
+                                    <i class="text-gray-400 far fa-calendar-alt"></i>
+                                    <p class="text-sm text-gray-400">
+                                        <strong>Dernière mise à jour : décembre 2025</strong>
+                                        <span class="mx-2 text-gray-600">—</span>
+                                        <strong>Prochaine mise à jour : décembre 2026</strong>
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Bandeau récapitulatif -->
-<div class="max-w-3xl mx-auto mt-12 text-center">
-    <div class="p-6 rounded-xl" style="background: rgba(182, 146, 70, 0.05); border: 1px solid rgba(182, 146, 70, 0.2);">
-        <div class="space-y-3 text-center">
-            <p class="text-lg text-gray-300">
-                <i class="mr-2 fas fa-chart-line" style="color: #b69246;"></i>
-                <strong class="text-white">Taux de présentation à l'examen :</strong>
-                <span class="text-white"></span>
-            </p>
-            <p class="text-lg text-gray-300">
-                <i class="mr-2 fas fa-certificate" style="color: #b69246;"></i>
-                <strong class="text-white">Taux d'obtention de la certification :</strong>
-                <span class="text-white"></span>
-            </p>
-            <div class="pt-2 mt-2 border-t border-gray-700">
-                <p class="text-sm text-gray-500">
-                    <i class="mr-1 far fa-calendar-alt"></i>
-                    Prochaine mise à jour : <strong class="text-gray-400">Décembre 2026</strong>
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
                 </div>
             </section>
 
@@ -153,52 +187,32 @@
                 </div>
             </div>
 
-            <!-- BANNIÈRE QUALIOPI HORIZONTALE FIDÈLE À L'ORIGINAL -->
-            <div class="qualiopi-banner">
+            <!-- BANNIÈRE QUALIOPI -->
+<div class="qualiopi-banner">
 
-                <!-- BLOC GAUCHE -->
-                <div class="qualiopi-left">
-                    <img src="{{ asset('Qualiopi2.png') }}"
-                         alt="Qualiopi processus certifié"
-                         class="qualiopi-logo-img">
+    <!-- BLOC GAUCHE : image tout-en-un -->
+    <div class="qualiopi-left">
+        <img src="{{ asset('qualiopi3.jpeg') }}"
+             alt="Qualiopi processus certifié - République Française"
+             class="qualiopi-logo-img">
 
-                    <div class="republique-row">
-                        <img src="{{ asset('Marianne2.png') }}"
-                             alt="Marianne République Française"
-                             class="marianne-img">
-                        <span class="republique-label">République Française</span>
-                    </div>
+        <p class="certification-mention">
+            La certification qualité a été délivrée au titre de la catégorie d'action
+            suivante&nbsp;: <strong>actions de formation</strong>.
+        </p>
+    </div>
 
-                    <p class="certification-mention">
-                        La certification qualité a été délivrée au titre de la catégorie d'action
-                        suivante&nbsp;: <strong>actions de formation</strong>.
-                    </p>
-                </div>
+    <!-- SÉPARATEUR VERTICAL -->
+    <div class="qualiopi-separator"></div>
 
-                <!-- SÉPARATEUR VERTICAL -->
-                <div class="qualiopi-separator"></div>
-
-                <!-- BLOC DROIT -->
-                <div class="qualiopi-right">
-                    <p class="download-title">Téléchargez notre certificat</p>
-                    <a href="{{ asset('Agrément_Qualiopi.pdf') }}" target="_blank" class="download-btn-qualiopi">
-                        Certificat Qualiopi &nbsp;<i class="fas fa-download"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Date de mise à jour -->
-            {{-- <div class="p-4 mt-8 rounded-lg bg-gray-100">
-                <div class="flex items-center justify-center">
-                    <i class="mr-3 text-gray-600 {{ __('performance.mise_a_jour.icon') }}"></i>
-                    <p class="text-sm text-gray-600">
-                        <strong>{{ __('performance.mise_a_jour.last_update') }}</strong>
-                        {{ __('performance.mise_a_jour.last_update_date') }} |
-                        <strong>{{ __('performance.mise_a_jour.next_update') }}</strong>
-                        {{ __('performance.mise_a_jour.next_update_date') }}
-                    </p>
-                </div>
-            </div> --}}
+    <!-- BLOC DROIT -->
+    <div class="qualiopi-right">
+        <p class="download-title">Téléchargez notre certificat</p>
+        <a href="{{ asset('Agrément_Qualiopi.pdf') }}" target="_blank" class="download-btn-qualiopi">
+            Certificat Qualiopi &nbsp;<i class="fas fa-download"></i>
+        </a>
+    </div>
+</div>
 
             <!-- Retour à l'accueil -->
             <div class="mt-8 text-center">
@@ -233,116 +247,103 @@
         animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
     }
 
-    /* Styles pour la bannière Qualiopi */
+/* Styles pour la bannière Qualiopi */
+.qualiopi-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    padding: 40px 60px;
+    gap: 40px;
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin-bottom: 2rem;
+}
+.qualiopi-left {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+}
+.qualiopi-logo-img {
+    max-width: 420px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    object-position: left center;
+}
+.certification-mention {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.65;
+    max-width: 480px;
+}
+.qualiopi-separator {
+    width: 1px;
+    min-height: 130px;
+    align-self: stretch;
+    background: #e0e0e0;
+    flex-shrink: 0;
+}
+.qualiopi-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    min-width: 260px;
+}
+.download-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111;
+    text-align: center;
+    line-height: 1.3;
+}
+.download-btn-qualiopi {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 2px solid #111;
+    border-radius: 50px;
+    padding: 12px 30px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+    text-decoration: none;
+    background: transparent;
+    transition: background 0.25s, color 0.25s;
+    white-space: nowrap;
+}
+.download-btn-qualiopi:hover {
+    background: #111;
+    color: #fff;
+}
+
+/* Responsive bannière Qualiopi */
+@media (max-width: 768px) {
     .qualiopi-banner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: #ffffff;
-        padding: 40px 60px;
-        gap: 40px;
-        border-radius: 4px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        margin-bottom: 2rem;
-    }
-    .qualiopi-left {
-        display: flex;
         flex-direction: column;
-        gap: 14px;
-        flex: 1;
+        padding: 30px 24px;
+        gap: 24px;
+        align-items: flex-start;
     }
     .qualiopi-logo-img {
-        height: 150px;
-        object-fit: contain;
-        object-position: left center;
-    }
-    .republique-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .marianne-img {
-        height: 12px;
-        object-fit: contain;
-    }
-    .republique-label {
-        font-size: 15px;
-        font-weight: 700;
-        color: #1a1a1a;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-    .certification-mention {
-        font-size: 14px;
-        color: #333;
-        line-height: 1.65;
-        max-width: 480px;
+        max-width: 100%;
     }
     .qualiopi-separator {
-        width: 1px;
-        min-height: 130px;
-        align-self: stretch;
-        background: #e0e0e0;
-        flex-shrink: 0;
+        width: 100%;
+        min-height: 1px;
+        height: 1px;
+        align-self: auto;
     }
     .qualiopi-right {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 20px;
-        min-width: 260px;
+        width: 100%;
+        min-width: unset;
+        align-items: flex-start;
     }
-    .download-title {
-        font-size: 18px;
-        font-weight: 700;
-        color: #111;
-        text-align: center;
-        line-height: 1.3;
-    }
-    .download-btn-qualiopi {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        border: 2px solid #111;
-        border-radius: 50px;
-        padding: 12px 30px;
-        font-size: 14px;
-        font-weight: 700;
-        color: #111;
-        text-decoration: none;
-        background: transparent;
-        transition: background 0.25s, color 0.25s;
-        white-space: nowrap;
-    }
-    .download-btn-qualiopi:hover {
-        background: #111;
-        color: #fff;
-    }
-
-    /* Responsive bannière Qualiopi */
-    @media (max-width: 768px) {
-        .qualiopi-banner {
-            flex-direction: column;
-            padding: 30px 24px;
-            gap: 24px;
-            align-items: flex-start;
-        }
-        .qualiopi-separator {
-            width: 100%;
-            min-height: 1px;
-            height: 1px;
-            align-self: auto;
-        }
-        .qualiopi-right {
-            width: 100%;
-            min-width: unset;
-            align-items: flex-start;
-        }
-        .download-title { text-align: left; }
-        .qualiopi-logo-img { height: 120px; }
-        .marianne-img { height: 12px; }
-    }
+    .download-title { text-align: left; }
+}
 
     @media (max-width: 768px) {
         .p-8 {
@@ -354,54 +355,9 @@
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-<!-- Script pour l'animation des compteurs -->
+<!-- Script pour l'animation des cartes -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Animation des compteurs
-        const counters = document.querySelectorAll('.counter');
-
-        const animateCounter = (counter) => {
-            const target = parseInt(counter.getAttribute('data-target'));
-            let current = 0;
-            const increment = target / 50;
-            const updateCounter = () => {
-                current += increment;
-                if (current < target) {
-                    counter.innerText = Math.ceil(current);
-                    requestAnimationFrame(updateCounter);
-                } else {
-                    counter.innerText = target;
-                }
-            };
-            updateCounter();
-        };
-
-        // Observer pour déclencher l'animation des compteurs
-        const counterObserverOptions = {
-            threshold: 0.3,
-            rootMargin: '0px'
-        };
-
-        const counterObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const sectionCounters = entry.target.querySelectorAll('.counter');
-                    sectionCounters.forEach(counter => {
-                        if (counter.innerText === '0') {
-                            animateCounter(counter);
-                        }
-                    });
-                    counterObserver.unobserve(entry.target);
-                }
-            });
-        }, counterObserverOptions);
-
-        // Observer la section des indicateurs
-        const indicatorsSection = document.querySelector('section[style*="linear-gradient"]');
-        if (indicatorsSection) {
-            counterObserver.observe(indicatorsSection);
-        }
-
         // Animation d'apparition au scroll pour les cartes
         const observerOptions = {
             threshold: 0.1,
@@ -417,7 +373,7 @@
             });
         }, observerOptions);
 
-        document.querySelectorAll('.group').forEach(el => {
+        document.querySelectorAll('.grid > div').forEach(el => {
             el.style.opacity = '0';
             el.style.transform = 'translateY(20px)';
             el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';

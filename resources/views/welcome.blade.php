@@ -569,7 +569,7 @@
 </section>
 
 <!-- ============================================================ -->
-<!-- CERTIFICATIONS SECTION - BANNIÈRE QUALIOPI HORIZONTALE       -->
+<!-- CERTIFICATIONS SECTION                                        -->
 <!-- ============================================================ -->
 <section class="py-16" style="background: #000;">
     <div class="container mx-auto px-4 md:px-6">
@@ -584,21 +584,14 @@
                 </p>
             </div>
 
-            <!-- BANNIÈRE QUALIOPI HORIZONTALE FIDÈLE À L'ORIGINAL -->
+            <!-- BANNIÈRE QUALIOPI HORIZONTALE -->
             <div class="qualiopi-banner">
 
-                <!-- BLOC GAUCHE -->
+                <!-- BLOC GAUCHE : image tout-en-un -->
                 <div class="qualiopi-left">
-                    <img src="{{ asset('Qualiopi2.png') }}"
-                         alt="Qualiopi processus certifié"
+                    <img src="{{ asset('qualiopi3.jpeg') }}"
+                         alt="Qualiopi processus certifié - République Française"
                          class="qualiopi-logo-img">
-
-                    <div class="republique-row">
-                        <img src="{{ asset('Marianne2.png') }}"
-                             alt="Marianne République Française"
-                             class="marianne-img">
-                        <span class="republique-label">République Française</span>
-                    </div>
 
                     <p class="certification-mention">
                         La certification qualité a été délivrée au titre de la catégorie d'action
@@ -609,7 +602,7 @@
                 <!-- SÉPARATEUR VERTICAL -->
                 <div class="qualiopi-separator"></div>
 
-                <!-- BLOC DROIT -->
+                <!-- BLOC DROIT : téléchargement -->
                 <div class="qualiopi-right">
                     <p class="download-title">Téléchargez notre certificat</p>
                     <a href="{{ asset('Agrément_Qualiopi.pdf') }}" target="_blank" class="download-btn-qualiopi">
@@ -618,8 +611,8 @@
                 </div>
             </div>
 
-            <!-- Card 2 - Préfectoral (conservée) -->
-            <div class="grid grid-cols-1 md:grid-cols-1 gap-8 mt-8">
+            <!-- Card Préfectoral -->
+            <div class="mt-8">
                 <a href="{{ asset('Agrément_préfecture.pdf') }}" target="_blank" class="block no-underline">
                     <div class="p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer flex flex-col md:flex-row items-center gap-6"
                         style="background: #111; border: 1px solid #333;">
@@ -918,115 +911,103 @@
     .icon-item:hover { width: 240px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); background: #d4af37; }
     .icon-item:hover span { opacity: 1; transform: translateX(0); }
 
-    /* ===================== QUALIOPI BANNER ===================== */
+/* ===================== QUALIOPI BANNER ===================== */
+.qualiopi-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    padding: 40px 60px;
+    gap: 40px;
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.qualiopi-left {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+}
+.qualiopi-logo-img {
+    /* L'image contient déjà Qualiopi + Marianne + République Française */
+    max-width: 420px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    object-position: left center;
+}
+.certification-mention {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.65;
+    max-width: 480px;
+}
+.qualiopi-separator {
+    width: 1px;
+    min-height: 130px;
+    align-self: stretch;
+    background: #e0e0e0;
+    flex-shrink: 0;
+}
+.qualiopi-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    min-width: 260px;
+}
+.download-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111;
+    text-align: center;
+    line-height: 1.3;
+}
+.download-btn-qualiopi {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 2px solid #111;
+    border-radius: 50px;
+    padding: 12px 30px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+    text-decoration: none;
+    background: transparent;
+    transition: background 0.25s, color 0.25s;
+    white-space: nowrap;
+}
+.download-btn-qualiopi:hover {
+    background: #111;
+    color: #fff;
+}
+
+/* Responsive bannière Qualiopi */
+@media (max-width: 768px) {
     .qualiopi-banner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: #ffffff;
-        padding: 40px 60px;
-        gap: 40px;
-        border-radius: 4px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    }
-    .qualiopi-left {
-        display: flex;
         flex-direction: column;
-        gap: 14px;
-        flex: 1;
+        padding: 30px 24px;
+        gap: 24px;
+        align-items: flex-start;
     }
     .qualiopi-logo-img {
-        height: 150px;
-        object-fit: contain;
-        object-position: left center;
-    }
-    .republique-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .marianne-img {
-        height: 12px;
-        object-fit: contain;
-    }
-    .republique-label {
-        font-size: 15px;
-        font-weight: 700;
-        color: #1a1a1a;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-    .certification-mention {
-        font-size: 14px;
-        color: #333;
-        line-height: 1.65;
-        max-width: 480px;
+        max-width: 100%;
     }
     .qualiopi-separator {
-        width: 1px;
-        min-height: 130px;
-        align-self: stretch;
-        background: #e0e0e0;
-        flex-shrink: 0;
+        width: 100%;
+        min-height: 1px;
+        height: 1px;
+        align-self: auto;
     }
     .qualiopi-right {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 20px;
-        min-width: 260px;
+        width: 100%;
+        min-width: unset;
+        align-items: flex-start;
     }
-    .download-title {
-        font-size: 18px;
-        font-weight: 700;
-        color: #111;
-        text-align: center;
-        line-height: 1.3;
-    }
-    .download-btn-qualiopi {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        border: 2px solid #111;
-        border-radius: 50px;
-        padding: 12px 30px;
-        font-size: 14px;
-        font-weight: 700;
-        color: #111;
-        text-decoration: none;
-        background: transparent;
-        transition: background 0.25s, color 0.25s;
-        white-space: nowrap;
-    }
-    .download-btn-qualiopi:hover {
-        background: #111;
-        color: #fff;
-    }
-
-    /* Responsive bannière Qualiopi */
-    @media (max-width: 768px) {
-        .qualiopi-banner {
-            flex-direction: column;
-            padding: 30px 24px;
-            gap: 24px;
-            align-items: flex-start;
-        }
-        .qualiopi-separator {
-            width: 100%;
-            min-height: 1px;
-            height: 1px;
-            align-self: auto;
-        }
-        .qualiopi-right {
-            width: 100%;
-            min-width: unset;
-            align-items: flex-start;
-        }
-        .download-title { text-align: left; }
-        .qualiopi-logo-img { height: 120px; }
-        .marianne-img { height: 12px; }
-    }
+    .download-title { text-align: left; }
+}
 
     /* ===================== RESPONSIVE GLOBAL ===================== */
     @media (max-width: 1024px) {

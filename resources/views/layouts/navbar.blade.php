@@ -58,12 +58,12 @@
                 <a href="{{ route('formation') }}" class="dropdown-item">
                     {{ __('navbar.vtc_training') }}
                 </a>
-                <a href="{{ route('formation.international') }}" class="dropdown-item">
+                {{-- <a href="{{ route('formation.international') }}" class="dropdown-item">
                     {{ __('navbar.international_training') }}
                 </a>
                 <a href="{{ route('elearning.index') }}" class="dropdown-item">
                     {{ __('navbar.elearning_training') }}
-                </a>
+                </a> --}}
             </div>
         </div>
 
@@ -153,12 +153,12 @@
                     <a href="{{ route('formation') }}" class="mobile-sub-link">
                         {{ __('navbar.vtc_training') }}
                     </a>
-                    <a href="{{ route('formation.international') }}" class="mobile-sub-link">
+                    {{-- <a href="{{ route('formation.international') }}" class="mobile-sub-link">
                         {{ __('navbar.international_training') }}
                     </a>
                     <a href="{{ route('elearning.index') }}" class="mobile-sub-link">
                         {{ __('navbar.elearning_training') }}
-                    </a>
+                    </a> --}}
                 </div>
             </div>
 
