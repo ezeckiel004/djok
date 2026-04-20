@@ -40,38 +40,46 @@
 
         // Cache les compteurs pour éviter trop de requêtes
         $badgeCounts = [
-        'formations_total' => cache()->remember("user_{$user->id}_formations_total", 60, function() use ($user) {
-        return \App\Models\UserFormation::where('user_id', $user->id)->count();
-        }),
-        'formations_actives' => cache()->remember("user_{$user->id}_formations_active", 60, function() use ($user) {
-        return \App\Models\UserFormation::where('user_id', $user->id)
-        ->where('status', 'active')
-        ->count();
-        }),
-        'formations_en_attente' => cache()->remember("user_{$user->id}_formations_pending", 60, function() use ($user) {
-        return \App\Models\UserFormation::where('user_id', $user->id)
-        ->where('status', 'pending')
-        ->count();
-        }),
-        'locations' => cache()->remember("user_{$user->id}_locations", 60, function() use ($user) {
-        return \App\Models\LocationReservation::where('user_id', $user->id)
-        ->orWhere('email', $user->email)
-        ->count();
-        }),
-        'conciergerie' => cache()->remember("user_{$user->id}_conciergerie", 60, function() use ($user) {
-        return \App\Models\ConciergerieDemande::where('email', $user->email)->count();
-        }),
-        'reservations' => cache()->remember("user_{$user->id}_reservations", 60, function() use ($user) {
-        return \App\Models\Reservation::where('user_id', $user->id)
-        ->orWhere('email', $user->email)
-        ->count();
-        }),
-        'factures' => cache()->remember("user_{$user->id}_factures", 60, function() use ($user) {
-        return \App\Models\Paiement::where('user_id', $user->id)
-        ->where('status', 'paid')
-        ->count();
-        }),
+            'formations_total' => cache()->remember("user_{$user->id}_formations_total", 60, function() use ($user) {
+                return \App\Models\UserFormation::where('user_id', $user->id)->count();
+            }),
+            'formations_actives' => cache()->remember("user_{$user->id}_formations_active", 60, function() use ($user) {
+                return \App\Models\UserFormation::where('user_id', $user->id)
+                    ->where('status', 'active')
+                    ->count();
+            }),
+            'formations_en_attente' => cache()->remember("user_{$user->id}_formations_pending", 60, function() use ($user) {
+                return \App\Models\UserFormation::where('user_id', $user->id)
+                    ->where('status', 'pending')
+                    ->count();
+            }),
+            'locations' => cache()->remember("user_{$user->id}_locations", 60, function() use ($user) {
+                return \App\Models\LocationReservation::where('user_id', $user->id)
+                    ->orWhere('email', $user->email)
+                    ->count();
+            }),
+            'conciergerie' => cache()->remember("user_{$user->id}_conciergerie", 60, function() use ($user) {
+                return \App\Models\ConciergerieDemande::where('email', $user->email)->count();
+            }),
+            'reservations' => cache()->remember("user_{$user->id}_reservations", 60, function() use ($user) {
+                return \App\Models\Reservation::where('user_id', $user->id)
+                    ->orWhere('email', $user->email)
+                    ->count();
+            }),
+            'factures' => cache()->remember("user_{$user->id}_factures", 60, function() use ($user) {
+                return \App\Models\Paiement::where('user_id', $user->id)
+                    ->where('status', 'paid')
+                    ->count();
+            }),
         ];
+
+        // Vérifier si l'utilisateur a un accès e-learning actif
+        $hasActiveElearning = cache()->remember("user_{$user->id}_has_active_elearning", 60, function() use ($user) {
+            return \App\Models\ElearningAcces::where('email', $user->email)
+                ->where('status', 'active')
+                ->where('access_end', '>', now())
+                ->exists();
+        });
         @endphp
 
         <!-- Dashboard -->
@@ -80,7 +88,7 @@
         </div>
 
         <a href="{{ route('client.dashboard') }}"
-            class="flex items-center justify-between px-3 py-2.5 mx-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 {{ str_starts_with($currentRoute, 'client.dashboard') ? 'bg-yellow-50 text-yellow-700 border-l-4 border-yellow-500' : '' }}">
+            class="flex items-center justify-between px-3 py-2.5 mx-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 {{ str_starts_with($currentRoute, 'client.dashboard') && !str_contains($currentRoute, 'elearning') ? 'bg-yellow-50 text-yellow-700 border-l-4 border-yellow-500' : '' }}">
             <div class="flex items-center">
                 <i class="fas fa-home mr-3 w-5 text-center text-gray-400"></i>
                 <span class="text-sm font-medium">Dashboard</span>
@@ -133,6 +141,37 @@
             <span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                 Nouveau
             </span>
+        </a>
+        @endif
+
+        <!-- ============================================== -->
+        <!-- E-LEARNING - NOUVEAU LIEN -->
+        <!-- ============================================== -->
+        <div class="px-3 py-2 mt-4">
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">E-learning</span>
+        </div>
+
+        <a href="{{ route('client.elearning.index') }}"
+            class="flex items-center justify-between px-3 py-2.5 mx-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 {{ str_starts_with($currentRoute, 'client.elearning') && !str_contains($currentRoute, 'dashboard') ? 'bg-yellow-50 text-yellow-700 border-l-4 border-yellow-500' : '' }}">
+            <div class="flex items-center">
+                <i class="fas fa-laptop mr-3 w-5 text-center text-gray-400"></i>
+                <span class="text-sm font-medium">Forfaits</span>
+            </div>
+            @if($hasActiveElearning)
+            <span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                Actif
+            </span>
+            @endif
+        </a>
+
+        <!-- Ma salle virtuelle (si accès actif) -->
+        @if($hasActiveElearning)
+        <a href="{{ route('client.elearning.dashboard') }}"
+            class="flex items-center px-3 py-2.5 mx-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 {{ str_contains($currentRoute, 'client.elearning.dashboard') ? 'bg-yellow-50 text-yellow-700 border-l-4 border-yellow-500' : '' }}">
+            <div class="flex items-center">
+                <i class="fas fa-door-open mr-3 w-5 text-center text-gray-400"></i>
+                <span class="text-sm font-medium">Ma salle virtuelle</span>
+            </div>
         </a>
         @endif
 
@@ -219,15 +258,6 @@
             <span class="text-sm font-medium">Mon profil</span>
         </a>
 
-        <!-- Paramètres -->
-        {{-- @if(Route::has('client.settings'))
-        <a href="{{ route('client.settings') }}"
-            class="flex items-center px-3 py-2.5 mx-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 {{ str_starts_with($currentRoute, 'client.settings') ? 'bg-yellow-50 text-yellow-700 border-l-4 border-yellow-500' : '' }}">
-            <i class="fas fa-cog mr-3 w-5 text-center text-gray-400"></i>
-            <span class="text-sm font-medium">Paramètres</span>
-        </a>
-        @endif --}}
-
         <!-- Support -->
         <a href="{{ route('client.support') }}"
             class="flex items-center px-3 py-2.5 mx-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 {{ str_starts_with($currentRoute, 'client.support') ? 'bg-yellow-50 text-yellow-700 border-l-4 border-yellow-500' : '' }}">
@@ -305,12 +335,10 @@
     }
 
     @keyframes bounce {
-
         0%,
         100% {
             transform: translateY(0);
         }
-
         50% {
             transform: translateY(-2px);
         }

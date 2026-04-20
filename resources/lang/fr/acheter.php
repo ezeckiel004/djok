@@ -35,4 +35,14 @@ return [
     'satisfaction_guarantee' => 'Satisfait ou remboursé',
     'satisfaction_guarantee_desc' => '14 jours pour changer d\'avis',
     'processing' => 'Traitement en cours...',
+
+    // ===== NOUVEAUX BADGES ET TEXTES =====
+    'all_inclusive' => ' Tout inclus',
+    'custom_selection' => ' Sélection personnalisée',
+    'all_inclusive_desc' => 'Accès à tout le contenu de la plateforme (tous les cours, QCM et examens)',
+    'custom_selection_desc' => 'Contenu sélectionné spécialement pour ce forfait',
+    'certificate_included' => 'Certification incluse',
+    'courses_selected' => 'cours sélectionnés',
+    'qcms_selected' => 'QCM sélectionnés',
+    'exams_selected' => 'examens sélectionnés',
 ];

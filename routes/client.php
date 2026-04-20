@@ -7,16 +7,17 @@ use App\Http\Controllers\Client\ReservationController;
 use App\Http\Controllers\Client\ConciergerieController;
 use App\Http\Controllers\Client\ProfileController;
 use App\Http\Controllers\Client\InvoiceController;
+use App\Http\Controllers\Client\ClientElearningController;
 use App\Http\Controllers\ContactController;
 
 Route::middleware(['auth', 'can:access-client-dashboard'])->prefix('client')->name('client.')->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard/stats', [DashboardController::class, 'getStats'])->name('dashboard.stats'); // Route AJOUTÉE
-    Route::get('/dashboard/recent-formations', [DashboardController::class, 'getRecentFormations'])->name('dashboard.recent-formations'); // Route AJOUTÉE
-    Route::get('/dashboard/recommended-formations', [DashboardController::class, 'getRecommendedFormations'])->name('dashboard.recommended-formations'); // Route AJOUTÉE
-    Route::get('/dashboard/recent-activity', [DashboardController::class, 'getRecentActivity'])->name('dashboard.recent-activity'); // Route AJOUTÉE
+    Route::get('/dashboard/stats', [DashboardController::class, 'getStats'])->name('dashboard.stats');
+    Route::get('/dashboard/recent-formations', [DashboardController::class, 'getRecentFormations'])->name('dashboard.recent-formations');
+    Route::get('/dashboard/recommended-formations', [DashboardController::class, 'getRecommendedFormations'])->name('dashboard.recommended-formations');
+    Route::get('/dashboard/recent-activity', [DashboardController::class, 'getRecentActivity'])->name('dashboard.recent-activity');
 
     // ==============================================
     // FORMATIONS - SYSTÈME COMPLET
@@ -47,29 +48,59 @@ Route::middleware(['auth', 'can:access-client-dashboard'])->prefix('client')->na
         Route::get('/{userFormation}/download/{media}', [FormationController::class, 'downloadMedia'])->name('download.media');
     });
 
-    // Location Reservations
-    Route::get('/location-reservations', [LocationReservationController::class, 'index'])->name('location-reservations.index');
-    Route::get('/location-reservations/create', [LocationReservationController::class, 'create'])->name('location-reservations.create');
-    Route::post('/location-reservations', [LocationReservationController::class, 'store'])->name('location-reservations.store');
-    Route::get('/location-reservations/{reservation}', [LocationReservationController::class, 'show'])->name('location-reservations.show');
-    Route::get('/location-reservations/{reservation}/edit', [LocationReservationController::class, 'edit'])->name('location-reservations.edit');
-    Route::put('/location-reservations/{reservation}', [LocationReservationController::class, 'update'])->name('location-reservations.update');
-    Route::delete('/location-reservations/{reservation}', [LocationReservationController::class, 'destroy'])->name('location-reservations.destroy');
+    // ==============================================
+    // E-LEARNING POUR CLIENTS CONNECTÉS
+    // ==============================================
+    Route::prefix('elearning')->name('elearning.')->group(function () {
+        // Liste des forfaits e-learning
+        Route::get('/', [ClientElearningController::class, 'index'])->name('index');
 
-    // Reservations VTC
-    Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations.index');
-    Route::get('/reservations/create', [ReservationController::class, 'create'])->name('reservations.create');
-    Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
-    Route::get('/reservations/{reservation}', [ReservationController::class, 'show'])->name('reservations.show');
-    Route::get('/reservations/{reservation}/edit', [ReservationController::class, 'edit'])->name('reservations.edit');
-    Route::put('/reservations/{reservation}', [ReservationController::class, 'update'])->name('reservations.update');
-    Route::delete('/reservations/{reservation}', [ReservationController::class, 'destroy'])->name('reservations.destroy');
+        // Achat de forfait e-learning
+        Route::get('/forfait/{forfaitSlug}', [ClientElearningController::class, 'acheter'])->name('acheter');
+        Route::post('/forfait/{forfaitSlug}/paiement', [ClientElearningController::class, 'processPayment'])->name('process-payment');
+
+        // Dashboard e-learning (salle virtuelle client)
+        Route::get('/dashboard', [ClientElearningController::class, 'dashboard'])->name('dashboard');
+        Route::get('/logout', [ClientElearningController::class, 'logout'])->name('logout');
+
+        // Contenu e-learning (cours et QCM)
+        Route::get('/cours/{coursId}', [ClientElearningController::class, 'showCours'])->name('cours.show');
+        Route::post('/cours/{coursId}/complete', [ClientElearningController::class, 'completeCours'])->name('cours.complete');
+        Route::get('/qcm/{qcmId}', [ClientElearningController::class, 'showQcm'])->name('qcm.show');
+        Route::post('/qcm/{qcmId}/submit', [ClientElearningController::class, 'submitQcm'])->name('qcm.submit');
+    });
 
     // ==============================================
-    // CONCIERGERIE - ROUTES CORRIGÉES
+    // LOCATION RESERVATIONS
+    // ==============================================
+    Route::prefix('location-reservations')->name('location-reservations.')->group(function () {
+        Route::get('/', [LocationReservationController::class, 'index'])->name('index');
+        Route::get('/create', [LocationReservationController::class, 'create'])->name('create');
+        Route::post('/', [LocationReservationController::class, 'store'])->name('store');
+        Route::get('/{reservation}', [LocationReservationController::class, 'show'])->name('show');
+        Route::get('/{reservation}/edit', [LocationReservationController::class, 'edit'])->name('edit');
+        Route::put('/{reservation}', [LocationReservationController::class, 'update'])->name('update');
+        Route::delete('/{reservation}', [LocationReservationController::class, 'destroy'])->name('destroy');
+    });
+
+    // ==============================================
+    // RESERVATIONS VTC
+    // ==============================================
+    Route::prefix('reservations')->name('reservations.')->group(function () {
+        Route::get('/', [ReservationController::class, 'index'])->name('index');
+        Route::get('/create', [ReservationController::class, 'create'])->name('create');
+        Route::post('/', [ReservationController::class, 'store'])->name('store');
+        Route::get('/{reservation}', [ReservationController::class, 'show'])->name('show');
+        Route::get('/{reservation}/edit', [ReservationController::class, 'edit'])->name('edit');
+        Route::put('/{reservation}', [ReservationController::class, 'update'])->name('update');
+        Route::delete('/{reservation}', [ReservationController::class, 'destroy'])->name('destroy');
+    });
+
+    // ==============================================
+    // CONCIERGERIE
     // ==============================================
     Route::prefix('conciergerie-demandes')->name('conciergerie-demandes.')->group(function () {
-        // CRUD de base - Utiliser {id} partout pour la cohérence
+        // CRUD de base
         Route::get('/', [ConciergerieController::class, 'index'])->name('index');
         Route::get('/create', [ConciergerieController::class, 'create'])->name('create');
         Route::post('/', [ConciergerieController::class, 'store'])->name('store');
@@ -95,25 +126,35 @@ Route::middleware(['auth', 'can:access-client-dashboard'])->prefix('client')->na
             ->name('export-pdf');
     });
 
-    // Invoices
-    Route::get('/factures', [InvoiceController::class, 'index'])->name('factures.index');
-    Route::get('/factures/{paiement}', [InvoiceController::class, 'show'])->name('factures.show');
-    Route::get('/factures/{paiement}/download', [InvoiceController::class, 'download'])->name('factures.download');
+    // ==============================================
+    // FACTURES / INVOICES
+    // ==============================================
+    Route::prefix('factures')->name('factures.')->group(function () {
+        Route::get('/', [InvoiceController::class, 'index'])->name('index');
+        Route::get('/{paiement}', [InvoiceController::class, 'show'])->name('show');
+        Route::get('/{paiement}/download', [InvoiceController::class, 'download'])->name('download');
+    });
 
-    // Profile
-    Route::get('/profil', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profil', [ProfileController::class, 'update'])->name('profile.update');
-    Route::put('/profil/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+    // ==============================================
+    // PROFIL CLIENT
+    // ==============================================
+    Route::prefix('profil')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+        Route::put('/', [ProfileController::class, 'update'])->name('update');
+        Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
+    });
 
-    // Settings
+    // ==============================================
+    // PARAMÈTRES
+    // ==============================================
     Route::get('/parametres', [ProfileController::class, 'settings'])->name('settings');
     Route::put('/parametres', [ProfileController::class, 'updateSettings'])->name('settings.update');
 
-    // Support - CORRIGÉ
+    // ==============================================
+    // SUPPORT CLIENT
+    // ==============================================
     Route::get('/support', function () {
         return view('client.dashboard.support');
     })->name('support');
-
-    // Ajoutez cette ligne pour la route POST
     Route::post('/support', [ContactController::class, 'storeSupport'])->name('support.store');
 });

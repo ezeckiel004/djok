@@ -179,7 +179,7 @@
         const form = document.getElementById('qcmForm');
         const allowMultipleCorrectCheckbox = document.getElementById('allowMultipleCorrect');
         const qcmInstructions = document.getElementById('qcmInstructions');
-        
+
         let questionIndex = 0;
         const answerLetters = ['A', 'B', 'C', 'D', 'E', 'F'];
 
@@ -198,7 +198,7 @@
             const allowMultiple = allowMultipleCorrectCheckbox?.checked || false;
             const inputType = allowMultiple ? 'checkbox' : 'radio';
             const inputName = allowMultiple ? `correct_answer_${questionId}[]` : `correct_answer_${questionId}`;
-            
+
             return `
                 <div class="answer-item flex items-center space-x-3 p-3 border border-gray-200 rounded-lg bg-gray-50" data-letter="${letter}">
                     <div class="flex items-center space-x-2">
@@ -221,7 +221,7 @@
             questionIndex++;
             const questionId = questionIndex;
             const allowMultiple = allowMultipleCorrectCheckbox?.checked || false;
-            
+
             const questionHTML = `
                 <div class="border border-gray-300 rounded-lg p-6 bg-white question-card" data-question-id="${questionId}">
                     <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
@@ -235,15 +235,15 @@
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
-                    
+
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Question *</label>
                         <input type="text" class="question-text w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                               placeholder="Entrez le texte de la question" 
+                               placeholder="Entrez le texte de la question"
                                value="${questionData?.text || ''}">
                         <p class="text-xs text-gray-500 mt-1">Formulez clairement votre question</p>
                     </div>
-                    
+
                     <div class="mb-6">
                         <div class="flex justify-between items-center mb-4">
                             <label class="block text-sm font-medium text-gray-700">Réponses *</label>
@@ -256,26 +256,26 @@
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div class="answers-container space-y-3" id="answers-${questionId}">
                             <!-- Les réponses seront ajoutées ici -->
                         </div>
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Explication (optionnelle)</label>
-                        <textarea class="explanation w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                        <textarea class="explanation w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                   rows="2" placeholder="Expliquez pourquoi cette/ces réponse(s) est/sont correcte(s)...">${questionData?.explanation || ''}</textarea>
                     </div>
                 </div>
             `;
-            
+
             questionsContainer.insertAdjacentHTML('beforeend', questionHTML);
-            
+
             // Ajouter les réponses initiales
             const questionElement = document.querySelector(`[data-question-id="${questionId}"]`);
             const answersContainer = questionElement.querySelector('.answers-container');
-            
+
             if (questionData?.answers) {
                 Object.entries(questionData.answers).forEach(([letter, text], index) => {
                     if (index < answerLetters.length) {
@@ -283,7 +283,7 @@
                         let isCorrect = false;
                         if (questionData.correct_answers) {
                             // Format multiple
-                            isCorrect = Array.isArray(questionData.correct_answers) 
+                            isCorrect = Array.isArray(questionData.correct_answers)
                                 ? questionData.correct_answers.includes(letter)
                                 : false;
                         } else if (questionData.correct_answer) {
@@ -297,46 +297,46 @@
                 addAnswerToQuestion(questionId, 'A', '', false);
                 addAnswerToQuestion(questionId, 'B', '', false);
             }
-            
+
             updateQuestionCounter();
             updateQuestionsJson();
         }
-        
+
         // Fonction pour ajouter une réponse à une question
         function addAnswerToQuestion(questionId, letter, text = '', isCorrect = false) {
             const answersContainer = document.querySelector(`[data-question-id="${questionId}"] .answers-container`);
             if (!answersContainer) return;
-            
+
             const answerCount = answersContainer.children.length;
             if (answerCount >= answerLetters.length) {
                 alert('Maximum 6 réponses par question');
                 return;
             }
-            
+
             const answerLetter = letter || answerLetters[answerCount];
             const answerHTML = createAnswerHTML(questionId, answerLetter, text, isCorrect);
             answersContainer.insertAdjacentHTML('beforeend', answerHTML);
         }
-        
+
         // Fonction pour mettre à jour le type de sélection des réponses
         function updateAnswerSelectionType() {
             const allowMultiple = allowMultipleCorrectCheckbox?.checked || false;
             const inputType = allowMultiple ? 'checkbox' : 'radio';
-            
+
             document.querySelectorAll('.question-card').forEach(card => {
                 const questionId = card.dataset.questionId;
-                
+
                 // Mettre à jour le texte d'information
                 const answerHint = card.querySelector(`#answer-type-hint-${questionId}`);
                 if (answerHint) {
                     answerHint.textContent = allowMultiple ? 'Sélection multiple autorisée' : 'Une seule réponse correcte';
                 }
-                
+
                 // Mettre à jour tous les inputs de réponse
                 card.querySelectorAll('.answer-item').forEach(answerItem => {
                     const letter = answerItem.dataset.letter;
                     const isChecked = answerItem.querySelector('.correct-answer-input')?.checked || false;
-                    
+
                     // Créer un nouvel input
                     const newInputName = allowMultiple ? `correct_answer_${questionId}[]` : `correct_answer_${questionId}`;
                     const newInput = document.createElement('input');
@@ -345,7 +345,7 @@
                     newInput.value = letter;
                     newInput.className = 'correct-answer-input h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300';
                     if (isChecked) newInput.checked = true;
-                    
+
                     // Remplacer l'ancien input
                     const inputContainer = answerItem.querySelector('.flex.items-center.space-x-2');
                     const oldInput = answerItem.querySelector('.correct-answer-input');
@@ -354,38 +354,38 @@
                     }
                 });
             });
-            
+
             updateInstructions();
         }
-        
+
         // Fonction pour mettre à jour le compteur de questions
         function updateQuestionCounter() {
             const questionCount = document.querySelectorAll('.question-card').length;
             questionCounter.textContent = questionCount;
             questionsCountInput.value = questionCount;
         }
-        
+
         // Fonction pour mettre à jour le JSON des questions
         function updateQuestionsJson() {
             const allowMultiple = allowMultipleCorrectCheckbox?.checked || false;
             const questions = [];
             const questionCards = document.querySelectorAll('.question-card');
-            
+
             questionCards.forEach((card) => {
                 const questionId = card.dataset.questionId;
                 const questionText = card.querySelector('.question-text')?.value.trim() || '';
                 const explanation = card.querySelector('.explanation')?.value.trim() || '';
-                
+
                 // Récupérer les réponses
                 const answers = {};
                 const answerItems = card.querySelectorAll('.answer-item');
                 const correctAnswers = [];
-                
+
                 answerItems.forEach(answerItem => {
                     const letter = answerItem.dataset.letter;
                     const text = answerItem.querySelector('.answer-text')?.value.trim() || '';
                     const isCorrect = answerItem.querySelector('.correct-answer-input')?.checked || false;
-                    
+
                     if (text) {
                         answers[letter] = text;
                         if (isCorrect) {
@@ -393,54 +393,54 @@
                         }
                     }
                 });
-                
+
                 // Validation
                 const hasAtLeastOneCorrect = correctAnswers.length > 0;
                 const hasEnoughAnswers = Object.keys(answers).length >= 2;
                 const isValidForSingle = !allowMultiple && correctAnswers.length === 1;
                 const isValidForMultiple = allowMultiple && correctAnswers.length >= 1;
-                
-                if (questionText && hasEnoughAnswers && hasAtLeastOneCorrect && 
+
+                if (questionText && hasEnoughAnswers && hasAtLeastOneCorrect &&
                     (allowMultiple ? isValidForMultiple : isValidForSingle)) {
-                    
+
                     const questionData = {
                         id: parseInt(questionId),
                         text: questionText,
                         answers: answers,
                         explanation: explanation
                     };
-                    
+
                     if (allowMultiple) {
                         questionData.correct_answers = correctAnswers;
                     } else {
                         questionData.correct_answer = correctAnswers[0];
                     }
-                    
+
                     questions.push(questionData);
                 }
             });
-            
+
             // Mettre à jour le champ caché
             questionsData.value = JSON.stringify({
                 questions: questions,
                 allow_multiple_correct: allowMultiple
             });
         }
-        
+
         // Délégation d'événements pour les éléments dynamiques
         questionsContainer.addEventListener('click', function(e) {
             const target = e.target;
-            
+
             // Bouton supprimer une question
             if (target.closest('.delete-question')) {
                 const button = target.closest('.delete-question');
                 const questionId = button.dataset.questionId;
-                
+
                 if (document.querySelectorAll('.question-card').length <= 1) {
                     alert('Un QCM doit avoir au moins une question');
                     return;
                 }
-                
+
                 if (confirm('Êtes-vous sûr de vouloir supprimer cette question ?')) {
                     const card = document.querySelector(`[data-question-id="${questionId}"]`);
                     if (card) {
@@ -452,7 +452,7 @@
                 }
                 return;
             }
-            
+
             // Bouton ajouter une réponse
             if (target.closest('.add-answer-btn')) {
                 const button = target.closest('.add-answer-btn');
@@ -461,21 +461,21 @@
                 updateQuestionsJson();
                 return;
             }
-            
+
             // Bouton supprimer une réponse
             if (target.closest('.delete-answer')) {
                 const button = target.closest('.delete-answer');
                 const questionId = button.dataset.questionId;
                 const letter = button.dataset.letter;
-                
+
                 const questionCard = document.querySelector(`[data-question-id="${questionId}"]`);
                 const answerItems = questionCard.querySelectorAll('.answer-item');
-                
+
                 if (answerItems.length <= 2) {
                     alert('Une question doit avoir au moins 2 réponses');
                     return;
                 }
-                
+
                 const answerToRemove = questionCard.querySelector(`[data-letter="${letter}"]`);
                 if (answerToRemove) {
                     answerToRemove.remove();
@@ -484,87 +484,87 @@
                 return;
             }
         });
-        
+
         // Fonction pour renuméroter les questions
         function renumberQuestions() {
             const questions = Array.from(document.querySelectorAll('.question-card'));
             questionIndex = 0;
-            
+
             questions.forEach((question, index) => {
                 questionIndex++;
                 const newQuestionId = questionIndex;
-                
+
                 question.dataset.questionId = newQuestionId;
-                
+
                 const numberCircle = question.querySelector('.bg-blue-100');
                 if (numberCircle) {
                     numberCircle.textContent = newQuestionId;
                 }
-                
+
                 const title = question.querySelector('h4');
                 if (title) {
                     title.textContent = `Question ${newQuestionId}`;
                 }
-                
+
                 const deleteBtn = question.querySelector('.delete-question');
                 if (deleteBtn) {
                     deleteBtn.dataset.questionId = newQuestionId;
                 }
-                
+
                 const addAnswerBtn = question.querySelector('.add-answer-btn');
                 if (addAnswerBtn) {
                     addAnswerBtn.dataset.questionId = newQuestionId;
                 }
-                
+
                 const answersContainer = question.querySelector('.answers-container');
                 if (answersContainer) {
                     answersContainer.id = `answers-${newQuestionId}`;
                 }
-                
+
                 // Mettre à jour l'indicateur de type
                 const answerHint = question.querySelector(`[id^="answer-type-hint-"]`);
                 if (answerHint) {
                     answerHint.id = `answer-type-hint-${newQuestionId}`;
                 }
-                
+
                 // Mettre à jour les noms des inputs de réponse
                 const allowMultiple = allowMultipleCorrectCheckbox?.checked || false;
                 const inputName = allowMultiple ? `correct_answer_${newQuestionId}[]` : `correct_answer_${newQuestionId}`;
-                
+
                 question.querySelectorAll('.correct-answer-input').forEach(input => {
                     input.name = inputName;
                 });
-                
+
                 const deleteAnswerBtns = question.querySelectorAll('.delete-answer');
                 deleteAnswerBtns.forEach(btn => {
                     btn.dataset.questionId = newQuestionId;
                 });
             });
         }
-        
+
         // Écouteurs d'événements pour la saisie
         questionsContainer.addEventListener('input', function(e) {
             const target = e.target;
-            
-            if (target.classList.contains('question-text') || 
-                target.classList.contains('answer-text') || 
+
+            if (target.classList.contains('question-text') ||
+                target.classList.contains('answer-text') ||
                 target.classList.contains('explanation')) {
                 updateQuestionsJson();
             }
         });
-        
+
         // Écouteur pour les changements de sélection de réponse
         questionsContainer.addEventListener('change', function(e) {
             if (e.target.classList.contains('correct-answer-input')) {
                 updateQuestionsJson();
             }
         });
-        
+
         // Événement pour le bouton d'ajout de question
         addQuestionBtn.addEventListener('click', function() {
             addQuestion();
         });
-        
+
         // Écouter les changements sur la checkbox
         if (allowMultipleCorrectCheckbox) {
             allowMultipleCorrectCheckbox.addEventListener('change', function() {
@@ -572,34 +572,34 @@
                 updateQuestionsJson();
             });
         }
-        
+
         // Événement de soumission du formulaire
         form.addEventListener('submit', function(e) {
             updateQuestionsJson();
-            
+
             const data = JSON.parse(questionsData.value || '{"questions": []}');
             const questions = data.questions || [];
             const allowMultiple = data.allow_multiple_correct || false;
-            
+
             if (questions.length === 0) {
                 e.preventDefault();
                 alert('Veuillez ajouter au moins une question valide au QCM');
                 return;
             }
-            
+
             // Validation des questions
             for (const question of questions) {
                 const questionText = question.text || '';
                 const answers = question.answers || {};
                 const hasMultipleCorrect = allowMultiple && question.correct_answers;
                 const hasSingleCorrect = !allowMultiple && question.correct_answer;
-                
+
                 if (Object.keys(answers).length < 2) {
                     e.preventDefault();
                     alert(`La question "${questionText.substring(0, 50)}..." doit avoir au moins 2 réponses`);
                     return;
                 }
-                
+
                 if (allowMultiple) {
                     if (!question.correct_answers || question.correct_answers.length === 0) {
                         e.preventDefault();
@@ -615,7 +615,7 @@
                 }
             }
         });
-        
+
         // Ajouter une première question au chargement
         addQuestion();
         updateInstructions();

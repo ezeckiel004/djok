@@ -3,7 +3,7 @@
 @section('title', __('index.page_title'))
 
 @section('content')
-<!-- Messages de succès/erreur - Style sobre -->
+<!-- Messages de succès/erreur -->
 <div class="container px-4 mx-auto md:px-6">
     @if(session('success'))
     <div class="mt-6 mb-6">
@@ -36,7 +36,7 @@
     @endif
 </div>
 
-<!-- Hero Section - Style sobre -->
+<!-- Hero Section -->
 <header class="relative flex items-center min-h-screen" style="background: #000;">
     <div class="absolute inset-0 bg-black">
         <img src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1"
@@ -58,7 +58,6 @@
                 {{ __('index.certified_training') }}
             </p>
 
-            <!-- Avantages clés - Style sobre -->
             <div class="grid grid-cols-1 gap-6 mb-16 md:grid-cols-2 lg:grid-cols-4">
                 <div class="flex flex-col items-center text-white">
                     <div class="flex items-center justify-center mb-4 w-14 h-14" style="background: #b89449;">
@@ -86,7 +85,6 @@
                 </div>
             </div>
 
-            <!-- Boutons - Style sobre -->
             <div class="flex flex-col justify-center gap-4 sm:flex-row">
                 <a href="#forfaits" class="w-full px-8 py-3 font-semibold text-center transition duration-300 sm:w-auto"
                     style="background: #b89449; color: black;">
@@ -101,7 +99,6 @@
         </div>
     </div>
 
-    <!-- Scroll Indicator -->
     <div class="absolute transform -translate-x-1/2 bottom-8 left-1/2">
         <a href="#forfaits" class="text-white transition duration-300 hover:text-b89449"
             aria-label="{{ __('index.scroll_down') }}">
@@ -110,7 +107,7 @@
     </div>
 </header>
 
-<!-- Forfaits - Style sobre -->
+<!-- Forfaits -->
 <section id="forfaits" class="py-16" style="background: #000;">
     <div class="container px-4 mx-auto md:px-6">
         <div class="mb-12 text-center">
@@ -123,41 +120,81 @@
         <div class="grid grid-cols-1 gap-8 max-w-6xl mx-auto md:grid-cols-3">
             @foreach($forfaits as $forfait)
             <div class="overflow-hidden rounded-lg" style="background: #111; border: 1px solid #333;">
-                <!-- Header du forfait -->
                 <div class="p-6" style="background: #1a1a1a;">
                     <h3 class="mb-2 text-xl font-bold text-white">{{ $forfait->name }}</h3>
                     <div class="flex items-center">
                         <span class="text-3xl font-bold" style="color: #b89449;">{{ $forfait->formatted_price }}</span>
-                        <span class="ml-2 text-gray-400">/ {{ $forfait->duration_days }} {{ __('index.days_access')
-                            }}</span>
+                        <span class="ml-2 text-gray-400">/ {{ $forfait->duration_days }} {{ __('index.days_access') }}</span>
                     </div>
                 </div>
 
-                <!-- Contenu -->
                 <div class="p-6">
                     <p class="mb-6 text-gray-300">{{ $forfait->description }}</p>
 
+                    <!-- Badge mode de sélection -->
+                    <div class="mb-4">
+                        @if($forfait->include_all_cours && $forfait->include_all_qcms && $forfait->include_all_examens)
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full" style="background: #064e3b; color: #a7f3d0;">
+                                <i class="mr-1 fas fa-layer-group"></i> {{ __('index.all_inclusive') }}
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full" style="background: #1e40af; color: #60a5fa;">
+                                <i class="mr-1 fas fa-check-double"></i> {{ __('index.custom_selection') }}
+                            </span>
+                        @endif
+                    </div>
+
+                    <!-- Détail du contenu inclus -->
                     <ul class="space-y-3 mb-8">
+                        @if($forfait->include_all_cours)
                         <li class="flex items-center">
                             <i class="mr-3 fas fa-check" style="color: #46b94c;"></i>
                             <span class="text-gray-300">{{ __('index.all_courses_available') }}</span>
                         </li>
-                        <li class="flex items-center">
-                            <i class="mr-3 fas fa-check" style="color: #46b94c;"></i>
-                            <span class="text-gray-300">{{ __('index.all_courses_available') }}</span>
-                        </li>
+                        @else
+                            @php $selectedCoursCount = count($forfait->selected_cours_ids ?? []); @endphp
+                            @if($selectedCoursCount > 0)
+                            <li class="flex items-center">
+                                <i class="mr-3 fas fa-check" style="color: #46b94c;"></i>
+                                <span class="text-gray-300">{{ $selectedCoursCount }} {{ __('index.courses_selected') }}</span>
+                            </li>
+                            @endif
+                        @endif
+
                         @if($forfait->includes_qcm)
-                        <li class="flex items-center">
-                            <i class="mr-3 fas fa-check" style="color: #46b94c;"></i>
-                            <span class="text-gray-300">{{ __('index.self_assessment_qcm') }}</span>
-                        </li>
+                            @if($forfait->include_all_qcms)
+                            <li class="flex items-center">
+                                <i class="mr-3 fas fa-check" style="color: #46b94c;"></i>
+                                <span class="text-gray-300">{{ __('index.all_qcms_available') }}</span>
+                            </li>
+                            @else
+                                @php $selectedQcmsCount = count($forfait->selected_qcms_ids ?? []); @endphp
+                                @if($selectedQcmsCount > 0)
+                                <li class="flex items-center">
+                                    <i class="mr-3 fas fa-check" style="color: #46b94c;"></i>
+                                    <span class="text-gray-300">{{ $selectedQcmsCount }} {{ __('index.qcms_selected') }}</span>
+                                </li>
+                                @endif
+                            @endif
                         @endif
+
                         @if($forfait->includes_examens_blancs)
-                        <li class="flex items-center">
-                            <i class="mr-3 fas fa-check" style="color: #46b94c;"></i>
-                            <span class="text-gray-300">{{ __('index.corrected_practice_exams') }}</span>
-                        </li>
+                            @if($forfait->include_all_examens)
+                            <li class="flex items-center">
+                                <i class="mr-3 fas fa-check" style="color: #46b94c;"></i>
+                                <span class="text-gray-300">{{ __('index.all_exams_available') }}</span>
+                            </li>
+                            @else
+                                @php $selectedExamensCount = count($forfait->selected_examens_ids ?? []); @endphp
+                                @if($selectedExamensCount > 0)
+                                <li class="flex items-center">
+                                    <i class="mr-3 fas fa-check" style="color: #46b94c;"></i>
+                                    <span class="text-gray-300">{{ $selectedExamensCount }} {{ __('index.exams_selected') }}</span>
+                                </li>
+                                @endif
+                            @endif
                         @endif
+
                         @if($forfait->includes_certification)
                         <li class="flex items-center">
                             <i class="mr-3 fas fa-check" style="color: #46b94c;"></i>
@@ -188,7 +225,7 @@
     </div>
 </section>
 
-<!-- Comment ça marche - Style sobre -->
+<!-- Comment ça marche -->
 <section class="py-16" style="background: #111;">
     <div class="container px-4 mx-auto md:px-6">
         <div class="mb-12 text-center">
@@ -221,7 +258,7 @@
     </div>
 </section>
 
-<!-- FAQ - Style sobre -->
+<!-- FAQ -->
 <section class="py-16" style="background: #000;">
     <div class="container px-4 mx-auto md:px-6">
         <div class="mb-12 text-center">
@@ -260,7 +297,7 @@
     </div>
 </section>
 
-<!-- Accès salle virtuelle - Style sobre -->
+<!-- Accès salle virtuelle -->
 <section class="py-16" style="background: #b89449; color: black;">
     <div class="container px-4 mx-auto md:px-6">
         <div class="max-w-4xl mx-auto text-center">

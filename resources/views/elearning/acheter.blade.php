@@ -38,9 +38,23 @@
                             <div class="text-right">
                                 <div class="text-2xl font-bold" style="color: #b89449;">{{ $forfait->formatted_price }}
                                 </div>
-                                <div class="text-sm text-gray-400">{{ $forfait->duration_days }} {{
-                                    __('acheter.access_days') }}</div>
+                                <div class="text-sm text-gray-400">{{ $forfait->duration_days }} {{ __('acheter.access_days') }}</div>
                             </div>
+                        </div>
+
+                        <!-- Badge mode de sélection -->
+                        <div class="mb-4">
+                            @if($forfait->include_all_cours && $forfait->include_all_qcms && $forfait->include_all_examens)
+                                <span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full" style="background: #064e3b; color: #a7f3d0;">
+                                    <i class="mr-1 fas fa-layer-group"></i> {{ __('acheter.all_inclusive') }}
+                                </span>
+                                <p class="mt-2 text-sm text-gray-400">{{ __('acheter.all_inclusive_desc') }}</p>
+                            @else
+                                <span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full" style="background: #1e40af; color: #60a5fa;">
+                                    <i class="mr-1 fas fa-check-double"></i> {{ __('acheter.custom_selection') }}
+                                </span>
+                                <p class="mt-2 text-sm text-gray-400">{{ __('acheter.custom_selection_desc') }}</p>
+                            @endif
                         </div>
 
                         <div class="space-y-4">
@@ -48,9 +62,7 @@
                                 <i class="mt-1 mr-3 fas fa-clock" style="color: #b89449;"></i>
                                 <div>
                                     <h4 class="font-semibold text-white">{{ __('acheter.access_duration') }}</h4>
-                                    <p class="text-gray-400">{{ $forfait->duration_days }} {{
-                                        __('acheter.from_purchase') }}
-                                    </p>
+                                    <p class="text-gray-400">{{ $forfait->duration_days }} {{ __('acheter.from_purchase') }}</p>
                                 </div>
                             </div>
 
@@ -58,7 +70,27 @@
                                 <i class="mt-1 mr-3 fas fa-book" style="color: #b89449;"></i>
                                 <div>
                                     <h4 class="font-semibold text-white">{{ __('acheter.included_content') }}</h4>
-                                    <p class="text-gray-400">{{ __('acheter.all_content') }}</p>
+                                    @if($forfait->include_all_cours && $forfait->include_all_qcms && $forfait->include_all_examens)
+                                        <p class="text-gray-400">{{ __('acheter.all_content') }}</p>
+                                    @else
+                                        <ul class="mt-1 space-y-1 text-sm text-gray-400">
+                                            @php
+                                                $coursCount = $forfait->include_all_cours ? 'Tous les cours' : count($forfait->selected_cours_ids ?? []) . ' ' . __('acheter.courses_selected');
+                                                $qcmsCount = $forfait->include_all_qcms ? 'Tous les QCM' : count($forfait->selected_qcms_ids ?? []) . ' ' . __('acheter.qcms_selected');
+                                                $examensCount = $forfait->include_all_examens ? 'Tous les examens' : count($forfait->selected_examens_ids ?? []) . ' ' . __('acheter.exams_selected');
+                                            @endphp
+                                            <li><i class="mr-2 fas fa-check-circle" style="color: #46b94c; font-size: 10px;"></i> {{ $coursCount }}</li>
+                                            @if($forfait->includes_qcm)
+                                            <li><i class="mr-2 fas fa-check-circle" style="color: #46b94c; font-size: 10px;"></i> {{ $qcmsCount }}</li>
+                                            @endif
+                                            @if($forfait->includes_examens_blancs)
+                                            <li><i class="mr-2 fas fa-check-circle" style="color: #46b94c; font-size: 10px;"></i> {{ $examensCount }}</li>
+                                            @endif
+                                            @if($forfait->includes_certification)
+                                            <li><i class="mr-2 fas fa-check-circle" style="color: #46b94c; font-size: 10px;"></i> {{ __('acheter.certificate_included') }}</li>
+                                            @endif
+                                        </ul>
+                                    @endif
                                 </div>
                             </div>
 
@@ -87,8 +119,7 @@
                             <i class="mr-3 fas fa-info-circle" style="color: #a7f3d0;"></i>
                             <div>
                                 <p class="text-white">
-                                    <strong>{{ __('acheter.important_note') }} :</strong> {{
-                                    __('acheter.access_codes_info') }}
+                                    <strong>{{ __('acheter.important_note') }} :</strong> {{ __('acheter.access_codes_info') }}
                                 </p>
                             </div>
                         </div>
@@ -99,7 +130,6 @@
                 <div class="p-6 rounded-lg" style="background: #1a1a1a; border: 1px solid #333;">
                     <h2 class="mb-6 text-xl font-bold text-white">{{ __('acheter.your_information') }}</h2>
 
-                    <!-- Messages d'erreur -->
                     @if($errors->any())
                     <div class="p-4 mb-6 bg-red-800 border border-red-700 rounded-lg">
                         <div class="flex items-center">
@@ -114,23 +144,19 @@
                     </div>
                     @endif
 
-                    <!-- VERSION SIMPLIFIÉE : formulaire standard -->
-                    <form id="paymentForm" action="{{ route('elearning.process-payment', $forfait->slug) }}"
-                        method="POST">
+                    <form id="paymentForm" action="{{ route('elearning.process-payment', $forfait->slug) }}" method="POST">
                         @csrf
 
                         <div class="space-y-6">
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block mb-2 text-sm font-medium" style="color: #ddd;">{{
-                                        __('acheter.first_name') }} *</label>
+                                    <label class="block mb-2 text-sm font-medium" style="color: #ddd;">{{ __('acheter.first_name') }} *</label>
                                     <input type="text" name="prenom" required
                                         class="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                         style="background: #111; color: white;" value="{{ old('prenom') }}">
                                 </div>
                                 <div>
-                                    <label class="block mb-2 text-sm font-medium" style="color: #ddd;">{{
-                                        __('acheter.last_name') }} *</label>
+                                    <label class="block mb-2 text-sm font-medium" style="color: #ddd;">{{ __('acheter.last_name') }} *</label>
                                     <input type="text" name="nom" required
                                         class="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                         style="background: #111; color: white;" value="{{ old('nom') }}">
@@ -138,19 +164,16 @@
                             </div>
 
                             <div>
-                                <label class="block mb-2 text-sm font-medium" style="color: #ddd;">{{
-                                    __('acheter.email') }} *</label>
+                                <label class="block mb-2 text-sm font-medium" style="color: #ddd;">{{ __('acheter.email') }} *</label>
                                 <input type="email" name="email" required
                                     class="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                     style="background: #111; color: white;"
                                     placeholder="{{ __('acheter.email_placeholder') }}" value="{{ old('email') }}">
-                                <p class="mt-1 text-xs text-gray-500">{{ __('acheter.email_info') }}
-                                </p>
+                                <p class="mt-1 text-xs text-gray-500">{{ __('acheter.email_info') }}</p>
                             </div>
 
                             <div>
-                                <label class="block mb-2 text-sm font-medium" style="color: #ddd;">{{
-                                    __('acheter.phone') }}</label>
+                                <label class="block mb-2 text-sm font-medium" style="color: #ddd;">{{ __('acheter.phone') }}</label>
                                 <input type="tel" name="telephone"
                                     class="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                     style="background: #111; color: white;"
@@ -160,8 +183,7 @@
                             <div class="pt-6 border-t border-gray-700">
                                 <div class="flex items-center justify-between mb-6">
                                     <span class="text-gray-300">{{ __('acheter.total') }}</span>
-                                    <span class="text-2xl font-bold" style="color: #b89449;">{{
-                                        $forfait->formatted_price }}</span>
+                                    <span class="text-2xl font-bold" style="color: #b89449;">{{ $forfait->formatted_price }}</span>
                                 </div>
 
                                 <button type="submit" id="submitBtn"
@@ -207,18 +229,16 @@
                 </div>
             </div>
         </div>
+    </div>
 </section>
 @endsection
 
 @section('scripts')
-<!-- Script minimal pour gérer le bouton -->
 <script>
     document.getElementById('paymentForm').addEventListener('submit', function(e) {
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="mr-2 fas fa-spinner fa-spin"></i>{{ __('acheter.processing') }}';
-
-        // Le formulaire sera soumis normalement sans AJAX
         return true;
     });
 </script>

@@ -58,4 +58,14 @@ return [
 
     // Accessibilité
     'scroll_down' => 'Défiler vers le bas',
+
+    // ===== NOUVEAUX BADGES ET TEXTES =====
+    'all_inclusive' => ' Tout inclus',
+    'custom_selection' => ' Sélection personnalisée',
+    'all_courses_available' => 'Tous les cours disponibles',
+    'all_qcms_available' => 'Tous les QCM disponibles',
+    'all_exams_available' => 'Tous les examens disponibles',
+    'courses_selected' => 'cours sélectionnés',
+    'qcms_selected' => 'QCM sélectionnés',
+    'exams_selected' => 'examens sélectionnés',
 ];

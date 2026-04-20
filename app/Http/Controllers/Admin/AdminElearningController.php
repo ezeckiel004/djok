@@ -92,7 +92,13 @@ class AdminElearningController extends Controller
     public function createForfait()
     {
         Log::info('Création de forfait - formulaire affiché');
-        return view('admin.elearning.forfaits.create');
+
+        // Récupérer tous les cours, QCM et examens disponibles pour la sélection
+        $cours = ElearningCours::active()->ordered()->get();
+        $qcmsNormaux = ElearningQcm::active()->where('is_examen_blanc', false)->get();
+        $examensBlancs = ElearningQcm::active()->where('is_examen_blanc', true)->get();
+
+        return view('admin.elearning.forfaits.create', compact('cours', 'qcmsNormaux', 'examensBlancs'));
     }
 
     public function storeForfait(Request $request)
@@ -108,18 +114,16 @@ class AdminElearningController extends Controller
             'max_concurrent_connections' => 'required|integer|min:1',
         ]);
 
-        Log::info('Validation passée', ['validated' => true]);
+        Log::info('Validation passée');
 
         // Traitement des fonctionnalités
         $features = [];
 
-        // Priorité 1 : features JSON direct
         if ($request->filled('features')) {
             $features = json_decode($request->features, true) ?? [];
             Log::info('Fonctionnalités depuis champ JSON', ['features' => $features]);
         }
 
-        // Priorité 2 : feature_titles[] et feature_descriptions[]
         if (empty($features) && $request->has('feature_titles')) {
             foreach ($request->feature_titles as $index => $title) {
                 $title = trim($title);
@@ -137,7 +141,23 @@ class AdminElearningController extends Controller
             Log::info('Fonctionnalités depuis champs dynamiques', ['features' => $features]);
         }
 
-        Log::info('Fonctionnalités préparées', ['features' => $features]);
+        // Gestion du mode de sélection
+        $selectionMode = $request->input('selection_mode', 'all');
+        $includeAllCours = $selectionMode === 'all' ? true : false;
+        $includeAllQcms = $selectionMode === 'all' ? true : ($request->boolean('include_all_qcms') ?? false);
+        $includeAllExamens = $selectionMode === 'all' ? true : ($request->boolean('include_all_examens') ?? false);
+
+        // Récupérer les IDs sélectionnés
+        $selectedCoursIds = $includeAllCours ? [] : ($request->input('selected_cours_ids', []));
+        $selectedQcmsIds = $includeAllQcms ? [] : ($request->input('selected_qcms_ids', []));
+        $selectedExamensIds = $includeAllExamens ? [] : ($request->input('selected_examens_ids', []));
+
+        Log::info('Sélections préparées', [
+            'selection_mode' => $selectionMode,
+            'cours_count' => count($selectedCoursIds),
+            'qcms_count' => count($selectedQcmsIds),
+            'examens_count' => count($selectedExamensIds),
+        ]);
 
         try {
             $forfait = ElearningForfait::create([
@@ -153,9 +173,19 @@ class AdminElearningController extends Controller
                 'access_order' => $request->access_order ?? 0,
                 'is_active' => $request->boolean('is_active'),
                 'features' => $features,
+                // Nouveaux champs
+                'selected_cours_ids' => $selectedCoursIds,
+                'selected_qcms_ids' => $selectedQcmsIds,
+                'selected_examens_ids' => $selectedExamensIds,
+                'include_all_cours' => $includeAllCours,
+                'include_all_qcms' => $includeAllQcms,
+                'include_all_examens' => $includeAllExamens,
             ]);
 
-            Log::info('Forfait créé avec succès', ['forfait_id' => $forfait->id]);
+            Log::info('Forfait créé avec succès', [
+                'forfait_id' => $forfait->id,
+                'selection_mode' => $selectionMode,
+            ]);
 
             // Créer le produit Stripe si nécessaire
             if ($request->boolean('create_stripe_product')) {
@@ -182,12 +212,18 @@ class AdminElearningController extends Controller
         Log::info('Édition de forfait', ['forfait_id' => $id]);
 
         $forfait = ElearningForfait::findOrFail($id);
-        return view('admin.elearning.forfaits.edit', compact('forfait'));
+
+        // Récupérer tous les éléments disponibles
+        $cours = ElearningCours::active()->ordered()->get();
+        $qcmsNormaux = ElearningQcm::active()->where('is_examen_blanc', false)->get();
+        $examensBlancs = ElearningQcm::active()->where('is_examen_blanc', true)->get();
+
+        return view('admin.elearning.forfaits.edit', compact('forfait', 'cours', 'qcmsNormaux', 'examensBlancs'));
     }
 
     public function updateForfait(Request $request, $id)
     {
-        Log::info('Mise à jour de forfait', ['forfait_id' => $id, 'data' => $request->except(['features', 'feature_titles', 'feature_descriptions'])]);
+        Log::info('Mise à jour de forfait', ['forfait_id' => $id]);
 
         $forfait = ElearningForfait::findOrFail($id);
 
@@ -203,13 +239,11 @@ class AdminElearningController extends Controller
         // Traitement des fonctionnalités
         $features = [];
 
-        // Priorité 1 : features JSON direct
         if ($request->filled('features')) {
             $features = json_decode($request->features, true) ?? [];
             Log::info('Fonctionnalités depuis champ JSON', ['features' => $features]);
         }
 
-        // Priorité 2 : feature_titles[] et feature_descriptions[]
         if (empty($features) && $request->has('feature_titles')) {
             foreach ($request->feature_titles as $index => $title) {
                 $title = trim($title);
@@ -227,7 +261,23 @@ class AdminElearningController extends Controller
             Log::info('Fonctionnalités depuis champs dynamiques', ['features' => $features]);
         }
 
-        Log::info('Mise à jour des données du forfait', ['features' => $features]);
+        // Gestion du mode de sélection
+        $selectionMode = $request->input('selection_mode', 'all');
+        $includeAllCours = $selectionMode === 'all' ? true : false;
+        $includeAllQcms = $selectionMode === 'all' ? true : ($request->boolean('include_all_qcms') ?? false);
+        $includeAllExamens = $selectionMode === 'all' ? true : ($request->boolean('include_all_examens') ?? false);
+
+        // Récupérer les IDs sélectionnés
+        $selectedCoursIds = $includeAllCours ? [] : ($request->input('selected_cours_ids', []));
+        $selectedQcmsIds = $includeAllQcms ? [] : ($request->input('selected_qcms_ids', []));
+        $selectedExamensIds = $includeAllExamens ? [] : ($request->input('selected_examens_ids', []));
+
+        Log::info('Mise à jour des sélections', [
+            'selection_mode' => $selectionMode,
+            'cours_count' => count($selectedCoursIds),
+            'qcms_count' => count($selectedQcmsIds),
+            'examens_count' => count($selectedExamensIds),
+        ]);
 
         try {
             $forfait->update([
@@ -243,9 +293,22 @@ class AdminElearningController extends Controller
                 'access_order' => $request->access_order ?? $forfait->access_order,
                 'is_active' => $request->boolean('is_active'),
                 'features' => $features,
+                // Nouveaux champs
+                'selected_cours_ids' => $selectedCoursIds,
+                'selected_qcms_ids' => $selectedQcmsIds,
+                'selected_examens_ids' => $selectedExamensIds,
+                'include_all_cours' => $includeAllCours,
+                'include_all_qcms' => $includeAllQcms,
+                'include_all_examens' => $includeAllExamens,
             ]);
 
             Log::info('Forfait mis à jour avec succès', ['forfait_id' => $forfait->id]);
+
+            // Créer le produit Stripe si demandé et si pas déjà existant
+            if ($request->boolean('create_stripe_product') && !$forfait->stripe_product_id) {
+                Log::info('Création produit Stripe demandée pour mise à jour');
+                $this->createStripeProduct($forfait);
+            }
 
             return redirect()->route('admin.elearning.forfaits')
                 ->with('success', 'Forfait mis à jour avec succès.');
@@ -263,67 +326,67 @@ class AdminElearningController extends Controller
     }
 
     /**
- * Supprimer un forfait (suppression définitive même avec accès)
- */
-public function destroyForfait($id)
-{
-    Log::info('Suppression définitive de forfait demandée', ['forfait_id' => $id]);
+     * Supprimer un forfait (suppression définitive même avec accès)
+     */
+    public function destroyForfait($id)
+    {
+        Log::info('Suppression définitive de forfait demandée', ['forfait_id' => $id]);
 
-    $forfait = ElearningForfait::findOrFail($id);
+        $forfait = ElearningForfait::findOrFail($id);
 
-    // Compter le nombre d'accès associés
-    $accesCount = $forfait->acces()->count();
+        // Compter le nombre d'accès associés
+        $accesCount = $forfait->acces()->count();
 
-    try {
-        DB::beginTransaction();
+        try {
+            DB::beginTransaction();
 
-        if ($accesCount > 0) {
-            Log::info('Suppression des accès associés', ['count' => $accesCount]);
+            if ($accesCount > 0) {
+                Log::info('Suppression des accès associés', ['count' => $accesCount]);
 
-            // Récupérer tous les accès avec leurs relations
-            $accesList = $forfait->acces()->with(['sessions', 'progressions'])->get();
+                // Récupérer tous les accès avec leurs relations
+                $accesList = $forfait->acces()->with(['sessions', 'progressions'])->get();
 
-            foreach ($accesList as $acces) {
-                // Supprimer les sessions associées
-                $acces->sessions()->delete();
+                foreach ($accesList as $acces) {
+                    // Supprimer les sessions associées
+                    $acces->sessions()->delete();
 
-                // Supprimer les progressions associées
-                $acces->progressions()->delete();
+                    // Supprimer les progressions associées
+                    $acces->progressions()->delete();
 
-                // Supprimer l'accès lui-même
-                $acces->delete();
+                    // Supprimer l'accès lui-même
+                    $acces->delete();
+                }
             }
+
+            // Supprimer le forfait
+            $forfait->delete();
+
+            DB::commit();
+
+            $message = 'Forfait supprimé avec succès.';
+            if ($accesCount > 0) {
+                $message .= " {$accesCount} accès associés ont également été supprimés.";
+            }
+
+            Log::info('Forfait supprimé définitivement', [
+                'forfait_id' => $id,
+                'acces_deleted' => $accesCount
+            ]);
+
+            return redirect()->route('admin.elearning.forfaits')
+                ->with('warning', $message);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erreur lors de la suppression du forfait', [
+                'forfait_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->with('error', 'Erreur lors de la suppression du forfait: ' . $e->getMessage());
         }
-
-        // Supprimer le forfait
-        $forfait->delete();
-
-        DB::commit();
-
-        $message = 'Forfait supprimé avec succès.';
-        if ($accesCount > 0) {
-            $message .= " {$accesCount} accès associés ont également été supprimés.";
-        }
-
-        Log::info('Forfait supprimé définitivement', [
-            'forfait_id' => $id,
-            'acces_deleted' => $accesCount
-        ]);
-
-        return redirect()->route('admin.elearning.forfaits')
-            ->with('warning', $message);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error('Erreur lors de la suppression du forfait', [
-            'forfait_id' => $id,
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-
-        return back()->with('error', 'Erreur lors de la suppression du forfait: ' . $e->getMessage());
     }
-}
 
     /**
      * Gestion des accès
@@ -336,6 +399,10 @@ public function destroyForfait($id)
 
         if ($request->has('status')) {
             $query->where('status', $request->status);
+        }
+
+        if ($request->has('forfait')) {
+            $query->where('forfait_id', $request->forfait);
         }
 
         if ($request->has('search')) {
@@ -379,7 +446,6 @@ public function destroyForfait($id)
         $qcmsDetails = [];
         foreach ($progressions as $progression) {
             if ($progression->qcm_completed && $progression->qcm) {
-                // Récupérer les détails du QCM si disponibles
                 if (!empty($progression->qcm_details)) {
                     $qcmsDetails[$progression->qcm_id] = [
                         'progression' => $progression,
@@ -426,10 +492,18 @@ public function destroyForfait($id)
             $userAnswer = $userAnswers[$questionId] ?? null;
             $detail = $details[$index] ?? [];
 
-            // Formater les options si disponibles
             $options = [];
             if (isset($questionData['options']) && is_array($questionData['options'])) {
                 foreach ($questionData['options'] as $key => $value) {
+                    $options[] = [
+                        'key' => $key,
+                        'value' => $value,
+                        'is_correct' => $this->isCorrectOption($key, $questionData),
+                        'is_selected' => $this->isOptionSelected($key, $userAnswer),
+                    ];
+                }
+            } elseif (isset($questionData['answers']) && is_array($questionData['answers'])) {
+                foreach ($questionData['answers'] as $key => $value) {
                     $options[] = [
                         'key' => $key,
                         'value' => $value,
@@ -529,7 +603,6 @@ public function destroyForfait($id)
 
         $acces = ElearningAcces::findOrFail($id);
 
-        // Terminer la session en cours
         if ($acces->current_session_token) {
             $acces->sessions()
                 ->where('session_token', $acces->current_session_token)
@@ -640,7 +713,6 @@ public function destroyForfait($id)
                 'is_active' => $request->boolean('is_active'),
             ];
 
-            // Traitement du fichier vidéo
             if ($request->hasFile('video_file')) {
                 $videoFile = $request->file('video_file');
                 $videoName = $request->video_name ?: $videoFile->getClientOriginalName();
@@ -651,7 +723,6 @@ public function destroyForfait($id)
                 Log::info('Vidéo uploadée', ['path' => $videoPath, 'name' => $videoName]);
             }
 
-            // Traitement du fichier PDF
             if ($request->hasFile('pdf_file')) {
                 $pdfFile = $request->file('pdf_file');
                 $pdfName = $request->pdf_name ?: $pdfFile->getClientOriginalName();
@@ -689,7 +760,7 @@ public function destroyForfait($id)
 
     public function updateCours(Request $request, $id)
     {
-        Log::info('Mise à jour de cours', ['cours_id' => $id, 'data' => $request->except(['content', 'video_file', 'pdf_file'])]);
+        Log::info('Mise à jour de cours', ['cours_id' => $id]);
 
         $cours = ElearningCours::findOrFail($id);
 
@@ -713,7 +784,6 @@ public function destroyForfait($id)
                 'is_active' => $request->boolean('is_active'),
             ];
 
-            // Mettre à jour les noms des fichiers
             if ($request->filled('video_name')) {
                 $updateData['video_name'] = $request->video_name;
             }
@@ -722,7 +792,6 @@ public function destroyForfait($id)
                 $updateData['pdf_name'] = $request->pdf_name;
             }
 
-            // Traitement de la suppression de la vidéo
             if ($request->has('remove_video') && $cours->video_path) {
                 if (Storage::disk('public')->exists($cours->video_path)) {
                     Storage::disk('public')->delete($cours->video_path);
@@ -732,7 +801,6 @@ public function destroyForfait($id)
                 Log::info('Vidéo supprimée', ['cours_id' => $id]);
             }
 
-            // Traitement de la suppression du PDF
             if ($request->has('remove_pdf') && $cours->pdf_path) {
                 if (Storage::disk('public')->exists($cours->pdf_path)) {
                     Storage::disk('public')->delete($cours->pdf_path);
@@ -742,9 +810,7 @@ public function destroyForfait($id)
                 Log::info('PDF supprimé', ['cours_id' => $id]);
             }
 
-            // Traitement du fichier vidéo
             if ($request->hasFile('video_file')) {
-                // Supprimer l'ancienne vidéo si elle existe
                 if ($cours->video_path && Storage::disk('public')->exists($cours->video_path)) {
                     Storage::disk('public')->delete($cours->video_path);
                 }
@@ -758,9 +824,7 @@ public function destroyForfait($id)
                 Log::info('Vidéo mise à jour', ['path' => $videoPath, 'name' => $videoName]);
             }
 
-            // Traitement du fichier PDF
             if ($request->hasFile('pdf_file')) {
-                // Supprimer l'ancien PDF s'il existe
                 if ($cours->pdf_path && Storage::disk('public')->exists($cours->pdf_path)) {
                     Storage::disk('public')->delete($cours->pdf_path);
                 }
@@ -792,14 +856,58 @@ public function destroyForfait($id)
         }
     }
 
+    public function destroyCours($id)
+    {
+        Log::info('Suppression de cours demandée', ['cours_id' => $id]);
+
+        $cours = ElearningCours::findOrFail($id);
+
+        try {
+            if ($cours->video_path && Storage::disk('public')->exists($cours->video_path)) {
+                Storage::disk('public')->delete($cours->video_path);
+            }
+            if ($cours->pdf_path && Storage::disk('public')->exists($cours->pdf_path)) {
+                Storage::disk('public')->delete($cours->pdf_path);
+            }
+
+            $cours->delete();
+            Log::info('Cours supprimé avec succès', ['cours_id' => $id]);
+
+            return redirect()->route('admin.elearning.cours')
+                ->with('success', 'Cours supprimé avec succès.');
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la suppression du cours', [
+                'cours_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->with('error', 'Erreur lors de la suppression du cours: ' . $e->getMessage());
+        }
+    }
+
     /**
      * Gestion des QCM
      */
-    public function qcms()
+    public function qcms(Request $request)
     {
-        Log::info('Liste des QCM e-learning');
+        Log::info('Liste des QCM e-learning', ['filters' => $request->all()]);
 
-        $qcms = ElearningQcm::with('cours')->orderBy('created_at', 'desc')->get();
+        $query = ElearningQcm::with('cours');
+
+        if ($request->has('type')) {
+            if ($request->type === 'examen') {
+                $query->where('is_examen_blanc', true);
+            } elseif ($request->type === 'qcm') {
+                $query->where('is_examen_blanc', false);
+            }
+        }
+
+        if ($request->has('cours')) {
+            $query->where('cours_id', $request->cours);
+        }
+
+        $qcms = $query->orderBy('created_at', 'desc')->get();
         $cours = ElearningCours::active()->get();
 
         return view('admin.elearning.qcms.index', compact('qcms', 'cours'));
@@ -819,15 +927,13 @@ public function destroyForfait($id)
 
         $qcm = ElearningQcm::with(['cours', 'progressions'])->findOrFail($id);
 
-        // Charger les questions depuis le JSON
         $questions = $qcm->questions;
 
-        // Calculer les statistiques si nécessaire
         $qcm->stats = [
             'progressions_count' => $qcm->progressions->count(),
-            'average_score' => $qcm->progressions->where('is_completed', true)->avg('score') ?? 0,
+            'average_score' => $qcm->progressions->where('qcm_completed', true)->avg('qcm_score') ?? 0,
             'completion_rate' => $qcm->progressions->count() > 0
-                ? round(($qcm->progressions->where('is_completed', true)->count() / $qcm->progressions->count()) * 100, 1)
+                ? round(($qcm->progressions->where('qcm_completed', true)->count() / $qcm->progressions->count()) * 100, 1)
                 : 0,
         ];
 
@@ -846,7 +952,7 @@ public function destroyForfait($id)
 
     public function updateQcm(Request $request, $id)
     {
-        Log::info('Mise à jour de QCM', ['qcm_id' => $id, 'data' => $request->except('questions_data')]);
+        Log::info('Mise à jour de QCM', ['qcm_id' => $id]);
 
         $qcm = ElearningQcm::findOrFail($id);
 
@@ -857,7 +963,6 @@ public function destroyForfait($id)
             'passing_score' => 'required|integer|min:0|max:100',
         ]);
 
-        // Valider la structure du JSON
         $questionsData = json_decode($request->questions_data, true);
         if (!isset($questionsData['questions']) || !is_array($questionsData['questions'])) {
             Log::warning('Format JSON invalide pour QCM');
@@ -874,7 +979,7 @@ public function destroyForfait($id)
                 'time_limit_minutes' => $request->time_limit_minutes,
                 'attempts_allowed' => $request->attempts_allowed ?? 3,
                 'is_examen_blanc' => $request->boolean('is_examen_blanc'),
-                'allow_multiple_correct' => $request->boolean('allow_multiple_correct'), // Nouveau champ
+                'allow_multiple_correct' => $request->boolean('allow_multiple_correct'),
                 'is_active' => $request->boolean('is_active'),
                 'questions_data' => $questionsData,
             ]);
@@ -907,7 +1012,6 @@ public function destroyForfait($id)
             'passing_score' => 'required|integer|min:0|max:100',
         ]);
 
-        // Valider la structure du JSON
         $questionsData = json_decode($request->questions_data, true);
         if (!isset($questionsData['questions']) || !is_array($questionsData['questions'])) {
             Log::warning('Format JSON invalide pour QCM');
@@ -924,7 +1028,7 @@ public function destroyForfait($id)
                 'time_limit_minutes' => $request->time_limit_minutes,
                 'attempts_allowed' => $request->attempts_allowed ?? 3,
                 'is_examen_blanc' => $request->boolean('is_examen_blanc'),
-                'allow_multiple_correct' => $request->boolean('allow_multiple_correct'), // Nouveau champ
+                'allow_multiple_correct' => $request->boolean('allow_multiple_correct'),
                 'is_active' => $request->boolean('is_active'),
                 'questions_data' => $questionsData,
             ]);
@@ -951,7 +1055,6 @@ public function destroyForfait($id)
 
         $qcm = ElearningQcm::findOrFail($id);
 
-        // Vérifier s'il y a des progressions associées
         if ($qcm->progressions()->exists()) {
             Log::warning('Impossible de supprimer le QCM - progressions associées existent', ['qcm_id' => $id]);
             return back()->with('error', 'Impossible de supprimer ce QCM car il y a des progressions associées.');
@@ -977,9 +1080,6 @@ public function destroyForfait($id)
     /**
      * Upload de certification
      */
-    /**
-     * Upload de certification
-     */
     public function uploadCertification(Request $request, $accesId)
     {
         Log::info('Upload de certification demandé', ['acces_id' => $accesId]);
@@ -991,7 +1091,6 @@ public function destroyForfait($id)
         $acces = ElearningAcces::findOrFail($accesId);
 
         try {
-            // Stocker le fichier
             $path = $request->file('certification_file')->store('certifications', 'public');
 
             $acces->update([
@@ -1004,7 +1103,6 @@ public function destroyForfait($id)
                 'file_path' => $path
             ]);
 
-            // Envoyer l'email avec la certification
             try {
                 \Illuminate\Support\Facades\Mail::to($acces->email)->send(new \App\Mail\ElearningCertificationMail($acces));
                 Log::info('Email de certification envoyé avec succès à: ' . $acces->email);
@@ -1039,7 +1137,6 @@ public function destroyForfait($id)
     {
         Log::info('Statistiques e-learning accédées');
 
-        // Statistiques générales
         $stats = [
             'total_acces' => ElearningAcces::count(),
             'active_acces' => ElearningAcces::active()->count(),
@@ -1048,15 +1145,11 @@ public function destroyForfait($id)
             'average_score' => ElearningAcces::avg('average_qcm_score') ?? 0,
         ];
 
-        Log::info('Statistiques calculées', ['stats' => $stats]);
-
-        // Distribution par forfait
         $forfaitDistribution = ElearningAcces::selectRaw('forfait_id, count(*) as count')
             ->groupBy('forfait_id')
             ->with('forfait')
             ->get();
 
-        // Accès récents
         $recentAcces = ElearningAcces::with(['forfait', 'paiement'])
             ->orderBy('created_at', 'desc')
             ->limit(10)
@@ -1075,7 +1168,6 @@ public function destroyForfait($id)
 
             \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
 
-            // Créer le produit
             $product = \Stripe\Product::create([
                 'name' => $forfait->name,
                 'description' => $forfait->description,
@@ -1085,7 +1177,6 @@ public function destroyForfait($id)
                 ],
             ]);
 
-            // Créer le prix
             $price = \Stripe\Price::create([
                 'product' => $product->id,
                 'unit_amount' => $forfait->price * 100,
@@ -1114,18 +1205,13 @@ public function destroyForfait($id)
     /**
      * Afficher les sessions actives e-learning
      */
-    /**
-     * Afficher les sessions actives e-learning
-     */
     public function activeSessions()
     {
         Log::info('=== DÉBUT activeSessions ===');
 
-        // D'abord, compter toutes les sessions sans déconnexion
         $allActiveSessions = ElearningSession::whereNull('logout_at')->count();
         Log::info('Toutes les sessions sans déconnexion: ' . $allActiveSessions);
 
-        // Vérifiez toutes les sessions récentes
         $recentSessions = ElearningSession::with(['acces.forfait'])
             ->where('last_activity_at', '>=', now()->subHours(2))
             ->orderBy('last_activity_at', 'desc')
@@ -1133,20 +1219,6 @@ public function destroyForfait($id)
 
         Log::info('Sessions avec last_activity_at >= ' . now()->subHours(2)->format('Y-m-d H:i:s') . ': ' . $recentSessions->count());
 
-        foreach ($recentSessions as $session) {
-            Log::info('Session trouvée', [
-                'id' => $session->id,
-                'acces_id' => $session->acces_id,
-                'email' => $session->acces->email ?? 'N/A',
-                'login_at' => $session->login_at->format('Y-m-d H:i:s'),
-                'last_activity_at' => $session->last_activity_at->format('Y-m-d H:i:s'),
-                'logout_at' => $session->logout_at ? $session->logout_at->format('Y-m-d H:i:s') : 'null',
-                'minutes_since_activity' => now()->diffInMinutes($session->last_activity_at),
-                'session_token' => substr($session->session_token, 0, 20) . '...'
-            ]);
-        }
-
-        // Maintenant, la requête principale
         $activeSessions = ElearningSession::with(['acces.forfait'])
             ->whereNull('logout_at')
             ->where('last_activity_at', '>=', now()->subHours(2))
@@ -1155,14 +1227,12 @@ public function destroyForfait($id)
 
         Log::info('Sessions actives trouvées: ' . $activeSessions->count());
 
-        // Statistiques
         $totalActive = $activeSessions->count();
         $inactiveSessions = ElearningSession::with(['acces'])
             ->whereNull('logout_at')
             ->where('last_activity_at', '<', now()->subMinutes(30))
             ->count();
 
-        // Calculer la durée moyenne des sessions actives
         $avgSessionDuration = 0;
         if ($totalActive > 0) {
             $totalMinutes = 0;
@@ -1172,8 +1242,7 @@ public function destroyForfait($id)
             $avgSessionDuration = round($totalMinutes / $totalActive);
         }
 
-        // Sessions récemment terminées
-        $recentSessions = ElearningSession::with(['acces'])
+        $recentSessionsList = ElearningSession::with(['acces'])
             ->whereNotNull('logout_at')
             ->where('logout_at', '>=', now()->subDay())
             ->orderBy('logout_at', 'desc')
@@ -1192,7 +1261,7 @@ public function destroyForfait($id)
         return view('admin.elearning.sessions.active', compact(
             'activeSessions',
             'stats',
-            'recentSessions'
+            'recentSessionsList'
         ));
     }
 
@@ -1203,10 +1272,8 @@ public function destroyForfait($id)
     {
         $session = ElearningSession::findOrFail($sessionId);
 
-        // Marquer la session comme déconnectée de force
         $session->forceLogout();
 
-        // Mettre à jour l'accès associé
         if ($session->acces) {
             $session->acces->update([
                 'current_session_token' => null,
@@ -1237,22 +1304,17 @@ public function destroyForfait($id)
         $acces = ElearningAcces::findOrFail($id);
 
         try {
-            // Vérifier s'il y a des sessions actives
             if ($acces->hasActiveSession()) {
                 Log::warning('Impossible de supprimer - session active', ['acces_id' => $id]);
                 return back()->with('error', 'Impossible de supprimer cet accès car il y a une session active. Veuillez d\'abord forcer la déconnexion.');
             }
 
-            // Vérifier s'il y a des progressions associées
             if ($acces->progressions()->exists()) {
                 Log::warning('Impossible de supprimer - progressions associées', ['acces_id' => $id]);
                 return back()->with('error', 'Impossible de supprimer cet accès car il y a des progressions associées.');
             }
 
-            // Supprimer les sessions liées
             $acces->sessions()->delete();
-
-            // Supprimer l'accès
             $acces->delete();
 
             Log::info('Accès supprimé avec succès', ['acces_id' => $id]);
@@ -1271,7 +1333,7 @@ public function destroyForfait($id)
     }
 
     /**
-     * Suspension d'accès avec formulaire de confirmation
+     * Formulaire de suspension d'accès
      */
     public function suspendAccesForm($id)
     {
@@ -1281,8 +1343,4 @@ public function destroyForfait($id)
 
         return view('admin.elearning.acces.suspend', compact('acces'));
     }
-
-    /**
-     * Traitement de la suspension d'accès
-     */
 }

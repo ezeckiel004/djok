@@ -25,6 +25,7 @@ class PaymentController extends Controller
     {
         Log::info('=== DÉBUT PaymentController::success ===');
         Log::info('Session ID: ' . $request->get('session_id'));
+        Log::info('Redirect param: ' . $request->get('redirect'));
 
         $sessionId = $request->get('session_id');
 
@@ -49,6 +50,7 @@ class PaymentController extends Controller
                 'service_type' => $paiement->service_type,
                 'amount' => $paiement->amount,
                 'elearning_forfait_id' => $paiement->elearning_forfait_id,
+                'user_id' => $paiement->user_id,
             ]);
 
             // Rediriger vers la page appropriée
@@ -73,6 +75,7 @@ class PaymentController extends Controller
         Log::info('=== DÉBUT PaymentController::cancel ===');
 
         $sessionId = $request->get('session_id');
+        $redirectUrl = $request->get('redirect');
 
         if ($sessionId) {
             $paiement = Paiement::where('stripe_session_id', $sessionId)->first();
@@ -81,6 +84,12 @@ class PaymentController extends Controller
                 $paiement->update(['status' => 'canceled']);
                 Log::info('Paiement marqué comme annulé:', ['reference' => $paiement->reference]);
             }
+        }
+
+        // Si une URL de redirection personnalisée est fournie
+        if ($redirectUrl && filter_var($redirectUrl, FILTER_VALIDATE_URL)) {
+            return redirect()->away($redirectUrl . '?payment_cancelled=1')
+                ->with('error', 'Paiement annulé. Vous pouvez réessayer quand vous voulez.');
         }
 
         return view('payments.cancel')
@@ -208,7 +217,7 @@ class PaymentController extends Controller
         Log::info('=== DÉBUT redirectToServicePage ===');
         Log::info('Service Type: ' . $paiement->service_type);
         Log::info('Paiement ID: ' . $paiement->id);
-        Log::info('E-learning forfait ID: ' . $paiement->elearning_forfait_id);
+        Log::info('User ID: ' . $paiement->user_id);
 
         $successMessage = 'Merci pour votre paiement de ' .
             number_format($paiement->amount, 2, ',', ' ') . ' €. ' .
@@ -238,10 +247,20 @@ class PaymentController extends Controller
 
             case 'elearning':
                 Log::info('Redirection pour e-learning');
-                $sessionId = $paiement->stripe_session_id;
 
+                // Vérifier si l'utilisateur est connecté (user_id présent)
+                if ($paiement->user_id) {
+                    Log::info('Utilisateur connecté détecté (ID: ' . $paiement->user_id . '), redirection vers dashboard client e-learning');
+
+                    // Rediriger vers le dashboard client e-learning
+                    return redirect()->route('client.elearning.dashboard')
+                        ->with('success', 'Votre paiement a été confirmé. Bienvenue dans votre espace e-learning !');
+                }
+
+                // Fallback pour les utilisateurs non connectés
+                $sessionId = $paiement->stripe_session_id;
                 if ($sessionId) {
-                    Log::info('Session ID trouvé, redirection vers page de succès e-learning');
+                    Log::info('Utilisateur non connecté, redirection vers page de succès e-learning publique');
                     return redirect()->to(route('elearning.payment.success') . '?session_id=' . $sessionId)
                         ->with('success', 'Votre achat e-learning a été confirmé ! Vous recevrez vos codes d\'accès par email.');
                 }

@@ -28,7 +28,7 @@ class PaymentService
     /**
      * Créer une session de paiement pour n'importe quel service
      */
-    public function createPaymentSession($serviceType, $serviceData, $customerData, $metadata = [])
+    public function createPaymentSession($serviceType, $serviceData, $customerData, $metadata = [], $redirectUrl = null)
     {
         try {
             Log::info('=== DÉBUT createPaymentSession ===');
@@ -36,13 +36,21 @@ class PaymentService
             Log::info('Service Data:', $serviceData);
             Log::info('Customer Data:', $customerData);
             Log::info('Metadata:', $metadata);
+            Log::info('Redirect URL personnalisé: ' . ($redirectUrl ?? 'non défini'));
 
             // Générer une référence unique
             $reference = 'PAY_' . strtoupper(Str::random(8));
 
             // URL de succès et d'annulation
-            $successUrl = route('payment.success') . '?session_id={CHECKOUT_SESSION_ID}';
-            $cancelUrl = route('payment.cancel') . '?session_id={CHECKOUT_SESSION_ID}';
+            if ($redirectUrl) {
+                // Si une URL personnalisée est fournie, l'utiliser
+                $successUrl = $redirectUrl . '?session_id={CHECKOUT_SESSION_ID}';
+                $cancelUrl = route('payment.cancel') . '?session_id={CHECKOUT_SESSION_ID}&redirect=' . urlencode($redirectUrl);
+            } else {
+                // Sinon utiliser les routes par défaut
+                $successUrl = route('payment.success') . '?session_id={CHECKOUT_SESSION_ID}';
+                $cancelUrl = route('payment.cancel') . '?session_id={CHECKOUT_SESSION_ID}';
+            }
 
             // Configurer la session Stripe
             $sessionData = [
@@ -68,6 +76,7 @@ class PaymentService
                 'metadata' => array_merge([
                     'paiement_reference' => $reference,
                     'service_type' => $serviceType,
+                    'redirect_url' => $redirectUrl ?? '',
                 ], $metadata),
             ];
 
@@ -174,6 +183,22 @@ class PaymentService
         $metadata = $session->metadata ? $session->metadata->toArray() : [];
         $serviceType = $metadata['service_type'] ?? 'unknown';
 
+        // Récupérer l'utilisateur par email ou par user_id dans les métadonnées
+        $user = null;
+        if ($session->customer_email) {
+            $user = User::where('email', $session->customer_email)->first();
+            if ($user) {
+                Log::info('Utilisateur trouvé par email: ' . $user->email);
+            }
+        }
+
+        if (!$user && isset($metadata['user_id'])) {
+            $user = User::find($metadata['user_id']);
+            if ($user) {
+                Log::info('Utilisateur trouvé par user_id: ' . $user->id);
+            }
+        }
+
         $paiementData = [
             'reference' => $metadata['paiement_reference'] ?? 'PAY_' . strtoupper(Str::random(8)),
             'service_type' => $serviceType,
@@ -189,7 +214,8 @@ class PaymentService
             ]),
             'service_details' => json_encode($metadata),
             'paid_at' => now(),
-            'service_id' => null, // Toujours initialiser à null
+            'service_id' => null,
+            'user_id' => $user ? $user->id : null,
         ];
 
         // Spécifique à chaque type de service
@@ -210,7 +236,6 @@ class PaymentService
 
             case 'elearning':
                 if (isset($metadata['forfait_id'])) {
-                    // Utiliser elearning_forfait_id au lieu de service_id
                     $paiementData['elearning_forfait_id'] = $metadata['forfait_id'];
                     $forfait = ElearningForfait::find($metadata['forfait_id']);
                     if ($forfait) {
@@ -251,18 +276,13 @@ class PaymentService
                 break;
         }
 
-        // Chercher l'utilisateur par email
-        if ($session->customer_email) {
-            $user = User::where('email', $session->customer_email)->first();
-            if ($user) {
-                $paiementData['user_id'] = $user->id;
-                Log::info('Utilisateur trouvé par email: ' . $user->email);
-            }
-        }
-
         $paiement = Paiement::create($paiementData);
 
-        Log::info('Paiement créé à partir de Stripe:', ['reference' => $paiement->reference]);
+        Log::info('Paiement créé à partir de Stripe:', [
+            'reference' => $paiement->reference,
+            'user_id' => $paiement->user_id,
+            'service_type' => $paiement->service_type,
+        ]);
 
         return $paiement;
     }
@@ -275,6 +295,7 @@ class PaymentService
         Log::info('=== DÉBUT processService ===');
         Log::info('Service Type: ' . $paiement->service_type);
         Log::info('Paiement ID: ' . $paiement->id);
+        Log::info('User ID associé: ' . ($paiement->user_id ?? 'null'));
 
         try {
             switch ($paiement->service_type) {
@@ -318,7 +339,6 @@ class PaymentService
         Log::info('=== DÉBUT processElearningPayment ===');
 
         try {
-            // Utiliser elearning_forfait_id directement
             $forfaitId = $paiement->elearning_forfait_id;
 
             if (!$forfaitId) {
@@ -339,7 +359,31 @@ class PaymentService
                 'slug' => $forfait->slug,
             ]);
 
-            // Créer l'accès e-learning
+            // Vérifier si un accès existe déjà pour cet utilisateur avec ce forfait
+            $existingAcces = null;
+            if ($paiement->user_id) {
+                $user = User::find($paiement->user_id);
+                if ($user) {
+                    $existingAcces = ElearningAcces::where('email', $user->email)
+                        ->where('forfait_id', $forfait->id)
+                        ->where('status', 'active')
+                        ->first();
+
+                    if ($existingAcces) {
+                        Log::info('Un accès actif existe déjà pour cet utilisateur', ['acces_id' => $existingAcces->id]);
+                        // Prolonger l'accès existant
+                        $newEndDate = max($existingAcces->access_end, now())->addDays($forfait->duration_days);
+                        $existingAcces->update([
+                            'access_end' => $newEndDate,
+                            'status' => 'active',
+                        ]);
+                        Log::info('Accès existant prolongé jusqu\'au: ' . $newEndDate);
+                        return;
+                    }
+                }
+            }
+
+            // Créer un nouvel accès
             $this->createElearningAccessFromPayment($paiement, $forfait, $paiement->service_details);
 
             Log::info('=== FIN processElearningPayment - Succès ===');
@@ -365,10 +409,25 @@ class PaymentService
             ? $metadata
             : json_decode($metadata, true);
 
-        $email = $customerInfo['email'] ?? $metadata['customer_email'] ?? null;
-        $nom = $customerInfo['name'] ?? $metadata['customer_nom'] ?? 'Client';
-        $prenom = $metadata['customer_prenom'] ?? '';
-        $telephone = $metadata['customer_telephone'] ?? null;
+        // Priorité à l'utilisateur connecté (user_id)
+        $user = null;
+        if ($paiement->user_id) {
+            $user = User::find($paiement->user_id);
+        }
+
+        if ($user) {
+            $email = $user->email;
+            $nom = $user->name;
+            $prenom = '';
+            $telephone = $user->phone;
+            Log::info('Utilisation des données de l\'utilisateur connecté: ' . $email);
+        } else {
+            $email = $customerInfo['email'] ?? $metadata['customer_email'] ?? null;
+            $nom = $customerInfo['name'] ?? $metadata['customer_nom'] ?? 'Client';
+            $prenom = $metadata['customer_prenom'] ?? '';
+            $telephone = $metadata['customer_telephone'] ?? null;
+            Log::info('Utilisation des données du formulaire: ' . $email);
+        }
 
         if (!$email) {
             Log::error('Email client manquant pour créer l\'accès e-learning');
@@ -390,6 +449,9 @@ class PaymentService
         $accessStart = now();
         $accessEnd = now()->addDays($forfait->duration_days);
 
+        // Calculer le nombre total de cours inclus
+        $totalCours = $this->getTotalCoursCountFromForfait($forfait);
+
         // Créer l'accès
         $acces = ElearningAcces::create([
             'forfait_id' => $forfait->id,
@@ -402,7 +464,7 @@ class PaymentService
             'virtual_room_code' => $virtualRoomCode,
             'access_start' => $accessStart,
             'access_end' => $accessEnd,
-            'total_cours' => 0,
+            'total_cours' => $totalCours,
             'status' => 'active',
         ]);
 
@@ -411,10 +473,11 @@ class PaymentService
             'access_code' => $accessCode,
             'virtual_room_code' => $virtualRoomCode,
             'email' => $email,
+            'user_id' => $user ? $user->id : null,
         ]);
 
         // Envoyer l'email avec les codes d'accès
-        $this->sendElearningAccessEmail($acces);
+        $this->sendElearningAccessEmail($acces, $forfait);
 
         // Mettre à jour le paiement avec l'ID de l'accès
         $paiement->update([
@@ -430,12 +493,23 @@ class PaymentService
     }
 
     /**
+     * Calcule le nombre total de cours inclus dans un forfait
+     */
+    private function getTotalCoursCountFromForfait(ElearningForfait $forfait): int
+    {
+        if ($forfait->include_all_cours) {
+            return \App\Models\ElearningCours::active()->count();
+        }
+        return count($forfait->selected_cours_ids ?? []);
+    }
+
+    /**
      * Envoyer l'email d'accès e-learning
      */
-    protected function sendElearningAccessEmail(ElearningAcces $acces)
+    protected function sendElearningAccessEmail(ElearningAcces $acces, $forfait = null)
     {
         try {
-            Mail::to($acces->email)->send(new \App\Mail\ElearningAccessMail($acces));
+            Mail::to($acces->email)->send(new \App\Mail\ElearningAccessMail($acces, $forfait));
             Log::info('Email d\'accès e-learning envoyé à: ' . $acces->email);
         } catch (\Exception $e) {
             Log::error('Erreur envoi email e-learning: ' . $e->getMessage());
@@ -560,7 +634,6 @@ class PaymentService
             Log::info('Email de notification admin envoyé à: ' . $adminEmail);
         } catch (\Exception $e) {
             Log::error('Erreur envoi emails confirmation formation: ' . $e->getMessage());
-            // Ne pas relancer l'erreur, on continue le traitement
         }
     }
 
