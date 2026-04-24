@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 
 class ClientElearningController extends Controller
@@ -25,35 +27,36 @@ class ClientElearningController extends Controller
         $this->paymentService = $paymentService;
     }
 
-  /**
- * Page des forfaits e-learning pour les clients connectés
- */
-public function index()
-{
-    $user = Auth::user();
+    /**
+     * Page des forfaits e-learning pour les clients connectés
+     */
+    public function index()
+    {
+        $user = Auth::user();
 
-    // Récupérer tous les accès e-learning de l'utilisateur (historique)
-    $mesAcces = ElearningAcces::where('email', $user->email)
-        ->with(['forfait', 'paiement'])
-        ->orderBy('created_at', 'desc')
-        ->get();
+        // Récupérer tous les accès e-learning de l'utilisateur (historique)
+        $mesAcces = ElearningAcces::where('email', $user->email)
+            ->with(['forfait', 'paiement'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-    // Récupérer les IDs des forfaits déjà achetés (pour ne pas les afficher dans la liste des disponibles)
-    $forfaitsAchetesIds = $mesAcces->pluck('forfait_id')->unique()->toArray();
+        // Récupérer les IDs des forfaits déjà achetés (pour ne pas les afficher dans la liste des disponibles)
+        $forfaitsAchetesIds = $mesAcces->pluck('forfait_id')->unique()->toArray();
 
-    // Récupérer les forfaits actifs que l'utilisateur n'a PAS encore achetés
-    $forfaits = ElearningForfait::active()
-        ->ordered()
-        ->whereNotIn('id', $forfaitsAchetesIds)
-        ->get();
+        // Récupérer les forfaits actifs que l'utilisateur n'a PAS encore achetés
+        $forfaits = ElearningForfait::active()
+            ->ordered()
+            ->whereNotIn('id', $forfaitsAchetesIds)
+            ->get();
 
-    // Vérifier si l'utilisateur a un accès actif (pour afficher le bandeau)
-    $accesActif = $mesAcces->first(function ($acces) {
-        return $acces->isActive();
-    });
+        // Vérifier si l'utilisateur a un accès actif (pour afficher le bandeau)
+        $accesActif = $mesAcces->first(function ($acces) {
+            return $acces->isActive();
+        });
 
-    return view('client.elearning.index', compact('forfaits', 'mesAcces', 'accesActif'));
-}
+        return view('client.elearning.index', compact('forfaits', 'mesAcces', 'accesActif'));
+    }
+
     /**
      * Page d'achat d'un forfait
      */
@@ -67,8 +70,54 @@ public function index()
         return view('client.elearning.acheter', compact('forfait', 'user'));
     }
 
+public function checkPromoCode(Request $request)
+{
+    $request->validate([
+        'forfait_slug' => 'required|string',
+        'promo_code' => 'required|string'
+    ]);
+
+    // ✅ Normaliser le code en majuscules AVANT la vérification
+    $promoCode = strtoupper(trim($request->promo_code));
+
+    $forfait = ElearningForfait::where('slug', $request->forfait_slug)
+        ->active()
+        ->first();
+
+    if (!$forfait) {
+        return response()->json([
+            'valid' => false,
+            'message' => 'Forfait introuvable'
+        ]);
+    }
+
+    $existingAccess = ElearningAcces::where('email', Auth::user()->email)
+        ->where('forfait_id', $forfait->id)
+        ->where('promo_code_used', $promoCode)
+        ->exists();
+
+    if ($existingAccess) {
+        return response()->json([
+            'valid' => false,
+            'message' => 'Vous avez déjà utilisé ce code promo pour ce forfait'
+        ]);
+    }
+
+    if ($forfait->isPromoCodeValid($promoCode)) {
+        return response()->json([
+            'valid' => true,
+            'message' => 'Code promo valide ! Vous bénéficiez d\'un accès gratuit.'
+        ]);
+    }
+
+    return response()->json([
+        'valid' => false,
+        'message' => 'Code promo invalide ou expiré'
+    ]);
+}
+
     /**
-     * Traitement de l'achat pour client connecté
+     * Traitement de l'achat pour client connecté (avec gestion code promo)
      */
     public function processPayment(Request $request, $forfaitSlug)
     {
@@ -76,11 +125,129 @@ public function index()
             'forfait_slug' => $forfaitSlug,
             'user_id' => Auth::id(),
             'user_email' => Auth::user()->email,
+            'access_mode' => $request->access_mode,
+            'promo_code' => $request->promo_code_used
         ]);
 
         $user = Auth::user();
         $forfait = ElearningForfait::where('slug', $forfaitSlug)->active()->firstOrFail();
 
+        // ==============================================
+        // MODE CODE PROMO : ACCÈS GRATUIT
+        // ==============================================
+        if ($request->access_mode === 'promo' && !empty($request->promo_code_used)) {
+            $promoCode = strtoupper($request->promo_code_used);
+
+            // Vérifier que le code est toujours valide
+            if (!$forfait->isPromoCodeValid($promoCode)) {
+                return back()->with('error', 'Ce code promo n\'est plus valide.');
+            }
+
+            // Vérifier que l'utilisateur n'a pas déjà utilisé ce code
+            $existingAccess = ElearningAcces::where('email', $user->email)
+                ->where('forfait_id', $forfait->id)
+                ->where('promo_code_used', $promoCode)
+                ->exists();
+
+            if ($existingAccess) {
+                return back()->with('error', 'Vous avez déjà utilisé ce code promo pour ce forfait.');
+            }
+
+            try {
+                DB::beginTransaction();
+
+                // Utiliser le code promo (incrémente le compteur)
+                if (!$forfait->usePromoCode($promoCode)) {
+                    DB::rollBack();
+                    return back()->with('error', 'Erreur lors de l\'utilisation du code promo.');
+                }
+
+                // Créer l'accès gratuit
+                $accessCode = strtoupper(Str::random(12));
+                $virtualRoomCode = 'SALLE_' . strtoupper(Str::random(8));
+
+                // Calculer le nombre total de cours
+                $totalCours = $forfait->include_all_cours
+                    ? ElearningCours::active()->count()
+                    : count($forfait->selected_cours_ids ?? []);
+
+                $acces = ElearningAcces::create([
+                    'forfait_id' => $forfait->id,
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'nom' => $user->name,
+                    'prenom' => explode(' ', $user->name)[0] ?? $user->name,
+                    'telephone' => $user->phone,
+                    'access_code' => $accessCode,
+                    'virtual_room_code' => $virtualRoomCode,
+                    'access_start' => now(),
+                    'access_end' => now()->addDays($forfait->duration_days),
+                    'status' => 'active',
+                    'total_cours' => $totalCours,
+                    'cours_completed' => 0,
+                    'average_qcm_score' => null,
+                    'promo_code_used' => $promoCode,
+                    'payment_mode' => 'promo',
+                ]);
+
+                DB::commit();
+
+                Log::info('Accès créé via code promo', [
+                    'acces_id' => $acces->id,
+                    'promo_code' => $promoCode,
+                    'user_email' => $user->email,
+                    'forfait_id' => $forfait->id
+                ]);
+
+                // Envoyer un email de confirmation d'accès
+                try {
+                    Mail::to($user->email)->send(new \App\Mail\ElearningAccessMail($acces, $forfait));
+                    Log::info('Email d\'accès envoyé avec succès à: ' . $user->email);
+                } catch (\Exception $mailError) {
+                    Log::error('Erreur envoi email accès: ' . $mailError->getMessage());
+                }
+
+                // Créer une session directement
+                $sessionToken = Str::random(60);
+                $acces->update([
+                    'current_session_token' => $sessionToken,
+                    'current_session_start' => now(),
+                    'current_session_ip' => request()->ip(),
+                    'current_session_browser' => request()->userAgent(),
+                    'last_access_at' => now(),
+                ]);
+
+                \App\Models\ElearningSession::create([
+                    'acces_id' => $acces->id,
+                    'session_token' => $sessionToken,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                    'login_at' => now(),
+                    'last_activity_at' => now(),
+                ]);
+
+                session([
+                    'elearning_access_id' => $acces->id,
+                    'elearning_session_token' => $sessionToken,
+                ]);
+
+                return redirect()->route('client.elearning.dashboard')
+                    ->with('success', 'Félicitations ! Votre accès gratuit au forfait ' . $forfait->name . ' a été activé avec succès. Voici votre salle virtuelle.');
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error('Erreur création accès promo: ' . $e->getMessage(), [
+                    'forfait_id' => $forfait->id,
+                    'promo_code' => $promoCode,
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return back()->with('error', 'Erreur lors de l\'activation du code promo: ' . $e->getMessage());
+            }
+        }
+
+        // ==============================================
+        // MODE PAIEMENT NORMAL
+        // ==============================================
         $serviceData = [
             'amount' => $forfait->price,
             'service_name' => 'Forfait E-learning: ' . $forfait->name,
@@ -280,10 +447,14 @@ public function index()
             ? round(($acces->cours_completed / $acces->total_cours) * 100, 1)
             : 0;
 
+        // Ajouter une variable pour indiquer si l'accès est via code promo
+        $isPromoAccess = $acces->payment_mode === 'promo';
+
         return view('client.elearning.dashboard', compact(
             'acces', 'cours', 'progressions', 'qcmsNormaux', 'examensBlancs',
             'qcmsNormauxDisponibles', 'qcmsNormauxCompletes', 'examensBlancsDisponibles',
-            'examensBlancsCompletes', 'allQcmsCompletes', 'qcmsProgressions', 'forfait'
+            'examensBlancsCompletes', 'allQcmsCompletes', 'qcmsProgressions', 'forfait',
+            'isPromoAccess'
         ));
     }
 
@@ -326,10 +497,6 @@ public function index()
 
     /**
      * Marquer un cours comme terminé
-     *
-     * CORRECTIONS :
-     * - getValidAccess() a un fallback sur Auth::user() si la session e-learning est perdue
-     * - On vérifie que le cours n'est pas déjà marqué terminé avant d'incrémenter
      */
     public function completeCours(Request $request, $coursId)
     {
@@ -355,11 +522,9 @@ public function index()
             ->where('cours_id', $coursId)
             ->first();
 
-        // Le cours était-il déjà marqué terminé ?
         $dejaTermine = $progression && $progression->cours_completed;
 
         if (!$progression) {
-            // Créer la progression si elle n'existe pas encore
             $progression = ElearningProgression::create([
                 'acces_id' => $acces->id,
                 'cours_id' => $coursId,
@@ -373,7 +538,6 @@ public function index()
             ]);
         }
 
-        // N'incrémenter le compteur que si le cours n'était pas déjà terminé
         if (!$dejaTermine) {
             $acces->increment('cours_completed');
         }
@@ -416,13 +580,11 @@ public function index()
                 throw new \Exception('Le QCM ne contient pas de questions.');
             }
 
-            // S'assurer que questions_data est un tableau
             $questionsData = $qcm->questions_data;
             if (is_string($questionsData)) {
                 $questionsData = json_decode($questionsData, true);
             }
 
-            // Extraire les questions
             $questions = $questionsData['questions'] ?? [];
             $questionsCount = count($questions);
 
@@ -583,17 +745,12 @@ public function index()
 
     /**
      * Récupère l'accès valide de l'utilisateur connecté.
-     *
-     * CORRECTION : Fallback sur Auth::user() si la session e-learning
-     * (elearning_access_id / elearning_session_token) a expiré ou est absente.
-     * Cela évite le 401 lors des requêtes AJAX après une reconnexion implicite.
      */
     private function getValidAccess()
     {
         $accessId    = session('elearning_access_id');
         $sessionToken = session('elearning_session_token');
 
-        // --- Chemin nominal : session e-learning présente ---
         if ($accessId && $sessionToken) {
             $acces = ElearningAcces::find($accessId);
 
@@ -603,7 +760,6 @@ public function index()
                 return $acces;
             }
 
-            // Session e-learning incohérente → on la supprime et on tente le fallback
             Log::warning('Session e-learning incohérente, tentative de fallback Auth', [
                 'access_id'    => $accessId,
                 'token_match'  => $acces ? ($acces->current_session_token === $sessionToken) : false,
@@ -613,7 +769,6 @@ public function index()
             session()->forget(['elearning_access_id', 'elearning_session_token']);
         }
 
-        // --- Fallback : retrouver l'accès via l'utilisateur Auth connecté ---
         $user = Auth::user();
         if (!$user) {
             return null;
@@ -629,7 +784,6 @@ public function index()
             return null;
         }
 
-        // Recréer la session e-learning à la volée
         $sessionToken = Str::random(60);
         $acces->update([
             'current_session_token' => $sessionToken,

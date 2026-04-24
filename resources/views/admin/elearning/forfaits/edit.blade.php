@@ -109,7 +109,7 @@
             </div>
 
             <!-- ============================================= -->
-            <!-- SECTION SÉLECTION DU CONTENU - MODIFIÉE AVEC PRÉ-REMPLISSAGE -->
+            <!-- SECTION SÉLECTION DU CONTENU -->
             <!-- ============================================= -->
             <div class="mb-8">
                 <div class="border-b border-gray-200 pb-3 mb-4">
@@ -387,6 +387,11 @@
             <input type="hidden" name="include_all_qcms" id="include_all_qcms" value="{{ $forfait->include_all_qcms ? '1' : '0' }}">
             <input type="hidden" name="include_all_examens" id="include_all_examens" value="{{ $forfait->include_all_examens ? '1' : '0' }}">
 
+            <!-- ============================================= -->
+            <!-- SECTION CODES PROMO -->
+            <!-- ============================================= -->
+            @include('admin.elearning.forfaits.partials._promo_codes')
+
             <!-- Fonctionnalités détaillées -->
             <div class="mb-6">
                 <div class="flex justify-between items-center mb-4">
@@ -547,7 +552,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedMode = document.querySelector('input[name="selection_mode"]:checked').value;
 
         if (selectedMode === 'all') {
-            // Mode "Tout inclure"
             allModeSection.style.display = 'block';
             customModeSection.style.display = 'none';
 
@@ -555,13 +559,11 @@ document.addEventListener('DOMContentLoaded', function() {
             includeAllQcmsHidden.value = '1';
             includeAllExamensHidden.value = '1';
 
-            // Désactiver les checkboxes personnalisées
             document.querySelectorAll('.cours-checkbox, .qcm-checkbox, .examen-checkbox').forEach(cb => {
                 cb.disabled = true;
                 cb.checked = false;
             });
 
-            // Désactiver les checkboxes "Tous les..." et les cocher
             if (includeAllQcmsCheckbox) {
                 includeAllQcmsCheckbox.disabled = true;
                 includeAllQcmsCheckbox.checked = true;
@@ -574,13 +576,11 @@ document.addEventListener('DOMContentLoaded', function() {
             updateCounters();
 
         } else {
-            // Mode "Sélection personnalisée"
             allModeSection.style.display = 'none';
             customModeSection.style.display = 'block';
 
             includeAllCoursHidden.value = '0';
 
-            // Les valeurs des hidden sont gérées par les checkboxes "Tous les QCM/Examens"
             if (includeAllQcmsCheckbox) {
                 includeAllQcmsHidden.value = includeAllQcmsCheckbox.checked ? '1' : '0';
                 includeAllQcmsCheckbox.disabled = false;
@@ -590,24 +590,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 includeAllExamensCheckbox.disabled = false;
             }
 
-            // Activer les checkboxes personnalisées
             document.querySelectorAll('.cours-checkbox').forEach(cb => cb.disabled = false);
 
-            // Gérer les QCM
             if (includeAllQcmsCheckbox && includeAllQcmsCheckbox.checked) {
-                // Si "Tous les QCM" est coché, on désactive les cases individuelles et on les coche toutes
                 document.querySelectorAll('.qcm-checkbox').forEach(cb => {
                     cb.disabled = true;
                     cb.checked = true;
                 });
             } else if (includeAllQcmsCheckbox && !includeAllQcmsCheckbox.checked) {
-                // Si "Tous les QCM" est décoché, on réactive les cases individuelles
                 document.querySelectorAll('.qcm-checkbox').forEach(cb => {
                     cb.disabled = false;
                 });
             }
 
-            // Gérer les examens
             if (includeAllExamensCheckbox && includeAllExamensCheckbox.checked) {
                 document.querySelectorAll('.examen-checkbox').forEach(cb => {
                     cb.disabled = true;
@@ -624,10 +619,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ==============================================
-    // GESTION DES CHECKBOX "TOUS LES..." - VERSION CORRIGÉE
+    // GESTION DES CHECKBOX "TOUS LES..."
     // ==============================================
 
-    // Pour les QCM
     if (includeAllQcmsCheckbox) {
         includeAllQcmsCheckbox.addEventListener('change', function() {
             const isChecked = this.checked;
@@ -636,13 +630,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const qcmCheckboxes = document.querySelectorAll('.qcm-checkbox');
             qcmCheckboxes.forEach(cb => {
                 cb.disabled = isChecked;
-                cb.checked = isChecked; // Si coché, on coche tout; si décoché, on décoche tout
+                cb.checked = isChecked;
             });
             updateCounters();
         });
     }
 
-    // Pour les EXAMENS
     if (includeAllExamensCheckbox) {
         includeAllExamensCheckbox.addEventListener('change', function() {
             const isChecked = this.checked;
@@ -651,26 +644,23 @@ document.addEventListener('DOMContentLoaded', function() {
             const examenCheckboxes = document.querySelectorAll('.examen-checkbox');
             examenCheckboxes.forEach(cb => {
                 cb.disabled = isChecked;
-                cb.checked = isChecked; // Si coché, on coche tout; si décoché, on décoche tout
+                cb.checked = isChecked;
             });
             updateCounters();
         });
     }
 
     // ==============================================
-    // SÉLECTION TOUT - VERSION CORRIGÉE
+    // SÉLECTION TOUT
     // ==============================================
 
-    // Sélectionner TOUS les cours
     document.getElementById('selectAllCours')?.addEventListener('click', function() {
         const checkboxes = document.querySelectorAll('.cours-checkbox:not(:disabled)');
         checkboxes.forEach(cb => cb.checked = true);
         updateCounters();
     });
 
-    // Sélectionner TOUS les QCM
     document.getElementById('selectAllQcms')?.addEventListener('click', function() {
-        // Vérifier si "Tous les QCM" est déjà coché
         if (includeAllQcmsCheckbox && includeAllQcmsCheckbox.checked) {
             alert('"Tous les QCM" est déjà coché. Tous les QCM sont déjà sélectionnés.');
             return;
@@ -680,7 +670,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCounters();
     });
 
-    // Sélectionner TOUS les examens
     document.getElementById('selectAllExamens')?.addEventListener('click', function() {
         if (includeAllExamensCheckbox && includeAllExamensCheckbox.checked) {
             alert('"Tous les examens" est déjà coché. Tous les examens sont déjà sélectionnés.');
@@ -713,12 +702,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Écouter les changements de checkboxes individuelles
     document.querySelectorAll('.cours-checkbox, .qcm-checkbox, .examen-checkbox').forEach(cb => {
         cb.addEventListener('change', updateCounters);
     });
 
-    // Écouter les changements de mode
     selectionModeRadios.forEach(radio => {
         radio.addEventListener('change', toggleSelectionMode);
     });
@@ -782,7 +769,6 @@ document.addEventListener('DOMContentLoaded', function() {
         featuresJson.value = JSON.stringify(features);
     }
 
-    // Initialiser les événements de suppression pour les fonctionnalités existantes
     document.querySelectorAll('.remove-feature').forEach(button => {
         button.addEventListener('click', function() {
             this.closest('.feature-item').remove();
@@ -790,7 +776,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Initialiser les événements de mise à jour pour les fonctionnalités existantes
     document.querySelectorAll('input[name="feature_titles[]"]').forEach(input => {
         input.addEventListener('input', updateFeaturesJson);
     });
@@ -804,7 +789,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Événement de soumission du formulaire
     form.addEventListener('submit', function(e) {
         updateFeaturesJson();
 
@@ -842,7 +826,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Initialisation
     toggleSelectionMode();
     updateCounters();
 });
@@ -854,18 +837,10 @@ document.addEventListener('DOMContentLoaded', function() {
         resize: vertical;
     }
 
-    .cours-checkbox:checked + div,
-    .qcm-checkbox:checked + div,
-    .examen-checkbox:checked + div {
-        font-weight: 500;
-    }
-
-    /* Animation pour les sections */
     #customModeSection {
         transition: all 0.3s ease;
     }
 
-    /* Style pour les labels au survol */
     label:hover .border-transparent {
         border-color: inherit;
     }

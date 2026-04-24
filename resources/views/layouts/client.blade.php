@@ -21,6 +21,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') - Espace Client DJOK PRESTIGE</title>
 
     <!-- Tailwind CSS CDN -->
@@ -147,8 +148,7 @@
                 <!-- Page header -->
                 <div class="mb-6">
                     <h1 class="text-2xl font-bold text-gray-900">@yield('page-title', 'Dashboard')</h1>
-                    <p class="mt-2 text-sm text-gray-600">@yield('page-description', 'Bienvenue dans votre espace
-                        client')</p>
+                    <p class="mt-2 text-sm text-gray-600">@yield('page-description', 'Bienvenue dans votre espace client')</p>
                 </div>
 
                 <!-- Session messages -->
@@ -229,6 +229,7 @@
     <script>
         // Fermer la sidebar quand on clique sur un lien (mobile)
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Document ready - Sidebar initialisation');
             document.querySelectorAll('aside nav a').forEach(link => {
                 link.addEventListener('click', () => {
                     if (window.innerWidth < 1024) {
@@ -241,7 +242,9 @@
             // Écouter l'événement de fermeture de sidebar
             document.addEventListener('close-sidebar', () => {
                 if (window.innerWidth < 1024) {
-                    sidebarOpen = false;
+                    if (typeof sidebarOpen !== 'undefined') {
+                        sidebarOpen = false;
+                    }
                 }
             });
         });

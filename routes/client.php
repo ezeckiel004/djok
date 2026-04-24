@@ -59,6 +59,11 @@ Route::middleware(['auth', 'can:access-client-dashboard'])->prefix('client')->na
         Route::get('/forfait/{forfaitSlug}', [ClientElearningController::class, 'acheter'])->name('acheter');
         Route::post('/forfait/{forfaitSlug}/paiement', [ClientElearningController::class, 'processPayment'])->name('process-payment');
 
+        // ==============================================
+        // ROUTE POUR VÉRIFIER LE CODE PROMO (AJOUTÉE)
+        // ==============================================
+        Route::post('/check-promo', [ClientElearningController::class, 'checkPromoCode'])->name('check-promo');
+
         // Dashboard e-learning (salle virtuelle client)
         Route::get('/dashboard', [ClientElearningController::class, 'dashboard'])->name('dashboard');
         Route::get('/logout', [ClientElearningController::class, 'logout'])->name('logout');

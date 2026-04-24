@@ -107,9 +107,7 @@
                 </div>
             </div>
 
-            <!-- ============================================= -->
-            <!-- SECTION SÉLECTION DU CONTENU -->
-            <!-- ============================================= -->
+            <!-- Contenu du forfait -->
             <div class="mb-8">
                 <div class="border-b border-gray-200 pb-3 mb-4">
                     <h3 class="text-lg font-medium text-gray-900">Contenu du forfait</h3>
@@ -142,7 +140,7 @@
                     </p>
                 </div>
 
-                <!-- Section "Tout inclure" (visible par défaut) -->
+                <!-- Section "Tout inclure" -->
                 <div id="allModeSection" class="space-y-4">
                     <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                         <div class="flex items-start">
@@ -162,10 +160,10 @@
                     </div>
                 </div>
 
-                <!-- Section "Sélection personnalisée" (cachée par défaut) -->
+                <!-- Section "Sélection personnalisée" -->
                 <div id="customModeSection" style="display: none;">
 
-                    <!-- === 1. SÉLECTION DES COURS === -->
+                    <!-- Sélection des cours -->
                     <div class="mb-6 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                         <div class="bg-gradient-to-r from-blue-50 to-white px-4 py-3 border-b border-gray-200">
                             <div class="flex flex-wrap items-center justify-between gap-3">
@@ -213,7 +211,7 @@
                         </div>
                     </div>
 
-                    <!-- === 2. SÉLECTION DES QCM NORMAUX === -->
+                    <!-- Sélection des QCM -->
                     <div class="mb-6 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                         <div class="bg-gradient-to-r from-green-50 to-white px-4 py-3 border-b border-gray-200">
                             <div class="flex flex-wrap items-center justify-between gap-3">
@@ -274,7 +272,7 @@
                         </div>
                     </div>
 
-                    <!-- === 3. SÉLECTION DES EXAMENS BLANCS === -->
+                    <!-- Sélection des examens blancs -->
                     <div class="mb-6 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                         <div class="bg-gradient-to-r from-purple-50 to-white px-4 py-3 border-b border-gray-200">
                             <div class="flex flex-wrap items-center justify-between gap-3">
@@ -338,10 +336,14 @@
                 </div>
             </div>
 
-            <!-- Champs cachés pour les flags "tout inclure" -->
             <input type="hidden" name="include_all_cours" id="include_all_cours" value="1">
             <input type="hidden" name="include_all_qcms" id="include_all_qcms" value="1">
             <input type="hidden" name="include_all_examens" id="include_all_examens" value="1">
+
+            <!-- ============================================= -->
+            <!-- SECTION CODES PROMO -->
+            <!-- ============================================= -->
+            @include('admin.elearning.forfaits.partials._promo_codes')
 
             <!-- Fonctionnalités détaillées -->
             <div class="mb-6">
@@ -462,10 +464,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ==============================================
-    // GESTION DU MODE DE SÉLECTION
-    // ==============================================
-
     function toggleSelectionMode() {
         const selectedMode = document.querySelector('input[name="selection_mode"]:checked').value;
 
@@ -511,7 +509,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.cours-checkbox').forEach(cb => cb.disabled = false);
 
             if (includeAllQcmsCheckbox && includeAllQcmsCheckbox.checked) {
-                // Si "Tous les QCM" est coché, on désactive les cases individuelles
                 document.querySelectorAll('.qcm-checkbox').forEach(cb => {
                     cb.disabled = true;
                     cb.checked = true;
@@ -537,11 +534,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ==============================================
-    // GESTION DES CHECKBOX "TOUS LES..." - VERSION CORRIGÉE
-    // ==============================================
-
-    // Pour les QCM
     if (includeAllQcmsCheckbox) {
         includeAllQcmsCheckbox.addEventListener('change', function() {
             const isChecked = this.checked;
@@ -550,13 +542,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const qcmCheckboxes = document.querySelectorAll('.qcm-checkbox');
             qcmCheckboxes.forEach(cb => {
                 cb.disabled = isChecked;
-                cb.checked = isChecked; // Si coché, on coche tout; si décoché, on décoche tout
+                cb.checked = isChecked;
             });
             updateCounters();
         });
     }
 
-    // Pour les EXAMENS
     if (includeAllExamensCheckbox) {
         includeAllExamensCheckbox.addEventListener('change', function() {
             const isChecked = this.checked;
@@ -565,26 +556,19 @@ document.addEventListener('DOMContentLoaded', function() {
             const examenCheckboxes = document.querySelectorAll('.examen-checkbox');
             examenCheckboxes.forEach(cb => {
                 cb.disabled = isChecked;
-                cb.checked = isChecked; // Si coché, on coche tout; si décoché, on décoche tout
+                cb.checked = isChecked;
             });
             updateCounters();
         });
     }
 
-    // ==============================================
-    // SÉLECTION TOUT - VERSION CORRIGÉE
-    // ==============================================
-
-    // Sélectionner TOUS les cours
     document.getElementById('selectAllCours')?.addEventListener('click', function() {
         const checkboxes = document.querySelectorAll('.cours-checkbox:not(:disabled)');
         checkboxes.forEach(cb => cb.checked = true);
         updateCounters();
     });
 
-    // Sélectionner TOUS les QCM
     document.getElementById('selectAllQcms')?.addEventListener('click', function() {
-        // Vérifier si "Tous les QCM" est déjà coché
         if (includeAllQcmsCheckbox && includeAllQcmsCheckbox.checked) {
             alert('"Tous les QCM" est déjà coché. Tous les QCM sont déjà sélectionnés.');
             return;
@@ -594,7 +578,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCounters();
     });
 
-    // Sélectionner TOUS les examens
     document.getElementById('selectAllExamens')?.addEventListener('click', function() {
         if (includeAllExamensCheckbox && includeAllExamensCheckbox.checked) {
             alert('"Tous les examens" est déjà coché. Tous les examens sont déjà sélectionnés.');
@@ -604,10 +587,6 @@ document.addEventListener('DOMContentLoaded', function() {
         checkboxes.forEach(cb => cb.checked = true);
         updateCounters();
     });
-
-    // ==============================================
-    // MISE À JOUR DES COMPTEURS
-    // ==============================================
 
     function updateCounters() {
         const selectedMode = document.querySelector('input[name="selection_mode"]:checked').value;
@@ -627,19 +606,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Écouter les changements de checkboxes individuelles
     document.querySelectorAll('.cours-checkbox, .qcm-checkbox, .examen-checkbox').forEach(cb => {
         cb.addEventListener('change', updateCounters);
     });
 
-    // Écouter les changements de mode
     selectionModeRadios.forEach(radio => {
         radio.addEventListener('change', toggleSelectionMode);
     });
-
-    // ==============================================
-    // GESTION DES FONCTIONNALITÉS DÉTAILLÉES
-    // ==============================================
 
     function addFeature(title = '', description = '') {
         const featureDiv = document.createElement('div');
@@ -706,7 +679,6 @@ document.addEventListener('DOMContentLoaded', function() {
         addFeature();
     }
 
-    // Événement de soumission du formulaire
     form.addEventListener('submit', function(e) {
         updateFeaturesJson();
 
@@ -744,7 +716,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Initialisation
     toggleSelectionMode();
     updateCounters();
 });
@@ -754,12 +725,6 @@ document.addEventListener('DOMContentLoaded', function() {
     .feature-item textarea {
         min-height: 40px;
         resize: vertical;
-    }
-
-    .cours-checkbox:checked + div,
-    .qcm-checkbox:checked + div,
-    .examen-checkbox:checked + div {
-        font-weight: 500;
     }
 
     #customModeSection {

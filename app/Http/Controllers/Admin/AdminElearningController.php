@@ -103,7 +103,7 @@ class AdminElearningController extends Controller
 
     public function storeForfait(Request $request)
     {
-        Log::info('Tentative de création de forfait', ['data' => $request->except(['features', 'feature_titles', 'feature_descriptions'])]);
+        Log::info('Tentative de création de forfait', ['data' => $request->except(['features', 'feature_titles', 'feature_descriptions', 'promo_code_items'])]);
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -152,11 +152,35 @@ class AdminElearningController extends Controller
         $selectedQcmsIds = $includeAllQcms ? [] : ($request->input('selected_qcms_ids', []));
         $selectedExamensIds = $includeAllExamens ? [] : ($request->input('selected_examens_ids', []));
 
+        // ==============================================
+        // GESTION DES CODES PROMO
+        // ==============================================
+        $promoCodes = [];
+
+        if ($request->filled('promo_codes')) {
+            $promoCodes = json_decode($request->promo_codes, true) ?? [];
+            Log::info('Codes promo depuis champ JSON', ['count' => count($promoCodes)]);
+        } elseif ($request->has('promo_code_items')) {
+            foreach ($request->promo_code_items as $item) {
+                if (!empty(trim($item['code']))) {
+                    $promoCodes[] = [
+                        'code' => strtoupper(trim($item['code'])),
+                        'max_uses' => isset($item['max_uses']) && $item['max_uses'] > 0 ? (int)$item['max_uses'] : null,
+                        'used_count' => 0,
+                        'is_active' => isset($item['is_active']) ? (bool)$item['is_active'] : true,
+                        'created_at' => now()->toDateTimeString(),
+                    ];
+                }
+            }
+            Log::info('Codes promo depuis champs dynamiques', ['count' => count($promoCodes)]);
+        }
+
         Log::info('Sélections préparées', [
             'selection_mode' => $selectionMode,
             'cours_count' => count($selectedCoursIds),
             'qcms_count' => count($selectedQcmsIds),
             'examens_count' => count($selectedExamensIds),
+            'promo_codes_count' => count($promoCodes),
         ]);
 
         try {
@@ -180,11 +204,14 @@ class AdminElearningController extends Controller
                 'include_all_cours' => $includeAllCours,
                 'include_all_qcms' => $includeAllQcms,
                 'include_all_examens' => $includeAllExamens,
+                // Codes promo
+                'promo_codes' => $promoCodes,
             ]);
 
             Log::info('Forfait créé avec succès', [
                 'forfait_id' => $forfait->id,
                 'selection_mode' => $selectionMode,
+                'promo_codes_count' => count($promoCodes),
             ]);
 
             // Créer le produit Stripe si nécessaire
@@ -272,11 +299,66 @@ class AdminElearningController extends Controller
         $selectedQcmsIds = $includeAllQcms ? [] : ($request->input('selected_qcms_ids', []));
         $selectedExamensIds = $includeAllExamens ? [] : ($request->input('selected_examens_ids', []));
 
+        // ==============================================
+        // GESTION DES CODES PROMO (avec conservation des compteurs)
+        // ==============================================
+        $promoCodes = [];
+
+        if ($request->filled('promo_codes')) {
+            $newPromoCodes = json_decode($request->promo_codes, true) ?? [];
+
+            // Pour chaque nouveau code, essayer de conserver l'ancien compteur d'utilisations
+            foreach ($newPromoCodes as $newCode) {
+                $existingCode = null;
+                if (!empty($forfait->promo_codes)) {
+                    foreach ($forfait->promo_codes as $oldCode) {
+                        if ($oldCode['code'] === $newCode['code']) {
+                            $existingCode = $oldCode;
+                            break;
+                        }
+                    }
+                }
+
+                $promoCodes[] = [
+                    'code' => $newCode['code'],
+                    'max_uses' => $newCode['max_uses'] ?? null,
+                    'used_count' => $existingCode ? ($existingCode['used_count'] ?? 0) : 0,
+                    'is_active' => $newCode['is_active'] ?? true,
+                    'created_at' => $existingCode ? ($existingCode['created_at'] ?? now()->toDateTimeString()) : now()->toDateTimeString(),
+                ];
+            }
+        } elseif ($request->has('promo_code_items')) {
+            foreach ($request->promo_code_items as $item) {
+                if (!empty(trim($item['code']))) {
+                    $code = strtoupper(trim($item['code']));
+                    $existingCode = null;
+
+                    if (!empty($forfait->promo_codes)) {
+                        foreach ($forfait->promo_codes as $oldCode) {
+                            if ($oldCode['code'] === $code) {
+                                $existingCode = $oldCode;
+                                break;
+                            }
+                        }
+                    }
+
+                    $promoCodes[] = [
+                        'code' => $code,
+                        'max_uses' => isset($item['max_uses']) && $item['max_uses'] > 0 ? (int)$item['max_uses'] : null,
+                        'used_count' => $existingCode ? ($existingCode['used_count'] ?? 0) : 0,
+                        'is_active' => isset($item['is_active']) ? (bool)$item['is_active'] : true,
+                        'created_at' => $existingCode ? ($existingCode['created_at'] ?? now()->toDateTimeString()) : now()->toDateTimeString(),
+                    ];
+                }
+            }
+        }
+
         Log::info('Mise à jour des sélections', [
             'selection_mode' => $selectionMode,
             'cours_count' => count($selectedCoursIds),
             'qcms_count' => count($selectedQcmsIds),
             'examens_count' => count($selectedExamensIds),
+            'promo_codes_count' => count($promoCodes),
         ]);
 
         try {
@@ -300,6 +382,8 @@ class AdminElearningController extends Controller
                 'include_all_cours' => $includeAllCours,
                 'include_all_qcms' => $includeAllQcms,
                 'include_all_examens' => $includeAllExamens,
+                // Codes promo
+                'promo_codes' => $promoCodes,
             ]);
 
             Log::info('Forfait mis à jour avec succès', ['forfait_id' => $forfait->id]);
@@ -412,7 +496,8 @@ class AdminElearningController extends Controller
                     ->orWhere('nom', 'like', "%{$search}%")
                     ->orWhere('prenom', 'like', "%{$search}%")
                     ->orWhere('access_code', 'like', "%{$search}%")
-                    ->orWhere('virtual_room_code', 'like', "%{$search}%");
+                    ->orWhere('virtual_room_code', 'like', "%{$search}%")
+                    ->orWhere('promo_code_used', 'like', "%{$search}%");
             });
         }
 
@@ -1143,10 +1228,11 @@ class AdminElearningController extends Controller
             'expired_acces' => ElearningAcces::expired()->count(),
             'average_progression' => $this->calculateAverageProgression(),
             'average_score' => ElearningAcces::avg('average_qcm_score') ?? 0,
+            'promo_acces_count' => ElearningAcces::where('payment_mode', 'promo')->count(),
         ];
 
-        $forfaitDistribution = ElearningAcces::selectRaw('forfait_id, count(*) as count')
-            ->groupBy('forfait_id')
+        $forfaitDistribution = ElearningAcces::selectRaw('forfait_id, payment_mode, count(*) as count')
+            ->groupBy('forfait_id', 'payment_mode')
             ->with('forfait')
             ->get();
 
