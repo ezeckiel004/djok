@@ -32,17 +32,17 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'birth_date' => 'date',
-            'last_login_at' => 'datetime',
-            'is_active' => 'boolean',
-            'newsletter' => 'boolean',
-        ];
-    }
+    // CORRECTION : Utiliser $casts au lieu de la méthode casts()
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'birth_date' => 'date',
+        'last_login_at' => 'datetime',
+        'is_active' => 'boolean',
+        'newsletter' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
     // Relations
     public function role()
@@ -318,21 +318,15 @@ class User extends Authenticatable
         ];
     }
 
-    // Dans app/Models/User.php, ajoutez ces méthodes :
-
-    /**
-     * Formater le numéro de téléphone pour l'affichage
-     */
+    // Formatter les attributs
     public function getFormattedPhoneAttribute(): ?string
     {
         if (empty($this->phone)) {
             return null;
         }
 
-        // Si c'est un numéro français
         $phone = preg_replace('/\D/', '', $this->phone);
         if (strlen($phone) === 9 && strpos($phone, '33') !== 0) {
-            // Format français: 01 23 45 67 89
             return '+33 ' . substr($phone, 0, 1) . ' ' . substr($phone, 1, 2) . ' ' .
                 substr($phone, 3, 2) . ' ' . substr($phone, 5, 2) . ' ' . substr($phone, 7, 2);
         }
@@ -340,21 +334,16 @@ class User extends Authenticatable
         return $this->phone;
     }
 
-    /**
-     * Formater le numéro CNI pour l'affichage
-     */
     public function getFormattedCniAttribute(): ?string
     {
         if (empty($this->cni_number)) {
             return null;
         }
 
-        // Si c'est un format CNI français (2 lettres + 5 chiffres)
         if (preg_match('/^([A-Z]{2})(\d{5})$/', strtoupper($this->cni_number), $matches)) {
             return $matches[1] . ' ' . $matches[2];
         }
 
-        // Si c'est un passeport (12 chiffres), grouper par 3
         if (preg_match('/^(\d{3})(\d{3})(\d{3})(\d{3})$/', $this->cni_number, $matches)) {
             return $matches[1] . ' ' . $matches[2] . ' ' . $matches[3] . ' ' . $matches[4];
         }
@@ -362,16 +351,12 @@ class User extends Authenticatable
         return $this->cni_number;
     }
 
-    /**
-     * Formater le permis pour l'affichage
-     */
     public function getFormattedDriverLicenseAttribute(): ?string
     {
         if (empty($this->driver_license)) {
             return null;
         }
 
-        // Grouper par 3 pour une meilleure lisibilité
         $license = preg_replace('/\D/', '', $this->driver_license);
         if (strlen($license) === 12) {
             return substr($license, 0, 3) . ' ' . substr($license, 3, 3) . ' ' .
