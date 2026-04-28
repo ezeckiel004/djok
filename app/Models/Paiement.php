@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Paiement extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -31,6 +32,8 @@ class Paiement extends Model
         'refunded_at',
         'refund_reason',
         'refund_data',
+        'deleted_by',
+        'deleted_reason',
     ];
 
     protected $casts = [
@@ -41,6 +44,7 @@ class Paiement extends Model
         'paid_at' => 'datetime',
         'refunded_at' => 'datetime',
         'amount' => 'decimal:2',
+        'deleted_at' => 'datetime',
     ];
 
     /**
@@ -49,6 +53,14 @@ class Paiement extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Relation avec l'utilisateur qui a supprimé le paiement
+     */
+    public function deletedByUser()
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
     }
 
     /**
@@ -89,7 +101,7 @@ class Paiement extends Model
      */
     public function conciergerie()
     {
-        return $this->belongsTo(\App\Models\Conciergerie::class);
+        return $this->belongsTo(\App\Models\ConciergerieDemande::class);
     }
 
     /**
@@ -97,7 +109,7 @@ class Paiement extends Model
      */
     public function formationInternationale()
     {
-        return $this->belongsTo(\App\Models\FormationInternationale::class);
+        return $this->belongsTo(\App\Models\DemandeFormationInternationale::class);
     }
 
     /**
@@ -133,7 +145,7 @@ class Paiement extends Model
                 return $this->conciergerie;
             case 'formation_internationale':
                 return $this->formationInternationale;
-            case 'elearning': // <-- AJOUTEZ CETTE LIGNE
+            case 'elearning':
                 return $this->elearningForfait;
             default:
                 return null;
@@ -157,6 +169,8 @@ class Paiement extends Model
                     return 'Service conciergerie ' . ($this->conciergerie->reference ?? 'N/A');
                 case 'formation_internationale':
                     return 'Formation internationale ' . ($this->formationInternationale->reference ?? 'N/A');
+                case 'elearning':
+                    return 'Forfait E-learning ' . ($this->elearningForfait->name ?? 'N/A');
             }
         }
 
@@ -272,6 +286,14 @@ class Paiement extends Model
     }
 
     /**
+     * Vérifier si le paiement est supprimé
+     */
+    public function isDeleted()
+    {
+        return !is_null($this->deleted_at);
+    }
+
+    /**
      * Marquer comme payé
      */
     public function markAsPaid()
@@ -293,6 +315,30 @@ class Paiement extends Model
             'refund_reason' => $reason,
             'refund_data' => $refundData,
         ]);
+    }
+
+    /**
+     * Supprimer le paiement avec log (soft delete)
+     */
+    public function safeDelete($deletedBy = null, $reason = null)
+    {
+        $this->deleted_by = $deletedBy ?? auth()->id();
+        $this->deleted_reason = $reason;
+        $this->save();
+
+        return $this->delete();
+    }
+
+    /**
+     * Restaurer un paiement supprimé
+     */
+    public function restorePayment()
+    {
+        $this->deleted_by = null;
+        $this->deleted_reason = null;
+        $this->save();
+
+        return $this->restore();
     }
 
     /**
@@ -372,6 +418,31 @@ class Paiement extends Model
     }
 
     /**
+     * Scope pour les paiements non supprimés (inclus par défaut avec SoftDeletes)
+     * Les paiements supprimés sont exclus automatiquement
+     */
+    public function scopeNotDeleted($query)
+    {
+        return $query->whereNull('deleted_at');
+    }
+
+    /**
+     * Scope pour les paiements supprimés
+     */
+    public function scopeOnlyDeleted($query)
+    {
+        return $query->onlyTrashed();
+    }
+
+    /**
+     * Scope pour les paiements supprimés par un utilisateur spécifique
+     */
+    public function scopeDeletedBy($query, $userId)
+    {
+        return $query->where('deleted_by', $userId);
+    }
+
+    /**
      * Formater le montant pour l'affichage
      */
     public function getFormattedAmountAttribute()
@@ -422,6 +493,7 @@ class Paiement extends Model
             'location' => 'bg-purple-100 text-purple-800',
             'conciergerie' => 'bg-yellow-100 text-yellow-800',
             'formation_internationale' => 'bg-indigo-100 text-indigo-800',
+            'elearning' => 'bg-pink-100 text-pink-800',
         ];
 
         return $colors[$this->service_type] ?? 'bg-gray-100 text-gray-800';
@@ -438,8 +510,70 @@ class Paiement extends Model
             'location' => 'Location',
             'conciergerie' => 'Conciergerie',
             'formation_internationale' => 'Formation Internationale',
+            'elearning' => 'E-learning',
         ];
 
         return $types[$this->service_type] ?? $this->service_type;
+    }
+
+    /**
+     * Vérifier si le paiement peut être supprimé
+     * On ne peut supprimer que les paiements non payés et non remboursés
+     */
+    public function isDeletable()
+    {
+        return !in_array($this->status, ['paid', 'refunded']);
+    }
+
+    /**
+     * Obtenir la raison pour laquelle le paiement ne peut pas être supprimé
+     */
+    public function getNonDeletableReasonAttribute()
+    {
+        if ($this->status === 'paid') {
+            return 'Ce paiement a déjà été effectué et ne peut pas être supprimé pour des raisons de traçabilité financière.';
+        }
+
+        if ($this->status === 'refunded') {
+            return 'Ce paiement a déjà été remboursé et ne peut pas être supprimé pour des raisons de traçabilité financière.';
+        }
+
+        return null;
+    }
+
+
+    // Ajoutez ces méthodes à la fin du modèle Paiement
+
+    /**
+     * Obtenir la couleur du badge pour le soft delete
+     */
+    public function getDeletedStatusColorAttribute()
+    {
+        if ($this->trashed()) {
+            return 'bg-red-100 text-red-800';
+        }
+        return 'bg-green-100 text-green-800';
+    }
+
+    /**
+     * Obtenir le statut formaté du soft delete
+     */
+    public function getDeletedStatusAttribute()
+    {
+        if ($this->trashed()) {
+            return 'Supprimé le ' . $this->deleted_at->format('d/m/Y H:i');
+        }
+        return 'Actif';
+    }
+
+    /**
+     * Obtenir le nom de l'utilisateur qui a supprimé
+     */
+    public function getDeletedByNameAttribute()
+    {
+        if ($this->deleted_by && $this->deletedByUser) {
+            return $this->deletedByUser->name;
+        }
+        return 'Inconnu';
     }
 }

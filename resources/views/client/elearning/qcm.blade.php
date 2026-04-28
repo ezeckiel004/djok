@@ -20,7 +20,8 @@
             @endif
             <div class="flex flex-wrap gap-3 mt-3">
                 <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                    <i class="fas fa-list-ol mr-1"></i> {{ count($questions) }} questions
+                    <i class="fas fa-list-ol mr-1"></i>
+                    {{ count($questions) }} questions disponibles
                 </span>
                 @if($qcm->allow_multiple_correct)
                 <span class="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">
@@ -32,6 +33,10 @@
                     <i class="fas fa-star mr-1"></i> Examen blanc
                 </span>
                 @endif
+                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                    <i class="fas fa-random mr-1"></i>
+                    25 questions aléatoires / {{ count($questions) }} disponibles
+                </span>
             </div>
         </div>
 
@@ -48,34 +53,36 @@
 @push('scripts')
 <script>
     (function() {
-        // Données PHP
+        // ==============================================
+        // DONNÉES PHP
+        // ==============================================
         const RAW_QUESTIONS   = @json($questions);
         const ALLOW_MULTIPLE  = {{ $qcm->allow_multiple_correct ? 'true' : 'false' }};
         const QCM_ID          = {{ $qcm->id }};
         const PASSING_SCORE   = {{ $qcm->passing_score }};
-        const TIME_LIMIT      = 25;
 
-        // Normalisation
-        const QUESTIONS = Array.isArray(RAW_QUESTIONS) ? RAW_QUESTIONS : Object.values(RAW_QUESTIONS);
-        const TOTAL_QUESTIONS = QUESTIONS.length;
+        // ==============================================
+        // CONFIGURATION
+        // ==============================================
+        const MAX_QUESTIONS_PER_SESSION = 25;  // ✅ Maximum 25 questions par session
+        const TOTAL_AVAILABLE = Array.isArray(RAW_QUESTIONS) ? RAW_QUESTIONS.length : Object.values(RAW_QUESTIONS).length;
 
-        let shuffledQuestions = [];
-        let currentIndex = 0;
-        let userAnswers = {};
-        let timerInterval = null;
-        let isWaiting = false;
+        // Variables globales
+        let activeQuestions = [];      // Les 25 questions sélectionnées aléatoirement
+        let totalQuestions = 0;
+        let userAnswers = {};          // Stocke les réponses utilisateur par index
+        let currentQuestionIndex = 0;
         let container = null;
+        let isWaitingForNext = false;
 
-        if (TOTAL_QUESTIONS === 0) {
-            document.getElementById('qcmApp').innerHTML = `
-                <div class="text-center py-12">
-                    <i class="fas fa-exclamation-triangle text-3xl text-red-500 mb-3"></i>
-                    <p class="text-gray-600">Aucune question disponible pour ce QCM.</p>
-                    <a href="{{ route('client.elearning.dashboard') }}" class="inline-block mt-4 px-4 py-2 bg-yellow-500 text-white rounded-lg">Retour</a>
-                </div>`;
-            return;
-        }
+        // État question courante
+        let currentQuestion = null;
+        let showExplanation = false;
+        let selectedAnswerValues = [];
 
+        // ==============================================
+        // MÉLANGE ALÉATOIRE (FISHER-YATES)
+        // ==============================================
         function fisherYates(arr) {
             const a = [...arr];
             for (let i = a.length - 1; i > 0; i--) {
@@ -85,34 +92,154 @@
             return a;
         }
 
-        function init() {
-            shuffledQuestions = fisherYates(QUESTIONS);
-            for (let i = 0; i < shuffledQuestions.length; i++) {
-                userAnswers[i] = null;
+        // ==============================================
+        // ✅ SÉLECTION ALEATOIRE DE 25 QUESTIONS PARMI TOUTES
+        // ==============================================
+        function selectRandomQuestions(allQuestions, maxCount) {
+            const shuffled = fisherYates(allQuestions);
+            return shuffled.slice(0, maxCount);
+        }
+
+        // ==============================================
+        // NORMALISATION DES QUESTIONS
+        // ==============================================
+        function normalizeQuestions() {
+            const raw = Array.isArray(RAW_QUESTIONS) ? RAW_QUESTIONS : Object.values(RAW_QUESTIONS);
+            return raw.map((q, idx) => {
+                // Déterminer les réponses correctes (en VALEURS TEXTE)
+                let correctAnswerValues = [];
+                if (ALLOW_MULTIPLE && q.correct_answers) {
+                    correctAnswerValues = q.correct_answers.map(letter => q.answers[letter]);
+                } else if (q.correct_answer) {
+                    correctAnswerValues = [q.answers[q.correct_answer]];
+                }
+
+                return {
+                    id: q.id || idx,
+                    text: q.text || 'Question sans texte',
+                    originalAnswers: { ...(q.answers || {}) },
+                    correctAnswerValues: correctAnswerValues,
+                    explanation: q.explanation || 'Aucune explication disponible.'
+                };
+            });
+        }
+
+        // ==============================================
+        // ✅ MÉLANGE DES RÉPONSES D'UNE QUESTION (A/B/C/D)
+        // ==============================================
+        function shuffleAnswersForQuestion(question) {
+            const entries = Object.entries(question.originalAnswers);
+            const shuffledEntries = fisherYates(entries);
+
+            const shuffledAnswers = {};
+            const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+            shuffledEntries.forEach(([originalLetter, text], index) => {
+                shuffledAnswers[letters[index]] = text;
+            });
+
+            return {
+                ...question,
+                shuffledAnswers: shuffledAnswers
+            };
+        }
+
+        // ==============================================
+        // VÉRIFIER SI UNE RÉPONSE EST CORRECTE
+        // ==============================================
+        function isAnswerCorrect(question, selectedTexts) {
+            if (!selectedTexts || (Array.isArray(selectedTexts) && selectedTexts.length === 0)) {
+                return false;
             }
+
+            const correctValues = question.correctAnswerValues;
+
+            if (ALLOW_MULTIPLE) {
+                const selectedSet = new Set(selectedTexts);
+                const correctSet = new Set(correctValues);
+
+                if (selectedSet.size !== correctSet.size) return false;
+                for (let val of selectedSet) {
+                    if (!correctSet.has(val)) return false;
+                }
+                return true;
+            } else {
+                return selectedTexts === correctValues[0];
+            }
+        }
+
+        // ==============================================
+        // ✅ INITIALISATION AVEC SÉLECTION ALEATOIRE DE 25 QUESTIONS
+        // ==============================================
+        function init() {
+            console.log('=== INIT QCM ===');
+            console.log('Questions disponibles:', TOTAL_AVAILABLE);
+            console.log('Questions à utiliser (max):', MAX_QUESTIONS_PER_SESSION);
+
+            // 1. Normaliser toutes les questions
+            const normalized = normalizeQuestions();
+
+            // 2. ✅ Sélectionner aléatoirement 25 questions (ou moins si total < 25)
+            const randomlySelected = selectRandomQuestions(normalized, MAX_QUESTIONS_PER_SESSION);
+            console.log('✅ Questions sélectionnées:', randomlySelected.length);
+
+            // 3. Pour chaque question sélectionnée, mélanger SES réponses
+            activeQuestions = randomlySelected.map(q => shuffleAnswersForQuestion(q));
+            totalQuestions = activeQuestions.length;
+
+            console.log('📝 Total questions à afficher:', totalQuestions);
+
+            // 4. Initialiser les réponses utilisateur
+            for (let i = 0; i < totalQuestions; i++) {
+                userAnswers[i] = ALLOW_MULTIPLE ? [] : null;
+            }
+
             container = document.getElementById('qcmApp');
             showQuestion(0);
         }
 
-        function showQuestion(index) {
-            if (isWaiting) return;
-            if (index >= shuffledQuestions.length) {
+        // ==============================================
+        // AFFICHER LA QUESTION COURANTE
+        // ==============================================
+        function showQuestion(globalIndex) {
+            if (isWaitingForNext) return;
+            if (globalIndex >= totalQuestions) {
                 submitQcm();
                 return;
             }
 
-            currentIndex = index;
-            const q = shuffledQuestions[index];
+            currentQuestionIndex = globalIndex;
+            currentQuestion = activeQuestions[globalIndex];
+            showExplanation = false;
+            selectedAnswerValues = ALLOW_MULTIPLE ? [] : null;
 
+            renderCurrentQuestion();
+        }
+
+        // ==============================================
+        // AFFICHAGE HTML
+        // ==============================================
+        function renderCurrentQuestion() {
+            const q = currentQuestion;
+            const globalIdx = currentQuestionIndex;
+            const progressPct = Math.round((globalIdx / totalQuestions) * 100);
+            const isLastQuestion = (globalIdx === totalQuestions - 1);
+            const answers = q.shuffledAnswers;
+
+            // Construire les réponses HTML
             let answersHtml = '';
-            const answers = q.answers || {};
-
             for (let [letter, text] of Object.entries(answers)) {
-                const isChecked = userAnswers[index] && (ALLOW_MULTIPLE ? userAnswers[index].includes(letter) : userAnswers[index] === letter);
+                const isChecked = !showExplanation && selectedAnswerValues && (
+                    ALLOW_MULTIPLE
+                        ? selectedAnswerValues.includes(text)
+                        : selectedAnswerValues === text
+                );
                 const inputType = ALLOW_MULTIPLE ? 'checkbox' : 'radio';
+                const disabled = showExplanation ? 'disabled' : '';
+
                 answersHtml += `
-                    <label class="flex items-start p-3 border border-gray-200 rounded-lg hover:bg-yellow-50 cursor-pointer mb-2 transition-all duration-200">
-                        <input type="${inputType}" name="answer" value="${letter}" class="answer-input mt-1 mr-3 flex-shrink-0" ${isChecked ? 'checked' : ''}>
+                    <label class="flex items-start p-3 border border-gray-200 rounded-lg hover:bg-yellow-50 cursor-pointer mb-2 transition-all duration-200 ${showExplanation ? 'opacity-75' : ''}">
+                        <input type="${inputType}" name="answer" value="${escapeHtml(text)}" class="answer-input mt-1 mr-3 flex-shrink-0" ${isChecked ? 'checked' : ''} ${disabled}>
                         <div>
                             <span class="font-bold text-yellow-600">${escapeHtml(letter)}.</span>
                             <span class="ml-2 text-gray-700">${escapeHtml(text)}</span>
@@ -121,13 +248,46 @@
                 `;
             }
 
-            const progressPct = Math.round((index / shuffledQuestions.length) * 100);
+            // Affichage de l'explication après validation
+            let explanationHtml = '';
+            if (showExplanation) {
+                const isCorrect = isAnswerCorrect(q, selectedAnswerValues);
+                const userAnswerDisplay = formatUserAnswerDisplay(selectedAnswerValues);
+                const correctAnswerDisplay = formatCorrectAnswerDisplay(q.correctAnswerValues);
+
+                explanationHtml = `
+                    <div class="mt-6 p-4 rounded-lg ${isCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'} animate-fadeIn">
+                        <div class="flex items-start">
+                            <i class="fas ${isCorrect ? 'fa-check-circle text-green-600' : 'fa-times-circle text-red-600'} text-xl mr-3 mt-0.5"></i>
+                            <div class="flex-1">
+                                <h4 class="font-bold ${isCorrect ? 'text-green-800' : 'text-red-800'} mb-2">
+                                    ${isCorrect ? '✓ Bonne réponse !' : '✗ Mauvaise réponse'}
+                                </h4>
+                                <div class="text-sm text-gray-700 mb-2">
+                                    <p><strong>Votre réponse :</strong> ${userAnswerDisplay}</p>
+                                    <p><strong>Réponse correcte :</strong> ${correctAnswerDisplay}</p>
+                                </div>
+                                <div class="text-gray-600 border-t pt-2 mt-2 ${isCorrect ? 'border-green-200' : 'border-red-200'}">
+                                    <p class="italic">📖 ${escapeHtml(q.explanation)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const answeredCount = Object.values(userAnswers).filter(a => {
+                if (a === null) return false;
+                if (Array.isArray(a)) return a.length > 0;
+                return true;
+            }).length;
 
             const html = `
                 <div id="questionCard" class="transition-all duration-300" style="opacity:0; transform:translateY(20px);">
+                    <!-- Barre de progression -->
                     <div class="mb-5">
                         <div class="flex justify-between text-xs text-gray-500 mb-1">
-                            <span>Question ${index + 1} / ${shuffledQuestions.length}</span>
+                            <span>Question ${globalIdx + 1} / ${totalQuestions}</span>
                             <span>${progressPct}% complété</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
@@ -135,32 +295,38 @@
                         </div>
                     </div>
 
+                    <!-- En-tête -->
                     <div class="flex justify-between items-start mb-6 gap-4">
                         <div class="flex items-start flex-1">
                             <div class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center mr-3 flex-shrink-0">
-                                <span class="font-bold text-white text-sm">${index + 1}</span>
+                                <span class="font-bold text-white text-sm">${globalIdx + 1}</span>
                             </div>
                             <h2 class="text-lg font-bold text-gray-900 leading-snug">${escapeHtml(q.text)}</h2>
                         </div>
                         <div class="text-right flex-shrink-0">
-                            <div class="text-xs text-gray-500 mb-1">Temps restant</div>
-                            <div id="timerDisplay" class="text-2xl font-mono font-bold text-green-600">00:${String(TIME_LIMIT).padStart(2,'0')}</div>
+                            <div class="text-xs text-gray-500 mb-1">Progression</div>
+                            <div class="text-lg font-mono font-bold text-green-600">${answeredCount}/${totalQuestions}</div>
                         </div>
                     </div>
 
+                    <!-- Réponses -->
                     <div class="space-y-2 mb-6">
                         ${answersHtml}
                     </div>
 
-                    ${ALLOW_MULTIPLE ? '<p class="text-sm text-blue-600 mb-4"><i class="fas fa-info-circle mr-1"></i>Vous pouvez sélectionner plusieurs réponses.</p>' : ''}
+                    ${ALLOW_MULTIPLE && !showExplanation ? '<p class="text-sm text-blue-600 mb-4"><i class="fas fa-info-circle mr-1"></i>Vous pouvez sélectionner plusieurs réponses.</p>' : ''}
 
-                    <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+                    <!-- Explication -->
+                    ${explanationHtml}
+
+                    <!-- Boutons -->
+                    <div class="flex justify-between items-center pt-4 border-t border-gray-200 mt-4">
                         <div class="text-sm text-gray-500">
                             <i class="fas fa-check-circle text-green-500 mr-1"></i>
-                            <span id="answeredCount">${getAnsweredCount()}</span> répondue(s)
+                            <span>${answeredCount}</span> répondue(s) sur ${totalQuestions}
                         </div>
-                        <button id="nextBtn" class="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors font-medium">
-                            ${index === shuffledQuestions.length - 1 ? '<i class="fas fa-flag-checkered mr-2"></i>Terminer' : 'Question suivante <i class="fas fa-arrow-right ml-2"></i>'}
+                        <button id="actionBtn" class="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors font-medium shadow-md">
+                            ${!showExplanation ? '<i class="fas fa-check mr-2"></i>Valider ma réponse' : (isLastQuestion ? '<i class="fas fa-flag-checkered mr-2"></i>Terminer le QCM' : '<i class="fas fa-arrow-right mr-2"></i>Question suivante')}
                         </button>
                     </div>
                 </div>`;
@@ -176,125 +342,124 @@
                 }
             }, 50);
 
-            attachEvents(index);
-            startTimer(index);
+            attachEvents();
         }
 
-        function getAnsweredCount() {
-            return Object.values(userAnswers).filter(a => a !== null && (Array.isArray(a) ? a.length > 0 : true)).length;
-        }
-
-        function attachEvents(index) {
-            document.querySelectorAll('.answer-input').forEach(input => {
-                input.addEventListener('change', () => saveAnswer(index));
-            });
-
-            const nextBtn = document.getElementById('nextBtn');
-            if (nextBtn) {
-                nextBtn.addEventListener('click', () => {
-                    if (!isWaiting) {
-                        saveAnswer(index);
-                        if (index === shuffledQuestions.length - 1) {
-                            submitQcm();
+        // ==============================================
+        // ATTACHER LES ÉVÉNEMENTS
+        // ==============================================
+        function attachEvents() {
+            if (!showExplanation) {
+                document.querySelectorAll('.answer-input').forEach(input => {
+                    input.addEventListener('change', () => {
+                        const value = input.value;
+                        if (ALLOW_MULTIPLE) {
+                            if (input.checked) {
+                                if (!selectedAnswerValues.includes(value)) {
+                                    selectedAnswerValues.push(value);
+                                }
+                            } else {
+                                selectedAnswerValues = selectedAnswerValues.filter(v => v !== value);
+                            }
                         } else {
-                            moveToNextQuestion();
+                            if (input.checked) {
+                                selectedAnswerValues = value;
+                            }
                         }
+                    });
+                });
+            }
+
+            const actionBtn = document.getElementById('actionBtn');
+            if (actionBtn) {
+                actionBtn.addEventListener('click', () => {
+                    if (!showExplanation) {
+                        validateAndShowExplanation();
+                    } else {
+                        moveToNextQuestion();
                     }
                 });
             }
         }
 
-        function saveAnswer(index) {
-            const inputs = document.querySelectorAll('.answer-input');
+        // ==============================================
+        // VALIDER ET AFFICHER L'EXPLICATION
+        // ==============================================
+        function validateAndShowExplanation() {
             if (ALLOW_MULTIPLE) {
-                userAnswers[index] = Array.from(inputs).filter(i => i.checked).map(i => i.value);
+                if (!selectedAnswerValues || selectedAnswerValues.length === 0) {
+                    alert('Veuillez sélectionner au moins une réponse.');
+                    return;
+                }
             } else {
-                const selected = Array.from(inputs).find(i => i.checked);
-                userAnswers[index] = selected ? selected.value : null;
+                if (!selectedAnswerValues) {
+                    alert('Veuillez sélectionner une réponse.');
+                    return;
+                }
             }
 
-            const countSpan = document.getElementById('answeredCount');
-            if (countSpan) countSpan.textContent = getAnsweredCount();
+            // Sauvegarder les VALEURS sélectionnées
+            userAnswers[currentQuestionIndex] = ALLOW_MULTIPLE ? [...selectedAnswerValues] : selectedAnswerValues;
+
+            showExplanation = true;
+            renderCurrentQuestion();
         }
 
-        function startTimer(index) {
-            if (timerInterval) clearInterval(timerInterval);
-
-            let timeLeft = TIME_LIMIT;
-            const timerDisplaySpan = document.getElementById('timerDisplay');
-
-            timerInterval = setInterval(() => {
-                if (isWaiting) return;
-
-                timeLeft--;
-                if (timerDisplaySpan) {
-                    const mins = Math.floor(timeLeft / 60);
-                    const secs = timeLeft % 60;
-                    timerDisplaySpan.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-
-                    if (timeLeft <= 5) {
-                        timerDisplaySpan.style.color = '#ef4444';
-                    } else if (timeLeft <= 10) {
-                        timerDisplaySpan.style.color = '#f59e0b';
-                    }
-                }
-
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    timerInterval = null;
-                    if (!isWaiting) {
-                        // Si pas de réponse, enregistrer comme non répondue
-                        if (userAnswers[index] === null || (Array.isArray(userAnswers[index]) && userAnswers[index].length === 0)) {
-                            userAnswers[index] = ALLOW_MULTIPLE ? [] : null;
-                        }
-                        // Passer à la question suivante ou terminer
-                        if (index === shuffledQuestions.length - 1) {
-                            submitQcm();
-                        } else {
-                            moveToNextQuestion();
-                        }
-                    }
-                }
-            }, 1000);
-        }
-
+        // ==============================================
+        // PASSER À LA QUESTION SUIVANTE
+        // ==============================================
         function moveToNextQuestion() {
-            if (isWaiting) return;
+            if (isWaitingForNext) return;
+            isWaitingForNext = true;
 
-            isWaiting = true;
-
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
-
-            // Animation de sortie
             const card = document.getElementById('questionCard');
             if (card) {
                 card.style.opacity = '0';
                 card.style.transform = 'translateY(-20px)';
                 setTimeout(() => {
-                    isWaiting = false;
-                    showQuestion(currentIndex + 1);
+                    isWaitingForNext = false;
+                    showQuestion(currentQuestionIndex + 1);
                 }, 300);
             } else {
-                isWaiting = false;
-                showQuestion(currentIndex + 1);
+                isWaitingForNext = false;
+                showQuestion(currentQuestionIndex + 1);
             }
         }
 
-        async function submitQcm() {
-            if (isWaiting) return;
-            isWaiting = true;
-            if (timerInterval) clearInterval(timerInterval);
-
-            const formattedAnswers = {};
-            for (let i = 0; i < shuffledQuestions.length; i++) {
-                const q = shuffledQuestions[i];
-                const originalId = q.id || i;
-                const answer = userAnswers[i];
-                formattedAnswers[originalId] = (answer === null || (Array.isArray(answer) && answer.length === 0)) ? (ALLOW_MULTIPLE ? [] : null) : answer;
+        // ==============================================
+        // FORMATAGE AFFICHAGE
+        // ==============================================
+        function formatUserAnswerDisplay(answerValues) {
+            if (!answerValues) return 'Aucune réponse';
+            if (ALLOW_MULTIPLE) {
+                if (answerValues.length === 0) return 'Aucune réponse sélectionnée';
+                return answerValues.join(', ');
             }
+            return answerValues;
+        }
+
+        function formatCorrectAnswerDisplay(correctValues) {
+            if (!correctValues || correctValues.length === 0) return 'Aucune';
+            return correctValues.join(', ');
+        }
+
+        // ==============================================
+        // ✅ SOUMISSION AU SERVEUR (25 questions seulement)
+        // ==============================================
+        async function submitQcm() {
+            if (isWaitingForNext) return;
+            isWaitingForNext = true;
+
+            // Formater les réponses avec les IDs d'origine des questions sélectionnées
+            const formattedAnswers = {};
+            for (let i = 0; i < activeQuestions.length; i++) {
+                const q = activeQuestions[i];
+                const originalId = q.id;
+                let answer = userAnswers[i];
+                formattedAnswers[originalId] = answer;
+            }
+
+            console.log('📤 Envoi de', Object.keys(formattedAnswers).length, 'réponses au serveur');
 
             container.innerHTML = `<div class="text-center py-12"><i class="fas fa-spinner fa-spin text-3xl text-yellow-500 mb-3"></i><p>Calcul de votre score...</p></div>`;
 
@@ -323,9 +488,14 @@
             }
         }
 
+        // ==============================================
+        // AFFICHAGE DES RÉSULTATS
+        // ==============================================
         function showResults(data) {
             const score = Math.round(data.score);
             const passed = score >= PASSING_SCORE;
+
+            const correctCount = data.details ? data.details.filter(d => d.correct === true).length : 0;
 
             let resultHtml = `
                 <div class="text-center mb-6">
@@ -333,27 +503,41 @@
                     <h2 class="text-2xl font-bold">Résultats du QCM</h2>
                     <p class="text-gray-600">{{ $qcm->title }}</p>
                 </div>
-                <div class="grid grid-cols-2 gap-6 mb-8">
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                     <div class="p-4 text-center rounded-lg bg-gray-50">
-                        <div class="text-5xl font-bold text-yellow-600">${score}%</div>
+                        <div class="text-3xl font-bold text-yellow-600">${score}%</div>
                         <div class="text-sm text-gray-600">Votre score</div>
                     </div>
                     <div class="p-4 text-center rounded-lg bg-gray-50">
-                        <div class="text-5xl font-bold text-blue-600">${PASSING_SCORE}%</div>
+                        <div class="text-3xl font-bold text-blue-600">${PASSING_SCORE}%</div>
                         <div class="text-sm text-gray-600">Score requis</div>
                     </div>
+                    <div class="p-4 text-center rounded-lg bg-gray-50">
+                        <div class="text-3xl font-bold text-green-600">${correctCount}</div>
+                        <div class="text-sm text-gray-600">Bonnes réponses</div>
+                    </div>
+                    <div class="p-4 text-center rounded-lg bg-gray-50">
+                        <div class="text-3xl font-bold text-gray-600">${totalQuestions}</div>
+                        <div class="text-sm text-gray-600">Questions posées</div>
+                    </div>
                 </div>
+
                 <div class="p-4 rounded-lg mb-6 ${passed ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}">
                     <div class="flex items-center">
                         <i class="fas ${passed ? 'fa-trophy text-green-600' : 'fa-exclamation-triangle text-red-600'} text-2xl mr-3"></i>
                         <div>
                             <h3 class="font-bold ${passed ? 'text-green-800' : 'text-red-800'}">${passed ? 'Félicitations !' : 'Non réussi'}</h3>
-                            <p class="${passed ? 'text-green-700' : 'text-red-700'}">${passed ? `Vous avez réussi avec ${score}%` : `Vous avez obtenu ${score}%. Score requis: ${PASSING_SCORE}%`}</p>
+                            <p class="${passed ? 'text-green-700' : 'text-red-700'}">${passed ? `Excellent travail ! Vous avez réussi avec ${score}%` : `Vous avez obtenu ${score}%. Score requis: ${PASSING_SCORE}%`}</p>
                         </div>
                     </div>
                 </div>
-                <div class="flex justify-end">
-                    <a href="{{ route('client.elearning.dashboard') }}" class="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+
+                <div class="flex justify-end gap-3">
+                    <a href="{{ route('client.elearning.qcm.show', $qcm->id) }}" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-redo-alt mr-2"></i> Recommencer
+                    </a>
+                    <a href="{{ route('client.elearning.dashboard') }}" class="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
                         <i class="fas fa-home mr-2"></i> Retour au tableau de bord
                     </a>
                 </div>
@@ -362,11 +546,17 @@
             container.innerHTML = resultHtml;
         }
 
+        // ==============================================
+        // ÉCHAPPEMENT HTML
+        // ==============================================
         function escapeHtml(str) {
             if (!str) return '';
             return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
         }
 
+        // ==============================================
+        // DÉMARRAGE
+        // ==============================================
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
@@ -374,4 +564,26 @@
         }
     })();
 </script>
+
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+
+    .answer-input:checked + div {
+        background-color: #fef3c7;
+    }
+
+    #actionBtn {
+        transition: all 0.2s ease;
+    }
+
+    #actionBtn:hover {
+        transform: scale(1.02);
+    }
+</style>
 @endpush

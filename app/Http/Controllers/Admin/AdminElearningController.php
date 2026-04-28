@@ -459,7 +459,6 @@ class AdminElearningController extends Controller
 
             return redirect()->route('admin.elearning.forfaits')
                 ->with('warning', $message);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Erreur lors de la suppression du forfait', [
@@ -570,40 +569,63 @@ class AdminElearningController extends Controller
 
         $qcmQuestions = $progression->qcm->questions_data['questions'] ?? [];
         $userAnswers = $progression->qcm_answers ?? [];
-        $details = $progression->qcm_details ?? [];
+        $allowMultiple = $progression->qcm->allow_multiple_correct;
 
         foreach ($qcmQuestions as $index => $questionData) {
             $questionId = $questionData['id'] ?? $index;
-            $userAnswer = $userAnswers[$questionId] ?? null;
-            $detail = $details[$index] ?? [];
 
-            $options = [];
-            if (isset($questionData['options']) && is_array($questionData['options'])) {
-                foreach ($questionData['options'] as $key => $value) {
-                    $options[] = [
-                        'key' => $key,
-                        'value' => $value,
-                        'is_correct' => $this->isCorrectOption($key, $questionData),
-                        'is_selected' => $this->isOptionSelected($key, $userAnswer),
-                    ];
+            // Récupérer la réponse utilisateur (peut être valeur texte ou lettre selon version)
+            $userAnswer = $userAnswers[$questionId] ?? null;
+
+            // Récupérer la bonne réponse en VALEUR TEXTE pour l'affichage
+            $correctAnswerText = '';
+            $correctAnswerLetters = [];
+
+            if ($allowMultiple && isset($questionData['correct_answers'])) {
+                $correctAnswerLetters = (array) $questionData['correct_answers'];
+                $correctTexts = [];
+                foreach ($correctAnswerLetters as $letter) {
+                    if (isset($questionData['answers'][$letter])) {
+                        $correctTexts[] = $questionData['answers'][$letter];
+                    }
                 }
-            } elseif (isset($questionData['answers']) && is_array($questionData['answers'])) {
+                $correctAnswerText = implode(', ', $correctTexts);
+            } elseif (isset($questionData['correct_answer'])) {
+                $correctLetter = $questionData['correct_answer'];
+                $correctAnswerText = $questionData['answers'][$correctLetter] ?? '';
+                $correctAnswerLetters = [$correctLetter];
+            }
+
+            // Construire les options pour l'affichage
+            $options = [];
+            if (isset($questionData['answers']) && is_array($questionData['answers'])) {
                 foreach ($questionData['answers'] as $key => $value) {
+                    $isSelected = false;
+                    if (is_array($userAnswer)) {
+                        $isSelected = in_array($value, $userAnswer);
+                    } else {
+                        $isSelected = ($userAnswer === $value);
+                    }
+
                     $options[] = [
                         'key' => $key,
                         'value' => $value,
-                        'is_correct' => $this->isCorrectOption($key, $questionData),
-                        'is_selected' => $this->isOptionSelected($key, $userAnswer),
+                        'is_correct' => in_array($key, $correctAnswerLetters),
+                        'is_selected' => $isSelected,
                     ];
                 }
             }
 
+            // Déterminer si la réponse est correcte (basé sur la progression stockée)
+            $details = $progression->qcm_details ?? [];
+            $detail = $details[$index] ?? [];
+
             $questions[] = [
                 'question_number' => $index + 1,
                 'question' => $questionData['text'] ?? 'Question ' . ($index + 1),
-                'type' => $progression->qcm->allow_multiple_correct ? 'multiple' : 'single',
+                'type' => $allowMultiple ? 'multiple' : 'single',
                 'user_answer' => $userAnswer,
-                'correct_answer' => $questionData['correct_answer'] ?? ($questionData['correct_answers'] ?? null),
+                'correct_answer' => $correctAnswerText,
                 'is_correct' => $detail['correct'] ?? false,
                 'points' => $detail['points'] ?? 0,
                 'max_points' => $detail['max_points'] ?? 1,

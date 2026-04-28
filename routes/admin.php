@@ -242,6 +242,10 @@ Route::middleware(['auth', 'can:access-admin-dashboard'])->prefix('admin')->name
         Route::get('/export', [PaiementController::class, 'export'])->name('export');
         Route::get('/{paiement}', [PaiementController::class, 'show'])->name('show');
         Route::post('/{paiement}/refund', [PaiementController::class, 'refund'])->name('refund');
+
+        // NOUVELLES ROUTES DE SUPPRESSION
+        Route::delete('/{paiement}', [PaiementController::class, 'destroy'])->name('destroy');
+        Route::delete('/bulk-destroy', [PaiementController::class, 'bulkDestroy'])->name('bulk-destroy');
     });
 
     // Statistiques et rapports

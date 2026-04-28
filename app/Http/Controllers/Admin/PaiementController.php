@@ -8,6 +8,8 @@ use App\Models\Reservation;
 use App\Models\Formation;
 use App\Models\LocationReservation;
 use App\Models\Conciergerie;
+use App\Models\ConciergerieDemande;
+use App\Models\DemandeFormationInternationale;
 use App\Models\FormationInternationale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -125,9 +127,9 @@ class PaiementController extends Controller
         $locations = !empty($locationIds) ?
             LocationReservation::whereIn('id', array_unique($locationIds))->get()->keyBy('id') : collect();
         $conciergeries = !empty($conciergerieIds) ?
-            Conciergerie::whereIn('id', array_unique($conciergerieIds))->get()->keyBy('id') : collect();
+            ConciergerieDemande::whereIn('id', array_unique($conciergerieIds))->get()->keyBy('id') : collect();
         $formationsInternationales = !empty($formationInternationaleIds) ?
-            FormationInternationale::whereIn('id', array_unique($formationInternationaleIds))->get()->keyBy('id') : collect();
+            DemandeFormationInternationale::whereIn('id', array_unique($formationInternationaleIds))->get()->keyBy('id') : collect();
 
         // Associer les services aux paiements
         foreach ($paiements as $paiement) {
@@ -455,4 +457,118 @@ class PaiementController extends Controller
                 ->with('error', 'Erreur lors du remboursement: ' . $e->getMessage());
         }
     }
+
+    /**
+ * Supprimer un paiement (sans vérification de statut)
+ */
+public function destroy(Paiement $paiement)
+{
+    Log::info('PaiementController@destroy - Tentative de suppression du paiement ID: ' . $paiement->id . ', Réf: ' . $paiement->reference);
+
+    try {
+        // SUPPRESSION DE LA VÉRIFICATION - On supprime tous les paiements quel que soit le statut
+
+        // Stocker les infos pour le log avant suppression
+        $paiementInfo = [
+            'id' => $paiement->id,
+            'reference' => $paiement->reference,
+            'amount' => $paiement->amount,
+            'service_type' => $paiement->service_type,
+            'status' => $paiement->status,
+            'user_id' => $paiement->user_id,
+            'deleted_by' => auth()->user()->id,
+            'deleted_by_name' => auth()->user()->name,
+            'deleted_at' => now()->toDateTimeString()
+        ];
+
+        // Log AVERTISSEMENT pour les suppressions de paiements payés ou remboursés
+        if (in_array($paiement->status, ['paid', 'refunded'])) {
+            Log::warning('⚠️ SUPPRESSION SENSIBLE - Un admin a supprimé un paiement ' . $paiement->status, $paiementInfo);
+        } else {
+            Log::info('Suppression de paiement', $paiementInfo);
+        }
+
+        // Supprimer le paiement (soft delete ou définitif selon votre configuration)
+        $paiement->delete();
+
+        Log::info('PaiementController@destroy - Paiement supprimé avec succès', $paiementInfo);
+
+        return redirect()->route('admin.paiements.index')
+            ->with('success', 'Le paiement #' . $paiementInfo['reference'] . ' (Statut: ' . $paiementInfo['status'] . ') a été supprimé avec succès.');
+
+    } catch (\Exception $e) {
+        Log::error('PaiementController@destroy - Erreur lors de la suppression: ' . $e->getMessage());
+
+        return redirect()->back()
+            ->with('error', 'Erreur lors de la suppression du paiement: ' . $e->getMessage());
+    }
+}
+
+   /**
+ * Supprimer plusieurs paiements (action groupée) - SANS VÉRIFICATION
+ */
+public function bulkDestroy(Request $request)
+{
+    $request->validate([
+        'paiement_ids' => 'required|array',
+        'paiement_ids.*' => 'exists:paiements,id'
+    ]);
+
+    $paiementIds = $request->paiement_ids;
+    $deletedCount = 0;
+    $errors = [];
+    $sensitiveDeletions = [];
+
+    foreach ($paiementIds as $id) {
+        $paiement = Paiement::find($id);
+
+        if (!$paiement) {
+            continue;
+        }
+
+        try {
+            // Log pour les suppressions sensibles
+            if (in_array($paiement->status, ['paid', 'refunded'])) {
+                $sensitiveDeletions[] = $paiement->reference . ' (' . $paiement->status . ')';
+                Log::warning('⚠️ SUPPRESSION GROUPÉE SENSIBLE - Admin a supprimé un paiement ' . $paiement->status, [
+                    'id' => $paiement->id,
+                    'reference' => $paiement->reference,
+                    'status' => $paiement->status,
+                    'amount' => $paiement->amount,
+                    'deleted_by' => auth()->user()->id,
+                    'deleted_by_name' => auth()->user()->name
+                ]);
+            } else {
+                Log::info('Suppression groupée de paiement', [
+                    'id' => $paiement->id,
+                    'reference' => $paiement->reference,
+                    'deleted_by' => auth()->user()->id,
+                    'deleted_by_name' => auth()->user()->name
+                ]);
+            }
+
+            $paiement->delete();
+            $deletedCount++;
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la suppression groupée du paiement ID ' . $id . ': ' . $e->getMessage());
+            $errors[] = 'Paiement #' . $paiement->reference . ': ' . $e->getMessage();
+        }
+    }
+
+    $message = $deletedCount . ' paiement(s) supprimé(s) avec succès.';
+
+    if (!empty($sensitiveDeletions)) {
+        $message .= ' ⚠️ Attention: ' . count($sensitiveDeletions) . ' paiement(s) sensible(s) supprimés : ' . implode(', ', $sensitiveDeletions);
+    }
+
+    if (!empty($errors)) {
+        $message .= ' Erreurs: ' . implode(', ', $errors);
+        return redirect()->route('admin.paiements.index')
+            ->with('warning', $message);
+    }
+
+    return redirect()->route('admin.paiements.index')
+        ->with('success', $message);
+}
 }

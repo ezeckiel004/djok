@@ -70,51 +70,51 @@ class ClientElearningController extends Controller
         return view('client.elearning.acheter', compact('forfait', 'user'));
     }
 
-public function checkPromoCode(Request $request)
-{
-    $request->validate([
-        'forfait_slug' => 'required|string',
-        'promo_code' => 'required|string'
-    ]);
+    public function checkPromoCode(Request $request)
+    {
+        $request->validate([
+            'forfait_slug' => 'required|string',
+            'promo_code' => 'required|string'
+        ]);
 
-    // ✅ Normaliser le code en majuscules AVANT la vérification
-    $promoCode = strtoupper(trim($request->promo_code));
+        // ✅ Normaliser le code en majuscules AVANT la vérification
+        $promoCode = strtoupper(trim($request->promo_code));
 
-    $forfait = ElearningForfait::where('slug', $request->forfait_slug)
-        ->active()
-        ->first();
+        $forfait = ElearningForfait::where('slug', $request->forfait_slug)
+            ->active()
+            ->first();
 
-    if (!$forfait) {
+        if (!$forfait) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Forfait introuvable'
+            ]);
+        }
+
+        $existingAccess = ElearningAcces::where('email', Auth::user()->email)
+            ->where('forfait_id', $forfait->id)
+            ->where('promo_code_used', $promoCode)
+            ->exists();
+
+        if ($existingAccess) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Vous avez déjà utilisé ce code promo pour ce forfait'
+            ]);
+        }
+
+        if ($forfait->isPromoCodeValid($promoCode)) {
+            return response()->json([
+                'valid' => true,
+                'message' => 'Code promo valide ! Vous bénéficiez d\'un accès gratuit.'
+            ]);
+        }
+
         return response()->json([
             'valid' => false,
-            'message' => 'Forfait introuvable'
+            'message' => 'Code promo invalide ou expiré'
         ]);
     }
-
-    $existingAccess = ElearningAcces::where('email', Auth::user()->email)
-        ->where('forfait_id', $forfait->id)
-        ->where('promo_code_used', $promoCode)
-        ->exists();
-
-    if ($existingAccess) {
-        return response()->json([
-            'valid' => false,
-            'message' => 'Vous avez déjà utilisé ce code promo pour ce forfait'
-        ]);
-    }
-
-    if ($forfait->isPromoCodeValid($promoCode)) {
-        return response()->json([
-            'valid' => true,
-            'message' => 'Code promo valide ! Vous bénéficiez d\'un accès gratuit.'
-        ]);
-    }
-
-    return response()->json([
-        'valid' => false,
-        'message' => 'Code promo invalide ou expiré'
-    ]);
-}
 
     /**
      * Traitement de l'achat pour client connecté (avec gestion code promo)
@@ -233,7 +233,6 @@ public function checkPromoCode(Request $request)
 
                 return redirect()->route('client.elearning.dashboard')
                     ->with('success', 'Félicitations ! Votre accès gratuit au forfait ' . $forfait->name . ' a été activé avec succès. Voici votre salle virtuelle.');
-
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error('Erreur création accès promo: ' . $e->getMessage(), [
@@ -390,7 +389,7 @@ public function checkPromoCode(Request $request)
         $allProgressions = ElearningProgression::where('acces_id', $acces->id)->get();
 
         $coursIdsIncluded = $cours->pluck('id')->toArray();
-        $progressions = $allProgressions->filter(function($progression) use ($coursIdsIncluded) {
+        $progressions = $allProgressions->filter(function ($progression) use ($coursIdsIncluded) {
             return $progression->cours_id && in_array($progression->cours_id, $coursIdsIncluded);
         })->keyBy('cours_id');
 
@@ -451,9 +450,18 @@ public function checkPromoCode(Request $request)
         $isPromoAccess = $acces->payment_mode === 'promo';
 
         return view('client.elearning.dashboard', compact(
-            'acces', 'cours', 'progressions', 'qcmsNormaux', 'examensBlancs',
-            'qcmsNormauxDisponibles', 'qcmsNormauxCompletes', 'examensBlancsDisponibles',
-            'examensBlancsCompletes', 'allQcmsCompletes', 'qcmsProgressions', 'forfait',
+            'acces',
+            'cours',
+            'progressions',
+            'qcmsNormaux',
+            'examensBlancs',
+            'qcmsNormauxDisponibles',
+            'qcmsNormauxCompletes',
+            'examensBlancsDisponibles',
+            'examensBlancsCompletes',
+            'allQcmsCompletes',
+            'qcmsProgressions',
+            'forfait',
             'isPromoAccess'
         ));
     }
@@ -599,7 +607,6 @@ public function checkPromoCode(Request $request)
                 'questions' => $questions,
                 'questionsCount' => $questionsCount
             ]);
-
         } catch (\Exception $e) {
             Log::error('Erreur showQcm: ' . $e->getMessage(), [
                 'qcm_id' => $qcmId,
@@ -690,7 +697,6 @@ public function checkPromoCode(Request $request)
                 'allow_multiple_correct' => $qcm->allow_multiple_correct,
                 'redirect' => route('client.elearning.dashboard')
             ]);
-
         } catch (\Exception $e) {
             Log::error('Erreur submitQcm: ' . $e->getMessage());
             return response()->json([
@@ -902,54 +908,88 @@ public function checkPromoCode(Request $request)
         $allowMultiple = $qcm->allow_multiple_correct;
 
         $correctQuestions = 0;
+        $answeredQuestions = 0;  // ✅ Compte uniquement les questions auxquelles l'utilisateur a répondu
         $details = [];
 
         foreach ($questions as $index => $question) {
             $questionId = $question['id'] ?? $index;
 
-            $correctAnswers = [];
-            if ($allowMultiple && isset($question['correct_answers'])) {
-                $correctAnswers = is_array($question['correct_answers'])
-                    ? $question['correct_answers']
-                    : [$question['correct_answers']];
-            } elseif (isset($question['correct_answer'])) {
-                $correctAnswers = [$question['correct_answer']];
+            // ✅ IGNORER les questions que le frontend n'a pas envoyées (non sélectionnées aléatoirement)
+            if (!isset($userAnswers[$questionId]) && !array_key_exists($questionId, $userAnswers)) {
+                continue;
             }
 
+            $answeredQuestions++;  // ✅ Une question de plus à comptabiliser
+
+            // === Récupérer les BONNES RÉPONSES en VALEURS TEXTE ===
+            $correctAnswerValues = [];
+
+            if ($allowMultiple && isset($question['correct_answers'])) {
+                // Mode multiple : récupérer les textes correspondant aux lettres correctes
+                $correctLetters = is_array($question['correct_answers'])
+                    ? $question['correct_answers']
+                    : [$question['correct_answers']];
+
+                foreach ($correctLetters as $letter) {
+                    if (isset($question['answers'][$letter])) {
+                        $correctAnswerValues[] = trim($question['answers'][$letter]);
+                    }
+                }
+            } elseif (isset($question['correct_answer'])) {
+                // Mode unique : récupérer le texte correspondant à la lettre correcte
+                $correctLetter = $question['correct_answer'];
+                if (isset($question['answers'][$correctLetter])) {
+                    $correctAnswerValues[] = trim($question['answers'][$correctLetter]);
+                }
+            }
+
+            // === Récupérer la réponse de l'utilisateur ===
             $userAnswer = $userAnswers[$questionId] ?? null;
+
+            // Nettoyer les valeurs utilisateur
+            if ($allowMultiple && is_array($userAnswer)) {
+                $userAnswer = array_map('trim', $userAnswer);
+                $userAnswer = array_filter($userAnswer);
+            } elseif (!is_array($userAnswer) && $userAnswer !== null) {
+                $userAnswer = trim($userAnswer);
+            }
+
+            // === Vérifier si la réponse est correcte ===
             $isCorrect = false;
 
             if ($allowMultiple) {
-                $userSelections = is_array($userAnswer) ? $userAnswer : [$userAnswer];
-                $userSelections = array_filter($userSelections);
-                $correctSelections = array_filter($correctAnswers);
+                // Comparaison d'ensembles entre valeurs texte
+                $userSet = collect($userAnswer ?? []);
+                $correctSet = collect($correctAnswerValues);
 
-                if (!empty($correctSelections)) {
-                    $correctCount = count(array_intersect($userSelections, $correctSelections));
-                    $wrongCount = count(array_diff($userSelections, $correctSelections));
-                    $isCorrect = ($correctCount === count($correctSelections) && $wrongCount === 0);
+                if ($userSet->count() === $correctSet->count() && $userSet->diff($correctSet)->isEmpty()) {
+                    $isCorrect = true;
                 }
             } else {
-                $correctAnswer = $correctAnswers[0] ?? '';
-                $isCorrect = ($userAnswer === $correctAnswer && !empty($userAnswer));
+                // Comparaison directe entre valeurs texte
+                $correctValue = $correctAnswerValues[0] ?? '';
+                $isCorrect = ($userAnswer === $correctValue && !empty($userAnswer) && !empty($correctValue));
             }
 
             if ($isCorrect) {
                 $correctQuestions++;
             }
 
+            // Stocker les détails pour l'affichage
             $details[] = [
                 'question_index' => $index + 1,
                 'question' => $question['text'] ?? 'Question ' . ($index + 1),
                 'correct' => $isCorrect,
                 'user_answer' => $userAnswer,
-                'correct_answer' => $allowMultiple ? $correctAnswers : ($correctAnswers[0] ?? ''),
+                'correct_answer' => $allowMultiple ? $correctAnswerValues : ($correctAnswerValues[0] ?? ''),
                 'explanation' => $question['explanation'] ?? '',
             ];
         }
 
-        $totalQuestions = count($questions);
-        $score = $totalQuestions > 0 ? ($correctQuestions / $totalQuestions) * 100 : 0;
+        // ✅ CALCUL DU SCORE UNIQUEMENT SUR LES QUESTIONS RÉPONDUES
+        // Au lieu de diviser par count($questions) (155), on divise par $answeredQuestions (25)
+        $totalQuestions = $answeredQuestions > 0 ? $answeredQuestions : 1;
+        $score = ($correctQuestions / $totalQuestions) * 100;
 
         return [
             'score' => $score,
