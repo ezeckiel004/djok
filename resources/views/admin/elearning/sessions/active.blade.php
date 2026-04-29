@@ -166,7 +166,7 @@
         </div>
         <div class="p-6">
             <div class="space-y-3">
-                @foreach($recentSessions as $session)
+                @forelse($recentSessionsList as $session)  <!-- ✅ ICI : recentSessionsList au lieu de recentSessions -->
                 <div class="flex items-center justify-between border-b border-gray-100 pb-3">
                     <div>
                         <div class="text-sm font-medium text-gray-900">
@@ -184,7 +184,12 @@
                     </div>
                     <div class="text-sm text-gray-600">{{ $session->duration }}</div>
                 </div>
-                @endforeach
+                @empty
+                <div class="text-center py-6 text-gray-500">
+                    <i class="fas fa-history text-2xl mb-2 opacity-50"></i>
+                    <p>Aucune session terminée récemment</p>
+                </div>
+                @endforelse
             </div>
         </div>
     </div>
