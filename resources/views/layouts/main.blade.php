@@ -4,6 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{-- ✅ FIX : Meta CSRF indispensable pour les requêtes AJAX --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', trans('main.default_title'))</title>
 
     <!-- Google Font Montserrat -->
@@ -378,21 +380,15 @@
                 let clickTimer;
 
                 certificationBtn.addEventListener('click', function(e) {
-                    // Pour éviter les conflits avec le lien, on ne fait rien sur simple clic
-                    // Le double clic est juste pour l'affichage du texte
-
                     clickCount++;
 
                     if (clickCount === 1) {
-                        // Premier clic - on attend le second
                         clickTimer = setTimeout(function() {
-                            // Si un seul clic - rien (le lien s'ouvre)
                             clickCount = 0;
-                        }, 300); // Délai pour double clic
+                        }, 300);
                     } else if (clickCount === 2) {
-                        // Double clic - afficher/masquer le texte
                         clearTimeout(clickTimer);
-                        e.preventDefault(); // Empêcher l'ouverture du lien sur double clic
+                        e.preventDefault();
                         toggleTextVisibility();
                         clickCount = 0;
                     }
@@ -405,10 +401,8 @@
                     isTextVisible = !isTextVisible;
 
                     if (isTextVisible) {
-                        // Activer le texte
                         certificationText.classList.add('active');
                     } else {
-                        // Désactiver le texte
                         certificationText.classList.remove('active');
                     }
                 }
@@ -435,7 +429,6 @@
                     showSlide(currentSlide);
                 }, 5000);
 
-                // Événements pour les contrôles du slider
                 document.querySelector('.slider-prev')?.addEventListener('click', () => {
                     currentSlide = (currentSlide - 1 + slides.length) % slides.length;
                     showSlide(currentSlide);
@@ -446,13 +439,15 @@
                     showSlide(currentSlide);
                 });
 
-                // Indicateurs
                 indicators.forEach((indicator, index) => {
                     indicator.addEventListener('click', () => showSlide(index));
                 });
             }
         });
     </script>
+
+    {{-- ✅ Scripts additionnels des pages enfants --}}
+    @yield('scripts')
 </body>
 
 </html>

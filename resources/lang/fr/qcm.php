@@ -85,8 +85,19 @@ return [
     'check_logs' => 'Veuillez vérifier les logs Laravel (storage/logs/laravel.log).',
     'validation_error' => 'Il y a un problème avec les données envoyées.',
     'connection_error' => 'Impossible de se connecter au serveur. Vérifiez votre connexion internet.',
+    'redirecting_in_seconds' => 'Redirection dans 3 secondes...',
 
     // Infos techniques
     'technical_details' => 'Détails techniques',
     'complete_debug_info' => '=== DEBUG INFO ===',
+
+    // Nouvelles traductions pour la sélection aléatoire
+    'random_selection_info' => 'Ce QCM présente :selected questions sélectionnées aléatoirement parmi :total disponibles',
+    'random_exam_info' => 'Les questions sont sélectionnées aléatoirement à chaque tentative',
+    'random_questions' => 'Questions aléatoires',
+    'your_answer' => 'Votre réponse',
+    'correct_answer' => 'Réponse correcte',
+    'explanation' => 'Explication',
+    'no_answer' => 'Aucune réponse',
+    'unlimited' => 'Illimité',
 ];

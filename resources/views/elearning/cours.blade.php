@@ -68,6 +68,19 @@
         min-width: 0;
         overflow: hidden;
     }
+
+    /* ✅ FIX MOBILE : Bouton marquer comme lu pleine largeur sur petit écran */
+    @media (max-width: 640px) {
+        #markCompleteBtn,
+        #completeForm {
+            width: 100%;
+        }
+
+        #markCompleteBtn {
+            display: block;
+            text-align: center;
+        }
+    }
 </style>
 
 <!-- Header -->
@@ -109,9 +122,11 @@
             <div class="lg:col-span-3">
                 <div class="mb-6 rounded-lg" style="background: #111; border: 1px solid #333;">
                     <div class="p-6">
-                        <div class="flex flex-wrap items-center justify-between mb-6">
+
+                        {{-- ✅ FIX MOBILE : flex-col sur mobile, flex-row sur sm+ --}}
+                        <div class="flex flex-col gap-4 mb-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                             <div class="flex-1 min-w-0">
-                                <h2 class="mb-2 text-xl font-bold text-white truncate">{{ $cours->title }}</h2>
+                                <h2 class="mb-2 text-xl font-bold text-white break-words">{{ $cours->title }}</h2>
                                 <div class="flex flex-wrap items-center gap-3 text-sm text-gray-400">
                                     <span class="flex items-center">
                                         <i class="mr-1 fas fa-clock"></i>
@@ -132,19 +147,20 @@
                                 </div>
                             </div>
 
+                            {{-- ✅ FIX : Bouton pleine largeur mobile, auto sur sm+ --}}
                             @if(!$progression->cours_completed)
                             <form id="completeForm" action="{{ route('elearning.cours.complete', $cours->id) }}"
-                                method="POST">
+                                method="POST" class="w-full sm:w-auto">
                                 @csrf
                                 <button type="button" id="markCompleteBtn"
-                                    class="px-4 py-2 font-medium transition-colors rounded whitespace-nowrap"
+                                    class="w-full sm:w-auto px-4 py-2 font-medium transition-colors rounded"
                                     style="background: #b89449; color: black;">
                                     <i class="mr-1 fas fa-check"></i>
                                     {{ __('cours.mark_as_completed') }}
                                 </button>
                             </form>
                             @else
-                            <div class="px-4 py-2 rounded whitespace-nowrap"
+                            <div class="w-full sm:w-auto px-4 py-2 rounded text-center"
                                 style="background: #064e3b; color: #a7f3d0;">
                                 <i class="mr-1 fas fa-check-circle"></i>
                                 {{ __('cours.completed_on') }} {{ $progression->updated_at->format('d/m/Y') }}
@@ -326,7 +342,7 @@
                             </div>
                             <div class="flex-shrink-0 mt-3 md:ml-4 md:mt-0">
                                 <a href="{{ route('elearning.qcm.show', $coursQcm->id) }}"
-                                    class="px-4 py-2 text-sm font-medium transition-colors rounded whitespace-nowrap"
+                                    class="block px-4 py-2 text-sm font-medium transition-colors rounded text-center whitespace-nowrap"
                                     style="background: #1e40af; color: white;">
                                     @if($progression->qcm_completed)
                                     {{ __('cours.repass_qcm') }}
@@ -465,74 +481,97 @@
     </div>
 </div>
 
+@endsection
+
 @section('scripts')
 <script>
-    // Marquer le cours comme terminé
-    document.getElementById('markCompleteBtn')?.addEventListener('click', function(e) {
-        e.preventDefault();
+    document.addEventListener('DOMContentLoaded', function () {
 
-        const form = document.getElementById('completeForm');
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        // ✅ FIX PRINCIPAL : Récupération du token CSRF depuis le meta tag
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : null;
 
-        // Envoyer la requête AJAX
-        fetch(form.action, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: JSON.stringify({})
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Rediriger vers la même page avec un message de succès
-                window.location.href = window.location.href + '?success=1';
-            } else {
-                alert('Erreur: ' + (data.error || 'Impossible de marquer le cours comme terminé'));
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            alert('Une erreur est survenue. Veuillez réessayer.');
-        });
-    });
+        const markCompleteBtn = document.getElementById('markCompleteBtn');
+        const completeForm = document.getElementById('completeForm');
 
-    // Afficher un message de succès si présent dans l'URL
-    if (window.location.search.includes('success=1')) {
-        alert('Le cours a été marqué comme terminé avec succès!');
-        // Retirer le paramètre de l'URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
+        if (markCompleteBtn && completeForm) {
+            markCompleteBtn.addEventListener('click', function (e) {
+                e.preventDefault();
 
-    // Gestion de la vidéo si présente
-    @if($cours->hasVideo())
-        // Initialiser le lecteur vidéo
-        function initVideoPlayer() {
-            console.log('Vidéo détectée:', '{{ $cours->video_url }}');
+                // Vérification du token CSRF avant d'envoyer
+                if (!csrfToken) {
+                    alert('Erreur de sécurité : token CSRF manquant. Veuillez recharger la page.');
+                    return;
+                }
 
-            // Si c'est une vidéo HTML5, ajouter des événements
+                const btn = this;
+
+                // Désactiver le bouton pendant la requête
+                btn.disabled = true;
+                btn.innerHTML = '<i class="mr-1 fas fa-spinner fa-spin"></i> Chargement...';
+
+                // Envoyer la requête AJAX
+                fetch(completeForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('Erreur HTTP ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(function (data) {
+                    if (data.success) {
+                        // Rediriger vers la même page avec un message de succès
+                        window.location.href = window.location.pathname + '?success=1';
+                    } else {
+                        alert('Erreur : ' + (data.error || 'Impossible de marquer le cours comme terminé'));
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="mr-1 fas fa-check"></i> {{ __("cours.mark_as_completed") }}';
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Erreur détaillée :', error);
+                    alert('Une erreur est survenue (' + error.message + '). Veuillez réessayer.');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="mr-1 fas fa-check"></i> {{ __("cours.mark_as_completed") }}';
+                });
+            });
+        }
+
+        // Afficher un message de succès si présent dans l'URL
+        if (window.location.search.includes('success=1')) {
+            alert('Le cours a été marqué comme terminé avec succès !');
+            // Retirer le paramètre de l'URL sans recharger
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        // Gestion de la vidéo si présente
+        @if($cours->hasVideo())
             const videoElement = document.querySelector('video');
             if (videoElement) {
-                videoElement.addEventListener('ended', function() {
+                videoElement.addEventListener('ended', function () {
                     console.log('Vidéo terminée');
                 });
             }
-        }
+        @endif
 
-        initVideoPlayer();
-    @endif
+        // Gestion du document PDF
+        @if($cours->hasPdf())
+            const pdfLink = document.querySelector('a[href="{{ $cours->pdf_url }}"]');
+            if (pdfLink) {
+                pdfLink.addEventListener('click', function () {
+                    console.log('Ouverture du document :', this.href);
+                });
+            }
+        @endif
 
-    // Gestion du document
-    @if($cours->hasPdf())
-        console.log('Document disponible:', '{{ $cours->pdf_url }}');
-
-        // Ouvrir le document dans un nouvel onglet
-        document.querySelector('a[href*=".pdf"]')?.addEventListener('click', function(e) {
-            console.log('Ouverture du document:', this.href);
-            // Le document s'ouvre dans un nouvel onglet via target="_blank"
-        });
-    @endif
+    });
 </script>
-@endsection
 @endsection
