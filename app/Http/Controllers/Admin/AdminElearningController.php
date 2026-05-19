@@ -93,6 +93,7 @@ class AdminElearningController extends Controller
     {
         Log::info('Création de forfait - formulaire affiché');
 
+        // Récupérer tous les cours, QCM et examens disponibles pour la sélection
         $cours = ElearningCours::active()->ordered()->get();
         $qcmsNormaux = ElearningQcm::active()->where('is_examen_blanc', false)->get();
         $examensBlancs = ElearningQcm::active()->where('is_examen_blanc', true)->get();
@@ -115,6 +116,7 @@ class AdminElearningController extends Controller
 
         Log::info('Validation passée');
 
+        // Traitement des fonctionnalités
         $features = [];
 
         if ($request->filled('features')) {
@@ -139,15 +141,20 @@ class AdminElearningController extends Controller
             Log::info('Fonctionnalités depuis champs dynamiques', ['features' => $features]);
         }
 
+        // Gestion du mode de sélection
         $selectionMode = $request->input('selection_mode', 'all');
         $includeAllCours = $selectionMode === 'all' ? true : false;
         $includeAllQcms = $selectionMode === 'all' ? true : ($request->boolean('include_all_qcms') ?? false);
         $includeAllExamens = $selectionMode === 'all' ? true : ($request->boolean('include_all_examens') ?? false);
 
+        // Récupérer les IDs sélectionnés
         $selectedCoursIds = $includeAllCours ? [] : ($request->input('selected_cours_ids', []));
         $selectedQcmsIds = $includeAllQcms ? [] : ($request->input('selected_qcms_ids', []));
         $selectedExamensIds = $includeAllExamens ? [] : ($request->input('selected_examens_ids', []));
 
+        // ==============================================
+        // GESTION DES CODES PROMO
+        // ==============================================
         $promoCodes = [];
 
         if ($request->filled('promo_codes')) {
@@ -190,12 +197,14 @@ class AdminElearningController extends Controller
                 'access_order' => $request->access_order ?? 0,
                 'is_active' => $request->boolean('is_active'),
                 'features' => $features,
+                // Nouveaux champs
                 'selected_cours_ids' => $selectedCoursIds,
                 'selected_qcms_ids' => $selectedQcmsIds,
                 'selected_examens_ids' => $selectedExamensIds,
                 'include_all_cours' => $includeAllCours,
                 'include_all_qcms' => $includeAllQcms,
                 'include_all_examens' => $includeAllExamens,
+                // Codes promo
                 'promo_codes' => $promoCodes,
             ]);
 
@@ -205,6 +214,7 @@ class AdminElearningController extends Controller
                 'promo_codes_count' => count($promoCodes),
             ]);
 
+            // Créer le produit Stripe si nécessaire
             if ($request->boolean('create_stripe_product')) {
                 Log::info('Création produit Stripe demandée');
                 $this->createStripeProduct($forfait);
@@ -229,6 +239,8 @@ class AdminElearningController extends Controller
         Log::info('Édition de forfait', ['forfait_id' => $id]);
 
         $forfait = ElearningForfait::findOrFail($id);
+
+        // Récupérer tous les éléments disponibles
         $cours = ElearningCours::active()->ordered()->get();
         $qcmsNormaux = ElearningQcm::active()->where('is_examen_blanc', false)->get();
         $examensBlancs = ElearningQcm::active()->where('is_examen_blanc', true)->get();
@@ -251,6 +263,7 @@ class AdminElearningController extends Controller
             'max_concurrent_connections' => 'required|integer|min:1',
         ]);
 
+        // Traitement des fonctionnalités
         $features = [];
 
         if ($request->filled('features')) {
@@ -275,20 +288,26 @@ class AdminElearningController extends Controller
             Log::info('Fonctionnalités depuis champs dynamiques', ['features' => $features]);
         }
 
+        // Gestion du mode de sélection
         $selectionMode = $request->input('selection_mode', 'all');
         $includeAllCours = $selectionMode === 'all' ? true : false;
         $includeAllQcms = $selectionMode === 'all' ? true : ($request->boolean('include_all_qcms') ?? false);
         $includeAllExamens = $selectionMode === 'all' ? true : ($request->boolean('include_all_examens') ?? false);
 
+        // Récupérer les IDs sélectionnés
         $selectedCoursIds = $includeAllCours ? [] : ($request->input('selected_cours_ids', []));
         $selectedQcmsIds = $includeAllQcms ? [] : ($request->input('selected_qcms_ids', []));
         $selectedExamensIds = $includeAllExamens ? [] : ($request->input('selected_examens_ids', []));
 
+        // ==============================================
+        // GESTION DES CODES PROMO (avec conservation des compteurs)
+        // ==============================================
         $promoCodes = [];
 
         if ($request->filled('promo_codes')) {
             $newPromoCodes = json_decode($request->promo_codes, true) ?? [];
 
+            // Pour chaque nouveau code, essayer de conserver l'ancien compteur d'utilisations
             foreach ($newPromoCodes as $newCode) {
                 $existingCode = null;
                 if (!empty($forfait->promo_codes)) {
@@ -356,17 +375,20 @@ class AdminElearningController extends Controller
                 'access_order' => $request->access_order ?? $forfait->access_order,
                 'is_active' => $request->boolean('is_active'),
                 'features' => $features,
+                // Nouveaux champs
                 'selected_cours_ids' => $selectedCoursIds,
                 'selected_qcms_ids' => $selectedQcmsIds,
                 'selected_examens_ids' => $selectedExamensIds,
                 'include_all_cours' => $includeAllCours,
                 'include_all_qcms' => $includeAllQcms,
                 'include_all_examens' => $includeAllExamens,
+                // Codes promo
                 'promo_codes' => $promoCodes,
             ]);
 
             Log::info('Forfait mis à jour avec succès', ['forfait_id' => $forfait->id]);
 
+            // Créer le produit Stripe si demandé et si pas déjà existant
             if ($request->boolean('create_stripe_product') && !$forfait->stripe_product_id) {
                 Log::info('Création produit Stripe demandée pour mise à jour');
                 $this->createStripeProduct($forfait);
@@ -387,11 +409,16 @@ class AdminElearningController extends Controller
         }
     }
 
+    /**
+     * Supprimer un forfait (suppression définitive même avec accès)
+     */
     public function destroyForfait($id)
     {
         Log::info('Suppression définitive de forfait demandée', ['forfait_id' => $id]);
 
         $forfait = ElearningForfait::findOrFail($id);
+
+        // Compter le nombre d'accès associés
         $accesCount = $forfait->acces()->count();
 
         try {
@@ -400,16 +427,24 @@ class AdminElearningController extends Controller
             if ($accesCount > 0) {
                 Log::info('Suppression des accès associés', ['count' => $accesCount]);
 
+                // Récupérer tous les accès avec leurs relations
                 $accesList = $forfait->acces()->with(['sessions', 'progressions'])->get();
 
                 foreach ($accesList as $acces) {
+                    // Supprimer les sessions associées
                     $acces->sessions()->delete();
+
+                    // Supprimer les progressions associées
                     $acces->progressions()->delete();
+
+                    // Supprimer l'accès lui-même
                     $acces->delete();
                 }
             }
 
+            // Supprimer le forfait
             $forfait->delete();
+
             DB::commit();
 
             $message = 'Forfait supprimé avec succès.';
@@ -479,16 +514,19 @@ class AdminElearningController extends Controller
         $acces = ElearningAcces::with(['forfait', 'paiement', 'sessions'])
             ->findOrFail($id);
 
+        // Calculer la progression pour cet accès
         $acces->progression_percentage = $acces->total_cours > 0
             ? round(($acces->cours_completed / $acces->total_cours) * 100, 1)
             : 0;
 
+        // Récupérer les progressions avec cours et QCM
         $progressions = ElearningProgression::where('acces_id', $acces->id)
             ->with(['cours', 'qcm'])
             ->orderBy('qcm_completed_at', 'desc')
             ->orderBy('cours_completed_at', 'desc')
             ->get();
 
+        // Pour chaque progression avec QCM, récupérer les réponses détaillées
         $qcmsDetails = [];
         foreach ($progressions as $progression) {
             if ($progression->qcm_completed && $progression->qcm) {
@@ -518,6 +556,9 @@ class AdminElearningController extends Controller
         return view('admin.elearning.acces.show', compact('acces', 'progressions', 'qcmsDetails'));
     }
 
+    /**
+     * Récupère les questions d'un QCM avec les réponses de l'utilisateur
+     */
     private function getQcmQuestionsWithAnswers(ElearningProgression $progression): array
     {
         $questions = [];
@@ -532,8 +573,11 @@ class AdminElearningController extends Controller
 
         foreach ($qcmQuestions as $index => $questionData) {
             $questionId = $questionData['id'] ?? $index;
+
+            // Récupérer la réponse utilisateur (peut être valeur texte ou lettre selon version)
             $userAnswer = $userAnswers[$questionId] ?? null;
 
+            // Récupérer la bonne réponse en VALEUR TEXTE pour l'affichage
             $correctAnswerText = '';
             $correctAnswerLetters = [];
 
@@ -552,6 +596,7 @@ class AdminElearningController extends Controller
                 $correctAnswerLetters = [$correctLetter];
             }
 
+            // Construire les options pour l'affichage
             $options = [];
             if (isset($questionData['answers']) && is_array($questionData['answers'])) {
                 foreach ($questionData['answers'] as $key => $value) {
@@ -571,6 +616,7 @@ class AdminElearningController extends Controller
                 }
             }
 
+            // Déterminer si la réponse est correcte (basé sur la progression stockée)
             $details = $progression->qcm_details ?? [];
             $detail = $details[$index] ?? [];
 
@@ -589,6 +635,69 @@ class AdminElearningController extends Controller
         }
 
         return $questions;
+    }
+
+    /**
+     * Vérifie si une option est correcte
+     */
+    private function isCorrectOption(string $optionKey, array $questionData): bool
+    {
+        if (isset($questionData['correct_answer'])) {
+            return $optionKey === $questionData['correct_answer'];
+        }
+
+        if (isset($questionData['correct_answers']) && is_array($questionData['correct_answers'])) {
+            return in_array($optionKey, $questionData['correct_answers']);
+        }
+
+        return false;
+    }
+
+    /**
+     * Vérifie si une option a été sélectionnée par l'utilisateur
+     */
+    private function isOptionSelected(string $optionKey, $userAnswer): bool
+    {
+        if (is_array($userAnswer)) {
+            return in_array($optionKey, $userAnswer);
+        }
+
+        return $optionKey === $userAnswer;
+    }
+
+    /**
+     * Afficher les détails d'un QCM spécifique
+     */
+    public function showQcmDetails($accesId, $qcmId)
+    {
+        Log::info('Consultation des détails d\'un QCM', [
+            'acces_id' => $accesId,
+            'qcm_id' => $qcmId
+        ]);
+
+        $acces = ElearningAcces::findOrFail($accesId);
+        $progression = ElearningProgression::where('acces_id', $accesId)
+            ->where('qcm_id', $qcmId)
+            ->with(['qcm'])
+            ->firstOrFail();
+
+        if (!$progression->qcm_completed) {
+            return back()->with('error', 'Ce QCM n\'a pas encore été complété.');
+        }
+
+        $questions = $this->getQcmQuestionsWithAnswers($progression);
+        $stats = [
+            'total_questions' => $progression->qcm->questions_count,
+            'score' => $progression->qcm_score,
+            'passing_score' => $progression->qcm->passing_score,
+            'passed' => $progression->qcm_score >= $progression->qcm->passing_score,
+            'attempt_number' => $progression->qcm_attempts,
+            'completed_at' => $progression->qcm_completed_at,
+            'is_examen_blanc' => $progression->qcm->is_examen_blanc,
+            'allow_multiple_correct' => $progression->qcm->allow_multiple_correct,
+        ];
+
+        return view('admin.elearning.acces.qcm-details', compact('acces', 'progression', 'questions', 'stats'));
     }
 
     public function suspendAcces(Request $request, $id)
@@ -919,56 +1028,7 @@ class AdminElearningController extends Controller
         return view('admin.elearning.qcms.create', compact('cours'));
     }
 
-    public function storeQcm(Request $request)
-    {
-        Log::info('Tentative de création de QCM', ['data' => $request->except('questions_data')]);
-
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'questions_data' => 'required|json',
-            'questions_count' => 'required|integer|min:1',
-            'passing_score' => 'required|integer|min:0|max:100',
-            'cours_id' => 'nullable|exists:elearning_cours,id',
-        ]);
-
-        $questionsData = json_decode($request->questions_data, true);
-        if (!isset($questionsData['questions']) || !is_array($questionsData['questions'])) {
-            Log::warning('Format JSON invalide pour QCM');
-            return back()->withErrors(['questions_data' => 'Format JSON invalide.']);
-        }
-
-        try {
-            $qcm = ElearningQcm::create([
-                'cours_id' => $request->cours_id ?: null,
-                'title' => $request->title,
-                'description' => $request->description,
-                'questions_count' => $request->questions_count,
-                'passing_score' => $request->passing_score,
-                'time_limit_minutes' => $request->time_limit_minutes,
-                'attempts_allowed' => $request->attempts_allowed ?? 3,
-                'is_examen_blanc' => $request->boolean('is_examen_blanc'),
-                'allow_multiple_correct' => $request->boolean('allow_multiple_correct'),
-                'is_active' => $request->boolean('is_active'),
-                'questions_data' => $questionsData,
-            ]);
-
-            Log::info('QCM créé avec succès', ['qcm_id' => $qcm->id]);
-
-            return redirect()->route('admin.elearning.qcms')
-                ->with('success', 'QCM créé avec succès.');
-        } catch (\Exception $e) {
-            Log::error('Erreur lors de la création du QCM', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return back()
-                ->withInput()
-                ->with('error', 'Erreur lors de la création du QCM: ' . $e->getMessage());
-        }
-    }
-
-    public function showQcm($id)
+    public function show($id)
     {
         Log::info('Consultation d\'un QCM', ['qcm_id' => $id]);
 
@@ -1008,12 +1068,11 @@ class AdminElearningController extends Controller
             'questions_data' => 'required|json',
             'questions_count' => 'required|integer|min:1',
             'passing_score' => 'required|integer|min:0|max:100',
-            'cours_id' => 'nullable|exists:elearning_cours,id',
         ]);
 
         $questionsData = json_decode($request->questions_data, true);
         if (!isset($questionsData['questions']) || !is_array($questionsData['questions'])) {
-            Log::warning('Format JSON invalide pour mise à jour QCM');
+            Log::warning('Format JSON invalide pour QCM');
             return back()->withErrors(['questions_data' => 'Format JSON invalide.']);
         }
 
@@ -1049,6 +1108,54 @@ class AdminElearningController extends Controller
         }
     }
 
+    public function storeQcm(Request $request)
+    {
+        Log::info('Tentative de création de QCM', ['data' => $request->except('questions_data')]);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'questions_data' => 'required|json',
+            'questions_count' => 'required|integer|min:1',
+            'passing_score' => 'required|integer|min:0|max:100',
+        ]);
+
+        $questionsData = json_decode($request->questions_data, true);
+        if (!isset($questionsData['questions']) || !is_array($questionsData['questions'])) {
+            Log::warning('Format JSON invalide pour QCM');
+            return back()->withErrors(['questions_data' => 'Format JSON invalide.']);
+        }
+
+        try {
+            $qcm = ElearningQcm::create([
+                'cours_id' => $request->cours_id ?: null,
+                'title' => $request->title,
+                'description' => $request->description,
+                'questions_count' => $request->questions_count,
+                'passing_score' => $request->passing_score,
+                'time_limit_minutes' => $request->time_limit_minutes,
+                'attempts_allowed' => $request->attempts_allowed ?? 3,
+                'is_examen_blanc' => $request->boolean('is_examen_blanc'),
+                'allow_multiple_correct' => $request->boolean('allow_multiple_correct'),
+                'is_active' => $request->boolean('is_active'),
+                'questions_data' => $questionsData,
+            ]);
+
+            Log::info('QCM créé avec succès', ['qcm_id' => $qcm->id]);
+
+            return redirect()->route('admin.elearning.qcms')
+                ->with('success', 'QCM créé avec succès.');
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la création du QCM', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la création du QCM: ' . $e->getMessage());
+        }
+    }
+
     public function destroyQcm($id)
     {
         Log::info('Suppression de QCM demandée', ['qcm_id' => $id]);
@@ -1075,38 +1182,6 @@ class AdminElearningController extends Controller
 
             return back()->with('error', 'Erreur lors de la suppression du QCM: ' . $e->getMessage());
         }
-    }
-
-    public function showQcmDetails($accesId, $qcmId)
-    {
-        Log::info('Consultation des détails d\'un QCM', [
-            'acces_id' => $accesId,
-            'qcm_id' => $qcmId
-        ]);
-
-        $acces = ElearningAcces::findOrFail($accesId);
-        $progression = ElearningProgression::where('acces_id', $accesId)
-            ->where('qcm_id', $qcmId)
-            ->with(['qcm'])
-            ->firstOrFail();
-
-        if (!$progression->qcm_completed) {
-            return back()->with('error', 'Ce QCM n\'a pas encore été complété.');
-        }
-
-        $questions = $this->getQcmQuestionsWithAnswers($progression);
-        $stats = [
-            'total_questions' => $progression->qcm->questions_count,
-            'score' => $progression->qcm_score,
-            'passing_score' => $progression->qcm->passing_score,
-            'passed' => $progression->qcm_score >= $progression->qcm->passing_score,
-            'attempt_number' => $progression->qcm_attempts,
-            'completed_at' => $progression->qcm_completed_at,
-            'is_examen_blanc' => $progression->qcm->is_examen_blanc,
-            'allow_multiple_correct' => $progression->qcm->allow_multiple_correct,
-        ];
-
-        return view('admin.elearning.acces.qcm-details', compact('acces', 'progression', 'questions', 'stats'));
     }
 
     /**
@@ -1327,6 +1402,9 @@ class AdminElearningController extends Controller
         return view('admin.elearning.acces.confirm-destroy', compact('acces'));
     }
 
+    /**
+     * Supprimer définitivement un accès
+     */
     public function destroyAcces($id)
     {
         Log::info('Suppression d\'accès demandée', ['acces_id' => $id]);
@@ -1362,6 +1440,9 @@ class AdminElearningController extends Controller
         }
     }
 
+    /**
+     * Formulaire de suspension d'accès
+     */
     public function suspendAccesForm($id)
     {
         Log::info('Formulaire de suspension d\'accès', ['acces_id' => $id]);
