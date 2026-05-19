@@ -13,7 +13,7 @@ return [
 
     // Hero Section
     'hero_title' => 'Devenez chauffeur VTC professionnel avec DJOK PRESTIGE',
-    'hero_description' => 'Rejoignez un centre de formation certifié Qualiopi et agréé VTC par la Préfecture, reconnu pour la qualité de son accompagnement et son taux de réussite exceptionnel.',
+    'hero_description' => 'Rejoignez un centre de formation certifié Qualiopi, agréé VTC par la Préfecture et finançable par le CPF, reconnu pour la qualité de son accompagnement et son taux de réussite exceptionnel.',
     'hero_success' => 'Plusieurs chauffeurs déjà formés avec succès !',
 
     // Avantages clés

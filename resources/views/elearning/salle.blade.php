@@ -40,10 +40,27 @@
             </div>
             @endif
 
+            <!-- Affichage des erreurs de validation -->
+            @if($errors->any())
+            <div class="mb-6 p-4 rounded" style="background: #2a0f0f; border: 1px solid #7f1d1d;">
+                <div class="flex items-start">
+                    <i class="mr-3 mt-0.5 fas fa-exclamation-circle" style="color: #f56565;"></i>
+                    <div>
+                        <p class="font-semibold text-red-100">Erreur de connexion :</p>
+                        <ul class="mt-1 text-sm text-red-100">
+                            @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             <div class="p-6 rounded-lg" style="background: #1a1a1a; border: 1px solid #333;">
                 <h2 class="mb-6 text-lg font-bold text-white md:text-xl">{{ __('salle.login') }}</h2>
 
-                <form class="space-y-6" action="{{ route('elearning.login') }}" method="POST">
+                <form action="{{ route('elearning.login') }}" method="POST">
                     @csrf
 
                     <div>
@@ -67,7 +84,7 @@
                         <p class="mt-1 text-xs text-gray-500">{{ __('salle.access_code_hint') }}</p>
                     </div>
 
-                    <div>
+                    <div class="mt-4">
                         <label for="email" class="block mb-2 text-sm font-medium" style="color: #ddd;">
                             {{ __('salle.email') }}
                         </label>
@@ -80,9 +97,9 @@
                         @enderror
                     </div>
 
-                    <div>
+                    <div class="mt-6">
                         <button type="submit"
-                            class="w-full py-2 font-medium transition-all duration-300 flex items-center justify-center"
+                            class="w-full py-2 font-medium transition-all duration-300 flex items-center justify-center rounded"
                             style="background: #b89449; color: black;">
                             <i class="fas fa-sign-in-alt mr-2"></i>
                             {{ __('salle.login_button') }}
@@ -111,7 +128,7 @@
             </div>
 
             <div class="mt-8 text-center">
-                <a href="{{ route('elearning.index') }}" class="text-gray-400 hover:text-white">
+                <a href="{{ route('elearning.index') }}" class="text-gray-400 hover:text-white transition">
                     <i class="mr-2 fas fa-arrow-left"></i>
                     {{ __('salle.back_to_packages') }}
                 </a>
@@ -122,18 +139,26 @@
 
 <script>
     function togglePasswordVisibility() {
-    const passwordInput = document.getElementById('access_code');
-    const toggleIcon = document.getElementById('togglePasswordIcon');
+        const passwordInput = document.getElementById('access_code');
+        const toggleIcon = document.getElementById('togglePasswordIcon');
 
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleIcon.classList.remove('fa-eye');
-        toggleIcon.classList.add('fa-eye-slash');
-    } else {
-        passwordInput.type = 'password';
-        toggleIcon.classList.remove('fa-eye-slash');
-        toggleIcon.classList.add('fa-eye');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
     }
-}
+
+    // Optionnel : Auto-focus sur le champ code d'accès
+    document.addEventListener('DOMContentLoaded', function() {
+        const accessCodeInput = document.getElementById('access_code');
+        if (accessCodeInput) {
+            accessCodeInput.focus();
+        }
+    });
 </script>
 @endsection

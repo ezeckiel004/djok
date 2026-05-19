@@ -85,25 +85,31 @@
                 {{ trans('formation.hero_success') }}
             </p>
 
-            <!-- Avantages clés - Style sobre avec centrage parfait -->
-            <div class="flex flex-wrap justify-center gap-6 mb-16">
-                <div class="flex flex-col items-center text-white" style="flex: 0 0 auto; min-width: 200px;">
+            <!-- Avantages clés - Version corrigée avec flexbox responsive -->
+            <div class="grid grid-cols-1 gap-8 mb-16 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="flex flex-col items-center text-center text-white">
                     <div class="flex items-center justify-center mb-4 w-14 h-14" style="background: #b89449;">
                         <i class="text-xl text-black fas fa-clock"></i>
                     </div>
-                    <span class="text-sm text-center">{{ trans('formation.advantage_1') }}</span>
+                    <span class="text-sm">{{ trans('formation.advantage_1') }}</span>
                 </div>
-                <div class="flex flex-col items-center text-white" style="flex: 0 0 auto; min-width: 200px;">
+                <div class="flex flex-col items-center text-center text-white">
+                    <div class="flex items-center justify-center mb-4 w-14 h-14" style="background: #b89449;">
+                        <i class="text-xl text-black fas fa-euro-sign"></i>
+                    </div>
+                    <span class="text-sm">{{ trans('formation.advantage_2') }}</span>
+                </div>
+                <div class="flex flex-col items-center text-center text-white">
                     <div class="flex items-center justify-center mb-4 w-14 h-14" style="background: #b89449;">
                         <i class="text-xl text-black fas fa-chalkboard-teacher"></i>
                     </div>
-                    <span class="text-sm text-center">{{ trans('formation.advantage_3') }}</span>
+                    <span class="text-sm">{{ trans('formation.advantage_3') }}</span>
                 </div>
-                <div class="flex flex-col items-center text-white" style="flex: 0 0 auto; min-width: 200px;">
+                <div class="flex flex-col items-center text-center text-white">
                     <div class="flex items-center justify-center mb-4 w-14 h-14" style="background: #b89449;">
                         <i class="text-xl text-black fas fa-car"></i>
                     </div>
-                    <span class="text-sm text-center">{{ trans('formation.advantage_4') }}</span>
+                    <span class="text-sm">{{ trans('formation.advantage_4') }}</span>
                 </div>
             </div>
 
@@ -477,10 +483,6 @@
                 style="background: #b89449; color: black;">
                 {{ trans('formation.register_now') }}
             </a>
-            {{-- <a href="#" class="inline-flex items-center px-6 py-2 text-base font-semibold transition-all duration-300"
-                style="background: #111; color: white; border: 1px solid #333;">
-                {{ trans('formation.download_brochure') }}
-            </a> --}}
         </div>
     </div>
 </section>
@@ -646,63 +648,6 @@
     </div>
 </section>
 
-<!-- Formation e-learning - Style sobre -->
-{{-- <section class="py-16" style="background: #000;">
-    <div class="container px-4 mx-auto md:px-6">
-        <div class="grid items-center grid-cols-1 gap-8 lg:grid-cols-2 md:gap-12">
-            <div class="text-white">
-                <h2 class="mb-6 text-2xl font-bold md:text-3xl">{{ trans('formation.elearning_title') }}</h2>
-                <p class="mb-6 text-gray-400">
-                    {{ trans('formation.elearning_desc') }}
-                </p>
-
-                <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2">
-                    <div class="flex items-center">
-                        <i class="mr-3 fas fa-video" style="color: #b89449;"></i>
-                        <span>{{ trans('formation.elearning_1') }}</span>
-                    </div>
-                    <div class="flex items-center">
-                        <i class="mr-3 fas fa-question-circle" style="color: #b89449;"></i>
-                        <span>{{ trans('formation.elearning_2') }}</span>
-                    </div>
-                    <div class="flex items-center">
-                        <i class="mr-3 fas fa-user-tie" style="color: #b89449;"></i>
-                        <span>{{ trans('formation.elearning_3') }}</span>
-                    </div>
-                    <div class="flex items-center">
-                        <i class="mr-3 fas fa-calendar-alt" style="color: #b89449;"></i>
-                        <span>{{ trans('formation.elearning_4') }}</span>
-                    </div>
-                </div>
-
-                <a href="#formations"
-                    class="inline-flex items-center px-8 py-3 font-semibold transition-all duration-300"
-                    style="background: #b89449; color: black;">
-                    <i class="mr-3 fas fa-laptop"></i>{{ trans('formation.discover_online') }}
-                </a>
-            </div>
-
-            <div class="p-6 md:p-8" style="background: #111; color: white;">
-                <h3 class="mb-4 text-lg font-bold md:text-xl">{{ trans('formation.continuous_title') }}</h3>
-                <p class="mb-4 text-gray-400">
-                    {{ trans('formation.continuous_desc') }}
-                </p>
-                <div class="p-4" style="background: #222;">
-                    <div>
-                        <h4 class="font-bold">{{ trans('formation.continuous_goals') }}</h4>
-                        <p class="text-sm text-gray-400">{{ trans('formation.continuous_goals_desc') }}</p>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-2xl font-bold md:text-3xl" style="color: #b89449;">{{
-                            trans('formation.continuous_price') }}</div>
-                        <div class="text-sm text-gray-400">{{ trans('formation.continuous_price_desc') }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section> --}}
-
 <!-- Conditions d'inscription - Style sobre -->
 <section class="py-16" style="background: #111;">
     <div class="container px-4 mx-auto md:px-6">
@@ -803,14 +748,6 @@
         </div>
 
         <div class="grid grid-cols-1 gap-6 mb-12 md:grid-cols-2 lg:grid-cols-3">
-            {{-- <div class="p-6" style="background: #111; border: 1px solid #333;">
-                <div class="mb-4 text-xl" style="color: #b89449;">
-                    <i class="fas fa-certificate"></i>
-                </div>
-                <h4 class="mb-2 text-lg font-bold text-white">{{ trans('formation.why_1') }}</h4>
-                <p class="text-gray-400">{{ trans('formation.why_1_desc') }}</p>
-            </div> --}}
-
             <div class="p-6" style="background: #111; border: 1px solid #333;">
                 <div class="mb-4 text-xl" style="color: #b89449;">
                     <i class="fas fa-user-graduate"></i>

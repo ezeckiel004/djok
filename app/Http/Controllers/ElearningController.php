@@ -519,7 +519,7 @@ class ElearningController extends Controller
 
         // Filtrer les progressions pour ne garder que les cours inclus
         $coursIdsIncluded = $cours->pluck('id')->toArray();
-        $progressions = $allProgressions->filter(function($progression) use ($coursIdsIncluded) {
+        $progressions = $allProgressions->filter(function ($progression) use ($coursIdsIncluded) {
             return $progression->cours_id && in_array($progression->cours_id, $coursIdsIncluded);
         })->keyBy('cours_id');
 
@@ -800,8 +800,20 @@ class ElearningController extends Controller
     }
 
     /**
-     * Passer un QCM
+     * Mélange les questions aléatoirement (Fisher-Yates)
      */
+    private function shuffleQuestions(array $questions): array
+    {
+        $shuffled = $questions;
+        for ($i = count($shuffled) - 1; $i > 0; $i--) {
+            $j = random_int(0, $i);
+            $temp = $shuffled[$i];
+            $shuffled[$i] = $shuffled[$j];
+            $shuffled[$j] = $temp;
+        }
+        return $shuffled;
+    }
+
     public function showQcm($qcmId)
     {
         Log::info('=== DÉBUT showQcm ===', ['qcm_id' => $qcmId]);
@@ -842,8 +854,33 @@ class ElearningController extends Controller
             }
 
             $questionsData = $qcm->questions_data;
-            $questions = isset($questionsData['questions']) ? $questionsData['questions'] : [];
-            $qcm->questions = $questions;
+            $allQuestions = $questionsData['questions'] ?? [];
+
+            // ✅ NOUVEAU : Sélection aléatoire de 25 questions si nécessaire
+            $MAX_QUESTIONS = 25;
+            $totalAvailable = count($allQuestions);
+
+            if ($totalAvailable > $MAX_QUESTIONS) {
+                // Mélanger et prendre les 25 premières
+                $shuffledQuestions = $this->shuffleQuestions($allQuestions);
+                $selectedQuestions = array_slice($shuffledQuestions, 0, $MAX_QUESTIONS);
+
+                Log::info('Sélection aléatoire de questions', [
+                    'total_disponibles' => $totalAvailable,
+                    'questions_selectionnees' => count($selectedQuestions)
+                ]);
+            } else {
+                $selectedQuestions = $allQuestions;
+                Log::info('Utilisation de toutes les questions', [
+                    'total_questions' => $totalAvailable
+                ]);
+            }
+
+            // Ajouter les questions sélectionnées à l'objet QCM
+            $qcm->selected_questions = $selectedQuestions;
+            $qcm->selected_questions_count = count($selectedQuestions);
+            $qcm->total_available_questions = $totalAvailable;
+            $qcm->is_randomized = ($totalAvailable > $MAX_QUESTIONS);
 
             return view('elearning.qcm', compact('acces', 'qcm'));
         } catch (\Exception $e) {
@@ -882,9 +919,6 @@ class ElearningController extends Controller
         }
     }
 
-    /**
-     * Soumettre un QCM - VERSION CORRIGÉE avec gestion des doublons et vérification d'inclusion
-     */
     public function submitQcm(Request $request, $qcmId)
     {
         Log::info('=== DÉBUT submitQcm ===', ['qcm_id' => $qcmId]);
@@ -911,12 +945,39 @@ class ElearningController extends Controller
             $qcm = ElearningQcm::findOrFail($qcmId);
             $userAnswers = $request->input('answers', []);
 
-            $scoreResult = $this->calculateQcmScore($qcm, $userAnswers);
+            // ✅ Récupérer les questions originales complètes
+            $questionsData = $qcm->questions_data;
+            $allQuestions = $questionsData['questions'] ?? [];
+
+            // ✅ Reconstruire le mapping des questions originales par ID
+            $questionsById = [];
+            foreach ($allQuestions as $question) {
+                $questionId = $question['id'] ?? null;
+                if ($questionId) {
+                    $questionsById[$questionId] = $question;
+                }
+            }
+
+            // ✅ Filtrer les réponses pour ne garder que celles qui existent
+            $filteredAnswers = [];
+            foreach ($userAnswers as $questionId => $answer) {
+                if (isset($questionsById[$questionId])) {
+                    $filteredAnswers[$questionId] = $answer;
+                }
+            }
+
+            // Calculer le score avec les réponses filtrées
+            $scoreResult = $this->calculateQcmScore($qcm, $filteredAnswers, $questionsById);
             $score = $scoreResult['score'];
             $details = $scoreResult['details'];
 
-            Log::info('Score calculé:', ['score' => $score]);
+            Log::info('Score calculé:', [
+                'score' => $score,
+                'questions_repondues' => count($filteredAnswers),
+                'total_questions_bdd' => count($allQuestions)
+            ]);
 
+            // Sauvegarde de la progression (inchangée)
             $progression = ElearningProgression::where('acces_id', $acces->id)
                 ->where('qcm_id', $qcmId)
                 ->first();
@@ -937,37 +998,27 @@ class ElearningController extends Controller
                 $progression->qcm_score = $score;
                 $progression->qcm_attempts = $attemptNumber;
                 $progression->qcm_completed_at = now();
-                $progression->qcm_answers = $userAnswers;
+                $progression->qcm_answers = $filteredAnswers;
                 $progression->qcm_details = $details;
                 $progression->save();
 
-                Log::info('Progression mise à jour - ID: ' . $progression->id .
-                          ', completed: ' . $progression->qcm_completed);
-
+                Log::info('Progression mise à jour - ID: ' . $progression->id);
             } else {
                 $coursProgression = ElearningProgression::where('acces_id', $acces->id)
                     ->where('cours_id', $qcm->cours_id)
                     ->first();
 
                 if ($coursProgression) {
-                    Log::info('Progression de cours existante trouvée', ['progression_id' => $coursProgression->id]);
-
                     $coursProgression->qcm_id = $qcm->id;
                     $coursProgression->qcm_completed = 1;
                     $coursProgression->qcm_score = $score;
                     $coursProgression->qcm_attempts = 1;
                     $coursProgression->qcm_completed_at = now();
-                    $coursProgression->qcm_answers = $userAnswers;
+                    $coursProgression->qcm_answers = $filteredAnswers;
                     $coursProgression->qcm_details = $details;
                     $coursProgression->save();
-
                     $progression = $coursProgression;
-
-                    Log::info('Progression de cours mise à jour avec QCM', ['progression_id' => $progression->id]);
-
                 } else {
-                    Log::info('Aucune progression existante, création d\'une nouvelle');
-
                     $progression = ElearningProgression::create([
                         'acces_id' => $acces->id,
                         'cours_id' => $qcm->cours_id,
@@ -976,16 +1027,11 @@ class ElearningController extends Controller
                         'qcm_score' => $score,
                         'qcm_attempts' => 1,
                         'qcm_completed_at' => now(),
-                        'qcm_answers' => $userAnswers,
+                        'qcm_answers' => $filteredAnswers,
                         'qcm_details' => $details,
                     ]);
-
-                    Log::info('Nouvelle progression créée', ['progression_id' => $progression->id]);
                 }
             }
-
-            $verification = ElearningProgression::find($progression->id);
-            Log::info('Vérification base - qcm_completed: ' . $verification->qcm_completed);
 
             $this->updateAverageScore($acces);
 
@@ -1004,7 +1050,6 @@ class ElearningController extends Controller
                 'allow_multiple_correct' => $qcm->allow_multiple_correct,
                 'redirect' => route('elearning.virtual-room')
             ]);
-
         } catch (\Exception $e) {
             Log::error('Erreur submitQcm: ' . $e->getMessage());
             return response()->json([
@@ -1015,62 +1060,108 @@ class ElearningController extends Controller
     }
 
     /**
-     * Helper: Calculer le score d'un QCM
+     * Helper: Calculer le score d'un QCM avec support des questions par ID
      */
-    private function calculateQcmScore(ElearningQcm $qcm, array $userAnswers): array
+    private function calculateQcmScore(ElearningQcm $qcm, array $userAnswers, array $questionsById = []): array
     {
-        $questions = $qcm->questions_data['questions'] ?? [];
-        $allowMultiple = $qcm->allow_multiple_correct;
+        // Si aucune carte des questions n'est fournie, utiliser celle du QCM
+        if (empty($questionsById)) {
+            $questions = $qcm->questions_data['questions'] ?? [];
+            foreach ($questions as $question) {
+                $questionId = $question['id'] ?? null;
+                if ($questionId) {
+                    $questionsById[$questionId] = $question;
+                }
+            }
+        }
 
+        $allowMultiple = $qcm->allow_multiple_correct;
         $correctQuestions = 0;
+        $answeredQuestions = 0;  // ✅ Compte uniquement les questions répondues
         $details = [];
 
-        foreach ($questions as $index => $question) {
-            $questionId = $question['id'] ?? $index;
+        foreach ($userAnswers as $questionId => $userAnswer) {
+            // Récupérer la question correspondante
+            $question = $questionsById[$questionId] ?? null;
 
-            $correctAnswers = [];
-            if ($allowMultiple && isset($question['correct_answers'])) {
-                $correctAnswers = is_array($question['correct_answers'])
-                    ? $question['correct_answers']
-                    : [$question['correct_answers']];
-            } elseif (isset($question['correct_answer'])) {
-                $correctAnswers = [$question['correct_answer']];
+            if (!$question) {
+                Log::warning('Question non trouvée pour ID: ' . $questionId);
+                continue;
             }
 
-            $userAnswer = $userAnswers[$questionId] ?? null;
+            $answeredQuestions++;  // ✅ Une question de plus à comptabiliser
+
+            // === Récupérer les BONNES RÉPONSES en VALEURS TEXTE ===
+            $correctAnswerValues = [];
+
+            if ($allowMultiple && isset($question['correct_answers'])) {
+                // Mode multiple : récupérer les textes correspondant aux lettres correctes
+                $correctLetters = is_array($question['correct_answers'])
+                    ? $question['correct_answers']
+                    : [$question['correct_answers']];
+
+                foreach ($correctLetters as $letter) {
+                    if (isset($question['answers'][$letter])) {
+                        $correctAnswerValues[] = trim($question['answers'][$letter]);
+                    }
+                }
+            } elseif (isset($question['correct_answer'])) {
+                // Mode unique : récupérer le texte correspondant à la lettre correcte
+                $correctLetter = $question['correct_answer'];
+                if (isset($question['answers'][$correctLetter])) {
+                    $correctAnswerValues[] = trim($question['answers'][$correctLetter]);
+                }
+            }
+
+            // === Nettoyer la réponse utilisateur ===
+            if ($allowMultiple && is_array($userAnswer)) {
+                $userAnswer = array_map('trim', $userAnswer);
+                $userAnswer = array_filter($userAnswer);
+            } elseif (!is_array($userAnswer) && $userAnswer !== null) {
+                $userAnswer = trim($userAnswer);
+            }
+
+            // === Vérifier si la réponse est correcte ===
             $isCorrect = false;
 
             if ($allowMultiple) {
-                $userSelections = is_array($userAnswer) ? $userAnswer : [$userAnswer];
-                $userSelections = array_filter($userSelections);
-                $correctSelections = array_filter($correctAnswers);
+                // Comparaison d'ensembles entre valeurs texte
+                $userSet = collect($userAnswer ?? []);
+                $correctSet = collect($correctAnswerValues);
 
-                if (!empty($correctSelections)) {
-                    $correctCount = count(array_intersect($userSelections, $correctSelections));
-                    $wrongCount = count(array_diff($userSelections, $correctSelections));
-                    $isCorrect = ($correctCount === count($correctSelections) && $wrongCount === 0);
+                if ($userSet->count() === $correctSet->count() && $userSet->diff($correctSet)->isEmpty()) {
+                    $isCorrect = true;
                 }
             } else {
-                $correctAnswer = $correctAnswers[0] ?? '';
-                $isCorrect = ($userAnswer === $correctAnswer && !empty($userAnswer));
+                // Comparaison directe entre valeurs texte
+                $correctValue = $correctAnswerValues[0] ?? '';
+                $isCorrect = ($userAnswer === $correctValue && !empty($userAnswer) && !empty($correctValue));
             }
 
             if ($isCorrect) {
                 $correctQuestions++;
             }
 
+            // Stocker les détails pour l'affichage
             $details[] = [
-                'question_index' => $index + 1,
-                'question' => $question['text'] ?? 'Question ' . ($index + 1),
+                'question_index' => count($details) + 1,
+                'question' => $question['text'] ?? 'Question ' . ($questionId),
                 'correct' => $isCorrect,
                 'user_answer' => $userAnswer,
-                'correct_answer' => $allowMultiple ? $correctAnswers : ($correctAnswers[0] ?? ''),
+                'correct_answer' => $allowMultiple ? $correctAnswerValues : ($correctAnswerValues[0] ?? ''),
                 'explanation' => $question['explanation'] ?? '',
             ];
         }
 
-        $totalQuestions = count($questions);
-        $score = $totalQuestions > 0 ? ($correctQuestions / $totalQuestions) * 100 : 0;
+        // ✅ CALCUL DU SCORE UNIQUEMENT SUR LES QUESTIONS RÉPONDUES
+        $totalQuestions = $answeredQuestions > 0 ? $answeredQuestions : 1;
+        $score = ($correctQuestions / $totalQuestions) * 100;
+
+        Log::info('Calcul score détaillé', [
+            'correct' => $correctQuestions,
+            'answered' => $answeredQuestions,
+            'score' => $score
+        ]);
 
         return [
             'score' => $score,

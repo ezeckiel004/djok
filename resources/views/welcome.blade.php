@@ -438,94 +438,6 @@
     </div>
 </section>
 
-<!-- INDICATEURS DE PERFORMANCE -->
-{{-- <section class="py-20" style="background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);">
-    <div class="px-4 mx-auto max-w-7xl">
-        <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
-            <!-- Carte Personnes Formées -->
-            <div class="relative overflow-hidden transition-all duration-500 group rounded-2xl"
-                style="background: linear-gradient(135deg, rgba(182, 146, 70, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%); border: 1px solid rgba(182, 146, 70, 0.3);">
-                <div class="p-8 text-center">
-                    <div class="flex items-center justify-center mb-6">
-                        <div class="relative">
-                            <div class="absolute inset-0 rounded-full animate-ping"
-                                style="background: rgba(182, 146, 70, 0.3); width: 80px; height: 80px; border-radius: 50%;"></div>
-                            <div class="relative flex items-center justify-center w-20 h-20 rounded-full"
-                                style="background: linear-gradient(135deg, #b69246 0%, #d4af37 100%);">
-                                <i class="text-3xl fas fa-users" style="color: #000;"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-4">
-                        <span class="text-6xl font-bold" style="color: #b69246; text-shadow: 0 0 20px rgba(182, 146, 70, 0.5);">
-                            <span class="counter" data-target="8">0</span>
-                        </span>
-                        <span class="text-3xl font-bold" style="color: #b69246;">+</span>
-                    </div>
-                    <h3 class="mb-3 text-2xl font-bold text-white">Personnes Formées</h3>
-                    <p class="text-gray-400">
-                        Des professionnels formés avec succès à nos différentes certifications VTC
-                    </p>
-                    <div class="mt-6">
-                        <div class="h-1 overflow-hidden rounded-full bg-gray-700">
-                            <div class="h-full transition-all duration-1000 rounded-full" style="width: 100%; background: #b69246;"></div>
-                        </div>
-                        <p class="mt-2 text-sm text-gray-500">Objectif 2025 : 25+ formés</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Carte Taux de Satisfaction -->
-            <div class="relative overflow-hidden transition-all duration-500 group rounded-2xl"
-                style="background: linear-gradient(135deg, rgba(182, 146, 70, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%); border: 1px solid rgba(182, 146, 70, 0.3);">
-                <div class="p-8 text-center">
-                    <div class="flex items-center justify-center mb-6">
-                        <div class="relative">
-                            <div class="absolute inset-0 rounded-full animate-ping"
-                                style="background: rgba(182, 146, 70, 0.3); width: 80px; height: 80px; border-radius: 50%;"></div>
-                            <div class="relative flex items-center justify-center w-20 h-20 rounded-full"
-                                style="background: linear-gradient(135deg, #b69246 0%, #d4af37 100%);">
-                                <i class="text-3xl fas fa-star" style="color: #000;"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-4">
-                        <span class="text-6xl font-bold" style="color: #b69246; text-shadow: 0 0 20px rgba(182, 146, 70, 0.5);">
-                            <span class="counter" data-target="100">0</span>
-                        </span>
-                        <span class="text-3xl font-bold" style="color: #b69246;">%</span>
-                    </div>
-                    <h3 class="mb-3 text-2xl font-bold text-white">Taux de Satisfaction</h3>
-                    <p class="text-gray-400">
-                        De nos apprenants, basé sur nos enquêtes de satisfaction post-formation
-                    </p>
-                    <div class="mt-6">
-                        <div class="flex justify-center gap-1">
-                            <i class="fas fa-star" style="color: #b69246;"></i>
-                            <i class="fas fa-star" style="color: #b69246;"></i>
-                            <i class="fas fa-star" style="color: #b69246;"></i>
-                            <i class="fas fa-star" style="color: #b69246;"></i>
-                            <i class="fas fa-star" style="color: #b69246;"></i>
-                        </div>
-                        <p class="mt-2 text-sm text-gray-500">Note moyenne : 5/5 sur 12 avis</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bandeau récapitulatif -->
-        <div class="max-w-3xl mx-auto mt-12 text-center">
-            <div class="p-6 rounded-xl" style="background: rgba(182, 146, 70, 0.05); border: 1px solid rgba(182, 146, 70, 0.2);">
-                <p class="text-lg text-gray-300">
-                    <i class="mr-2 fas fa-chart-line" style="color: #b69246;"></i>
-                    <strong class="text-white">+8 professionnels formés</strong> et prêts à réussir dans le secteur VTC,
-                    avec un <strong class="text-white">taux de satisfaction de 100%</strong> auprès de nos apprenants.
-                </p>
-            </div>
-        </div>
-    </div>
-</section> --}}
-
 <!-- Statistics Section -->
 <section id="stats" class="py-20 text-white bg-dark">
     <div class="px-4 mx-auto max-w-7xl">
@@ -592,11 +504,6 @@
                     <img src="{{ asset('qualiopi3.jpeg') }}"
                          alt="Qualiopi processus certifié - République Française"
                          class="qualiopi-logo-img">
-
-                    {{-- <p class="certification-mention">
-                        La certification qualité a été délivrée au titre de la catégorie d'action
-                        suivante&nbsp;: <strong>actions de formation</strong>.
-                    </p> --}}
                 </div>
 
                 <!-- SÉPARATEUR VERTICAL -->
@@ -611,10 +518,10 @@
                 </div>
             </div>
 
-            <!-- Card Préfectoral -->
+            <!-- Card Préfectoral - Format horizontal -->
             <div class="mt-8">
                 <a href="{{ asset('Agrément_préfecture.pdf') }}" target="_blank" class="block no-underline">
-                    <div class="p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer flex flex-col md:flex-row items-center gap-6"
+                    <div class="p-8 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer flex flex-col md:flex-row items-center gap-6"
                         style="background: #111; border: 1px solid #333;">
                         <div class="w-20 h-20 flex-shrink-0 flex items-center justify-center rounded-full overflow-hidden"
                             style="background: var(--gold);">
@@ -630,6 +537,35 @@
                             <div class="text-sm mb-1" style="color: var(--gold);">
                                 <i class="fas fa-file-pdf mr-2"></i>
                                 <span>{{ __('home.prefectoral') }}</span>
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                {{ __('home.pdf_label') }}
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card Datadock - Format horizontal (corrigé) -->
+            <div class="mt-8">
+                <a href="{{ route('pdf.arrete-modificatif') }}" target="_blank" class="block no-underline">
+                    <div class="p-8 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer flex flex-col md:flex-row items-center gap-6"
+                        style="background: #111; border: 1px solid #333;">
+                        <div class="w-20 h-20 flex-shrink-0 flex items-center justify-center rounded-full overflow-hidden transition-all duration-300 hover:scale-110 hover:rotate-12"
+                            style="background: var(--gold);">
+                            <img src="{{ asset('ac3.JPG') }}" alt="Datadock Certification"
+                                class="object-cover w-full h-full rounded-full">
+                        </div>
+                        <div class="flex-grow text-left">
+                            <h3 class="text-xl font-bold mb-2" style="color: white;">{{ __('home.datadock') }}</h3>
+                            <p class="text-gray-400 mb-1">{{ __('home.datadock_description') }}</p>
+                            <p class="text-sm text-gray-500">{{ __('home.datadock_detail') }}</p>
+                        </div>
+                        <div class="flex-shrink-0 text-center">
+                            <div class="text-sm mb-1" style="color: var(--gold);">
+                                <i class="fas fa-file-pdf mr-2"></i>
+                                <span>{{ __('home.view_arrete_pdf') }}</span>
                             </div>
                             <div class="text-xs text-gray-500">
                                 <i class="fas fa-info-circle mr-1"></i>
@@ -929,7 +865,6 @@
     flex: 1;
 }
 .qualiopi-logo-img {
-    /* L'image contient déjà Qualiopi + Marianne + République Française */
     max-width: 420px;
     width: 100%;
     height: auto;
@@ -1106,51 +1041,6 @@
             el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
             observer.observe(el);
         });
-
-        // Script pour l'animation des compteurs
-        const counters = document.querySelectorAll('.counter');
-
-        const animateCounter = (counter) => {
-            const target = parseInt(counter.getAttribute('data-target'));
-            let current = 0;
-            const increment = target / 50;
-            const updateCounter = () => {
-                current += increment;
-                if (current < target) {
-                    counter.innerText = Math.ceil(current);
-                    requestAnimationFrame(updateCounter);
-                } else {
-                    counter.innerText = target;
-                }
-            };
-            updateCounter();
-        };
-
-        // Observer pour déclencher l'animation des compteurs
-        const counterObserverOptions = {
-            threshold: 0.3,
-            rootMargin: '0px'
-        };
-
-        const counterObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const sectionCounters = entry.target.querySelectorAll('.counter');
-                    sectionCounters.forEach(counter => {
-                        if (counter.innerText === '0') {
-                            animateCounter(counter);
-                        }
-                    });
-                    counterObserver.unobserve(entry.target);
-                }
-            });
-        }, counterObserverOptions);
-
-        // Observer la section des indicateurs
-        const indicatorsSection = document.querySelector('.py-20[style*="linear-gradient"]');
-        if (indicatorsSection) {
-            counterObserver.observe(indicatorsSection);
-        }
     });
 
     const slider = document.getElementById('reviewsSlider');

@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', __('qcm.page_title'))
+@section('title', $qcm->title . ' - DJOK PRESTIGE')
 
 @section('content')
 <!-- Header -->
@@ -20,8 +20,7 @@
             <div class="flex items-center space-x-4">
                 <div class="hidden text-right md:block">
                     <div class="text-sm font-medium text-white">{{ $acces->prenom }} {{ $acces->nom }}</div>
-                    <div class="text-xs text-gray-400">{{ __('qcm.virtual_room') }}: {{ $acces->virtual_room_code }}
-                    </div>
+                    <div class="text-xs text-gray-400">Salle: {{ $acces->virtual_room_code }}</div>
                 </div>
             </div>
         </div>
@@ -31,8 +30,14 @@
 <!-- Message d'alerte si déjà complété -->
 @php
 $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
-->where('qcm_id', $qcm->id)
-->first();
+    ->where('qcm_id', $qcm->id)
+    ->first();
+
+// ✅ Utiliser les questions sélectionnées aléatoirement
+$questions = $qcm->selected_questions ?? ($qcm->questions_data['questions'] ?? []);
+$questionsCount = $qcm->selected_questions_count ?? count($questions);
+$totalAvailable = $qcm->total_available_questions ?? $questionsCount;
+$isRandomized = $qcm->is_randomized ?? false;
 @endphp
 
 @if($progression && $progression->qcm_completed)
@@ -41,14 +46,14 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
         <div class="flex items-center">
             <i class="mr-3 fas fa-info-circle" style="color: #60a5fa;"></i>
             <div>
-                <h4 class="mb-1 font-bold text-white">{{ __('qcm.important_note') }}</h4>
+                <h4 class="mb-1 font-bold text-white">Information importante</h4>
                 <p class="text-blue-100">
-                    {{ __('qcm.previous_score') }}
+                    Vous avez déjà complété ce QCM. Votre meilleur score est de
                     <strong>{{ $progression->qcm_score }}%</strong>
                     ({{ $progression->qcm_attempts }}/{{ $qcm->attempts_allowed == 0 ? '∞' : $qcm->attempts_allowed }}
-                    {{ __('qcm.attempts') }}).
+                    tentatives).
                     @if($qcm->attempts_allowed > 0 && $progression->qcm_attempts >= $qcm->attempts_allowed)
-                    <br><strong class="text-red-400">{{ __('qcm.last_attempt_warning') }}</strong>
+                    <br><strong class="text-red-400">⚠️ Vous avez atteint le nombre maximum de tentatives.</strong>
                     @endif
                 </p>
             </div>
@@ -61,107 +66,12 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
 <div class="py-8" style="background: #000; min-height: calc(100vh - 200px);">
     <div class="container px-4 mx-auto md:px-6">
         <div class="max-w-4xl mx-auto">
-            <!-- QCM Info -->
-            <div class="p-6 mb-8 rounded-lg" style="background: #111; border: 1px solid #333;">
-                <div class="flex flex-col justify-between mb-4 md:flex-row md:items-center">
-                    <div class="flex-1 min-w-0 mr-4">
-                        <h2 class="mb-2 text-xl font-bold text-white break-words">{{ $qcm->title }}</h2>
-                        @if($qcm->description)
-                        <p class="overflow-hidden text-gray-400 break-words whitespace-normal">
-                            {{ $qcm->description }}
-                        </p>
-                        @endif
-                    </div>
-                    <div class="flex items-center flex-shrink-0 mt-4 space-x-4 md:mt-0">
-                        <div class="text-center">
-                            <div class="text-lg font-bold" style="color: #b89449;">{{ $qcm->questions_count }}</div>
-                            <div class="text-xs text-gray-400">{{ __('qcm.questions') }}</div>
-                        </div>
-                        @if($qcm->is_examen_blanc)
-                        <span class="px-3 py-1 text-sm font-semibold rounded-full whitespace-nowrap"
-                            style="background: #7f1d1d; color: #fca5a5;">
-                            {{ __('qcm.white_exam') }}
-                        </span>
-                        @endif
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 gap-4 pt-4 border-t border-gray-800 md:grid-cols-4">
-                    <div class="text-center">
-                        <div class="mb-1 text-sm font-medium text-gray-400">{{ __('qcm.minimum_score') }}</div>
-                        <div class="text-lg font-bold" style="color: #60a5fa;">{{ $qcm->passing_score }}%</div>
-                    </div>
-                    @if($qcm->time_limit_minutes)
-                    <div class="text-center">
-                        <div class="mb-1 text-sm font-medium text-gray-400">{{ __('qcm.time_limit') }}</div>
-                        <div class="text-lg font-bold" style="color: #10b981;">{{ $qcm->time_limit_minutes }} min</div>
-                    </div>
-                    @endif
-                    <div class="text-center">
-                        <div class="mb-1 text-sm font-medium text-gray-400">{{ __('qcm.attempts_allowed') }}</div>
-                        <div class="text-lg font-bold" style="color: #ddd;">
-                            @if($progression)
-                            {{ $progression->qcm_attempts }}/{{ $qcm->attempts_allowed == 0 ? '∞' :
-                            $qcm->attempts_allowed }}
-                            @else
-                            0/{{ $qcm->attempts_allowed == 0 ? '∞' : $qcm->attempts_allowed }}
-                            @endif
-                        </div>
-                    </div>
-                    @if($qcm->allow_multiple_correct)
-                    <div class="text-center">
-                        <div class="mb-1 text-sm font-medium text-gray-400">{{ __('qcm.qcm_type') }}</div>
-                        <div class="text-lg font-bold" style="color: #a855f7;">
-                            <i class="mr-1 fas fa-check-double"></i> {{ __('qcm.multiple_answers') }}
-                        </div>
-                    </div>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Instructions -->
-            @if($qcm->is_examen_blanc)
-            <div class="p-4 mb-6 rounded-lg" style="background: #1a1a1a; border: 1px solid #7f1d1d;">
-                <div class="flex items-start">
-                    <i class="mt-1 mr-3 fas fa-exclamation-triangle" style="color: #f56565;"></i>
-                    <div class="flex-1 min-w-0">
-                        <h3 class="mb-2 font-bold text-white break-words">{{ __('qcm.white_exam_instructions') }}</h3>
-                        <p class="text-sm text-gray-300 break-words whitespace-normal">
-                            {!! __('qcm.white_exam_description', ['minutes' => $qcm->time_limit_minutes ??
-                            __('qcm.unlimited')]) !!}
-                        </p>
-                    </div>
-                </div>
-            </div>
-            @endif
-
-            <!-- Instructions pour QCM multi-réponses -->
-            @if($qcm->allow_multiple_correct)
-            <div class="p-4 mb-6 rounded-lg" style="background: #1a1a1a; border: 1px solid #7c3aed;">
-                <div class="flex items-start">
-                    <i class="mt-1 mr-3 fas fa-info-circle" style="color: #a855f7;"></i>
-                    <div class="flex-1 min-w-0">
-                        <h3 class="mb-2 font-bold text-white break-words">{{ __('qcm.multiple_answers_instructions') }}
-                        </h3>
-                        <p class="text-sm text-gray-300 break-words whitespace-normal">
-                            {!! __('qcm.multiple_answers_description') !!}
-                        </p>
-                        <div class="mt-2 text-xs text-gray-400 break-words whitespace-normal">
-                            <i class="mr-1 fas fa-check-circle"></i> {{ __('qcm.full_points') }}
-                            <br>
-                            <i class="mr-1 fas fa-exclamation-circle"></i> {{ __('qcm.partial_points') }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endif
-
             <!-- Timer (si limité) -->
-            @if($qcm->time_limit_minutes)
+            @if($qcm->time_limit_minutes && !($progression && $progression->qcm_completed))
             <div class="mb-6">
                 <div class="flex items-center justify-center">
                     <div class="p-4 text-center rounded-lg" style="background: #111; border: 1px solid #333;">
-                        <div class="mb-1 text-sm font-medium text-gray-400">{{ __('qcm.time_remaining') }}</div>
+                        <div class="mb-1 text-sm font-medium text-gray-400">Temps restant</div>
                         <div id="timer" class="text-3xl font-bold" style="color: #b89449;">
                             {{ sprintf('%02d:00', $qcm->time_limit_minutes) }}
                         </div>
@@ -170,217 +80,40 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
             </div>
             @endif
 
-            <!-- QCM Form -->
-            <form id="qcmForm" action="{{ route('elearning.qcm.submit', $qcm->id) }}" method="POST" class="space-y-6">
-                @csrf
-                <input type="hidden" name="qcm_id" value="{{ $qcm->id }}">
-                <input type="hidden" name="allow_multiple_correct" value="{{ $qcm->allow_multiple_correct ? 1 : 0 }}">
-
-                @php
-                $questions = $qcm->questions ?? ($qcm->questions_data['questions'] ?? []);
-                $questionsCount = count($questions);
-                @endphp
-
-                @if($questionsCount > 0)
-                @foreach($questions as $index => $question)
-                <div class="p-6 rounded-lg" style="background: #111; border: 1px solid #333;">
-                    <div class="flex items-start mb-4">
-                        <div class="flex-shrink-0 mr-4">
-                            <div class="flex items-center justify-center w-8 h-8 rounded-full"
-                                style="background: #1e40af;">
-                                <span class="text-sm font-bold text-white">{{ $index + 1 }}</span>
-                            </div>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <h3 class="mb-4 text-lg font-medium text-white break-words">{{ $question['text'] ??
-                                'Question ' .
-                                ($index + 1) }}</h3>
-
-                            <div class="space-y-3">
-                                @foreach($question['answers'] ?? [] as $letter => $answer)
-                                <div class="flex items-center">
-                                    @if($qcm->allow_multiple_correct)
-                                    <input type="checkbox" id="question_{{ $index }}_{{ $letter }}"
-                                        name="answers[{{ $question['id'] ?? $index }}][]" value="{{ $letter }}"
-                                        class="w-4 h-4 rounded" style="accent-color: #b89449;">
-                                    @else
-                                    <input type="radio" id="question_{{ $index }}_{{ $letter }}"
-                                        name="answers[{{ $question['id'] ?? $index }}]" value="{{ $letter }}"
-                                        class="w-4 h-4" style="accent-color: #b89449;">
-                                    @endif
-                                    <label for="question_{{ $index }}_{{ $letter }}"
-                                        class="flex-1 ml-3 text-gray-300 break-words whitespace-normal transition-colors cursor-pointer hover:text-white">
-                                        <span class="mr-2 font-medium" style="color: #b89449;">{{ $letter }}.</span>
-                                        {{ $answer }}
-                                    </label>
-                                </div>
-                                @endforeach
-                            </div>
-
-                            @if($qcm->allow_multiple_correct)
-                            <div class="mt-4 text-sm text-gray-400 break-words whitespace-normal">
-                                <i class="mr-1 fas fa-check-double"></i>
-                                {{ __('qcm.select_all_correct_answers') }}
-                            </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-                @else
-                <div class="p-6 rounded-lg" style="background: #111; border: 1px solid #333;">
-                    <div class="text-center">
-                        <i class="mb-4 text-3xl text-yellow-500 fas fa-exclamation-triangle"></i>
-                        <h3 class="mb-2 text-lg font-medium text-white">{{ __('qcm.no_questions_available') }}</h3>
-                        <p class="text-gray-400">{{ __('qcm.no_questions_message') }}</p>
-                    </div>
-                </div>
-                @endif
-
-                <!-- Submit Button -->
-                <div class="sticky z-10 bottom-6">
-                    <div class="p-4 rounded-lg shadow-lg" style="background: #111; border: 1px solid #333;">
-                        <div class="flex flex-col justify-between md:flex-row md:items-center">
-                            <div class="flex-1 min-w-0 mb-4 mr-4 md:mb-0">
-                                <p class="text-sm text-gray-400 break-words whitespace-normal">
-                                    {{ __('qcm.answered') }} <span id="answeredCount">0</span> {{ __('qcm.out_of') }}
-                                    <span id="totalQuestions">{{ $questionsCount }}</span>
-                                    {{ __('qcm.questions_answered') }}
-                                </p>
-                                <div class="flex items-center mt-1 space-x-4">
-                                    @if($qcm->time_limit_minutes)
-                                    <div class="flex items-center">
-                                        <i class="mr-2 text-xs text-gray-500 fas fa-clock"></i>
-                                        <span class="text-xs text-gray-500">{{ __('qcm.time_remaining') }} : </span>
-                                        <span id="timerDisplay" class="ml-1 text-xs font-bold" style="color: #b89449;">
-                                            {{ sprintf('%02d:00', $qcm->time_limit_minutes) }}
-                                        </span>
-                                    </div>
-                                    @endif
-                                    @if($qcm->allow_multiple_correct)
-                                    <div class="flex items-center">
-                                        <i class="mr-2 text-xs text-purple-500 fas fa-check-double"></i>
-                                        <span class="text-xs text-gray-500">{{ __('qcm.multiple_answers_qcm') }}</span>
-                                    </div>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="flex flex-shrink-0 space-x-3">
-                                <a href="{{ route('elearning.virtual-room') }}" onclick="return confirmNavigation()"
-                                    class="px-6 py-3 font-medium transition-colors rounded whitespace-nowrap"
-                                    style="background: #333; color: white;">
-                                    <i class="mr-2 fas fa-arrow-left"></i> {{ __('qcm.back') }}
-                                </a>
-                                @if($questionsCount > 0)
-                                <button type="button" id="submitQcmBtn"
-                                    class="px-6 py-3 font-medium transition-colors rounded whitespace-nowrap"
-                                    style="background: #b89449; color: black;">
-                                    <i class="mr-2 fas fa-paper-plane"></i> {{ __('qcm.finish_qcm') }}
-                                </button>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Results Modal -->
-<div id="resultsModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-75">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="w-full max-w-2xl rounded-lg" style="background: #111; border: 1px solid #333;">
-            <div class="p-6">
-                <h2 class="mb-2 text-2xl font-bold text-white">{{ __('qcm.qcm_results') }}</h2>
-                <p class="mb-6 text-gray-400">{{ $qcm->title }}</p>
-
-                <div class="grid grid-cols-2 gap-6 mb-8">
-                    <div class="p-4 text-center rounded-lg" style="background: #1a1a1a;">
-                        <div class="mb-2 text-5xl font-bold" id="resultScore" style="color: #b89449;">0%</div>
-                        <div class="text-sm text-gray-400">{{ __('qcm.your_score') }}</div>
-                    </div>
-                    <div class="p-4 text-center rounded-lg" style="background: #1a1a1a;">
-                        <div class="mb-2 text-5xl font-bold" style="color: #60a5fa;">{{ $qcm->passing_score }}%</div>
-                        <div class="text-sm text-gray-400">{{ __('qcm.minimum_required') }}</div>
-                    </div>
-                </div>
-
-                <!-- Détails des réponses -->
-                <div class="mb-6" id="resultsDetails" style="display: none;">
-                    <h3 class="mb-3 font-bold text-white">{{ __('qcm.answer_details') }}</h3>
-                    <div class="pr-2 space-y-3 overflow-y-auto max-h-64" id="questionsDetails">
-                        <!-- Les détails seront ajoutés dynamiquement ici -->
-                    </div>
-                </div>
-
-                <div class="p-4 mb-6 rounded-lg" id="resultStatus"
-                    style="background: #064e3b; border: 1px solid #047857;">
-                    <div class="flex items-center">
-                        <i class="mr-3 fas fa-check-circle" style="color: #a7f3d0;"></i>
-                        <div>
-                            <h4 class="mb-1 font-bold text-white" id="statusTitle">{{ __('qcm.congratulations') }}</h4>
-                            <p class="text-sm text-gray-200" id="statusMessage">{{ __('qcm.success_message', ['score' =>
-                                '__SCORE__']) }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-end pt-6 space-x-3 border-t border-gray-800">
-                    <button type="button" onclick="toggleResultsDetails()"
-                        class="px-4 py-2 font-medium transition-colors rounded" style="background: #333; color: white;">
-                        <i class="mr-2 fas fa-list"></i> {{ __('qcm.view_details') }}
-                    </button>
-                    <a href="{{ route('elearning.virtual-room') }}"
-                        class="px-6 py-2 font-medium transition-colors rounded"
-                        style="background: #b89449; color: black;">
-                        <i class="mr-2 fas fa-home"></i> {{ __('qcm.back_to_room') }}
-                    </a>
-                </div>
-
-                <!-- Message de redirection automatique -->
-                <div class="mt-4 text-center text-gray-400">
-                    <i class="mr-1 fas fa-redo-alt fa-spin"></i>
-                    {{ __('qcm.redirecting_in_seconds') }}
+            <!-- Container du QCM mode jeu -->
+            <div id="qcmApp" class="rounded-lg" style="background: #111; border: 1px solid #333;">
+                <div class="text-center py-12">
+                    <i class="fas fa-spinner fa-spin text-3xl text-yellow-500 mb-3"></i>
+                    <p class="text-gray-400">Chargement du QCM...</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Popup de confirmation personnalisé -->
+<!-- Popup de confirmation personnalisé pour rechargement -->
 <div id="reloadConfirmModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-75">
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="w-full max-w-md rounded-lg" style="background: #111; border: 1px solid #333;">
             <div class="p-6">
                 <div class="flex items-center mb-4">
                     <i class="mr-3 text-2xl fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
-                    <h3 class="text-xl font-bold text-white">{{ __('qcm.fraud_detected') }}</h3>
+                    <h3 class="text-xl font-bold text-white">Attention !</h3>
                 </div>
-
                 <div class="mb-6">
                     <p class="mb-3 text-gray-300">
-                        {{ __('qcm.fraud_warning') }}
+                        Vous avez déjà commencé à répondre à ce QCM. Si vous rechargez la page, vous perdrez toutes vos réponses non enregistrées.
                     </p>
                     <p class="text-gray-300">
-                        <strong>{{ __('qcm.fraud_action') }}</strong>
+                        <strong>Que souhaitez-vous faire ?</strong>
                     </p>
-                    <div class="p-3 mt-4 rounded" style="background: #1a1a1a; border: 1px solid #7f1d1d;">
-                        <p class="text-sm text-red-400">
-                            <i class="mr-2 fas fa-exclamation-circle"></i>
-                            {{ __('qcm.fraud_redirect') }}
-                        </p>
-                    </div>
                 </div>
-
                 <div class="flex justify-end pt-4 space-x-3 border-t border-gray-800">
-                    <button type="button" id="cancelReloadBtn" class="px-6 py-2 font-medium transition-colors rounded"
-                        style="background: #333; color: white;">
-                        {{ __('qcm.cancel') }}
+                    <button type="button" id="cancelReloadBtn" class="px-6 py-2 font-medium transition-colors rounded" style="background: #333; color: white;">
+                        Annuler
                     </button>
-                    <button type="button" id="confirmReloadBtn" class="px-6 py-2 font-medium transition-colors rounded"
-                        style="background: #dc2626; color: white;">
-                        <i class="mr-2 fas fa-redo"></i> {{ __('qcm.confirm') }}
+                    <button type="button" id="confirmReloadBtn" class="px-6 py-2 font-medium transition-colors rounded" style="background: #dc2626; color: white;">
+                        <i class="mr-2 fas fa-external-link-alt"></i> Quitter le QCM
                     </button>
                 </div>
             </div>
@@ -389,506 +122,653 @@ $progression = \App\Models\ElearningProgression::where('acces_id', $acces->id)
 </div>
 
 <script>
-    // Variables globales pour le contrôle
-    let formSubmitted = false;
-    let hasAnswers = false;
-    let timerInterval = null;
-    let reloadConfirmed = false;
-    let allowMultipleCorrect = {{ $qcm->allow_multiple_correct ? 'true' : 'false' }};
-    let qcmId = {{ $qcm->id }};
+    (function() {
+        // ==============================================
+        // DONNÉES PHP
+        // ==============================================
+        const RAW_QUESTIONS   = @json($questions);
+        const ALLOW_MULTIPLE  = {{ $qcm->allow_multiple_correct ? 'true' : 'false' }};
+        const QCM_ID          = {{ $qcm->id }};
+        const PASSING_SCORE   = {{ $qcm->passing_score }};
+        const HAS_TIME_LIMIT  = {{ $qcm->time_limit_minutes ? 'true' : 'false' }};
+        const TIME_LIMIT_SECONDS = {{ $qcm->time_limit_minutes ? $qcm->time_limit_minutes * 60 : 0 }};
+        const IS_ALREADY_COMPLETED = {{ $progression && $progression->qcm_completed ? 'true' : 'false' }};
 
-    // Vérifier IMMÉDIATEMENT si on vient de confirmer un rechargement
-    if (sessionStorage.getItem('qcm_reload_confirmed_' + qcmId)) {
-        console.log('🚨 REDIRECTION POUR FRAUDE CONFIRMÉE');
-        sessionStorage.removeItem('qcm_reload_confirmed_' + qcmId);
-        window.location.href = '{{ route("elearning.virtual-room") }}';
-        // Empêcher l'exécution du reste du script
-        throw new Error('Redirection pour fraude confirmée');
-    }
+        // ==============================================
+        // CONFIGURATION
+        // ==============================================
+        const MAX_QUESTIONS_PER_SESSION = 25;
+        const TOTAL_AVAILABLE = Array.isArray(RAW_QUESTIONS) ? RAW_QUESTIONS.length : Object.values(RAW_QUESTIONS).length;
 
-    // Fonction pour confirmer la navigation
-    function confirmNavigation() {
-        if (hasAnswers && !formSubmitted) {
-            return confirm('{{ __("qcm.confirm_navigation") }}');
+        // Variables globales
+        let activeQuestions = [];
+        let totalQuestions = 0;
+        let userAnswers = {};
+        let currentQuestionIndex = 0;
+        let container = null;
+        let isWaitingForNext = false;
+        let timerInterval = null;
+        let timeLeft = TIME_LIMIT_SECONDS;
+        let formSubmitted = false;
+
+        // État question courante
+        let currentQuestion = null;
+        let showExplanation = false;
+        let selectedAnswerValues = [];
+
+        // ==============================================
+        // REDIRECTION SI DÉJÀ COMPLÉTÉ
+        // ==============================================
+        if (IS_ALREADY_COMPLETED) {
+            container = document.getElementById('qcmApp');
+            if (container) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-check-circle text-5xl text-green-500 mb-4"></i>
+                        <h3 class="text-xl font-bold text-white mb-2">QCM déjà complété</h3>
+                        <p class="text-gray-400 mb-6">Vous avez déjà terminé ce QCM.</p>
+                        <a href="{{ route('elearning.virtual-room') }}" class="inline-block px-6 py-3 font-medium rounded-lg" style="background: #b89449; color: black;">
+                            <i class="fas fa-arrow-left mr-2"></i> Retour à la salle virtuelle
+                        </a>
+                    </div>
+                `;
+            }
+            throw new Error('QCM déjà complété');
         }
-        return true;
-    }
 
-    // Fonction pour afficher la modal de confirmation de rechargement
-    function showReloadConfirm() {
-        if (hasAnswers && !formSubmitted && !reloadConfirmed) {
-            const modal = document.getElementById('reloadConfirmModal');
-            modal.classList.remove('hidden');
-
-            // Bloquer le défilement
-            document.body.style.overflow = 'hidden';
-
-            return false;
+        // ==============================================
+        // MÉLANGE ALÉATOIRE (FISHER-YATES)
+        // ==============================================
+        function fisherYates(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
         }
-        return true;
-    }
 
-    // Fonction pour confirmer le rechargement - REDIRECTION IMMÉDIATE
-    function confirmReloadAndProceed() {
-        reloadConfirmed = true;
-        const modal = document.getElementById('reloadConfirmModal');
-        modal.classList.add('hidden');
-        document.body.style.overflow = '';
-
-        // Marquer dans sessionStorage que le rechargement a été confirmé
-        sessionStorage.setItem('qcm_reload_confirmed_' + qcmId, 'true');
-
-        // Rediriger IMMÉDIATEMENT vers la salle virtuelle
-        console.log('🚨 CONFIRMATION DE RECHARGEMENT - REDIRECTION');
-        window.location.href = '{{ route("elearning.virtual-room") }}';
-    }
-
-    // Fonction pour annuler le rechargement
-    function cancelReload() {
-        const modal = document.getElementById('reloadConfirmModal');
-        modal.classList.add('hidden');
-        document.body.style.overflow = '';
-    }
-
-    // Fonction pour basculer l'affichage des détails
-    function toggleResultsDetails() {
-        const details = document.getElementById('resultsDetails');
-        if (details.style.display === 'none' || details.style.display === '') {
-            details.style.display = 'block';
-        } else {
-            details.style.display = 'none';
+        // ==============================================
+        // SÉLECTION ALEATOIRE DE 25 QUESTIONS PARMI TOUTES
+        // ==============================================
+        function selectRandomQuestions(allQuestions, maxCount) {
+            const shuffled = fisherYates(allQuestions);
+            return shuffled.slice(0, maxCount);
         }
-    }
 
-    // Gestion du beforeunload pour toutes les navigations
-    window.addEventListener('beforeunload', function(e) {
-        if (hasAnswers && !formSubmitted && !reloadConfirmed) {
-            e.preventDefault();
-            e.returnValue = '{{ __("qcm.confirm_navigation") }}';
-            return e.returnValue;
+        // ==============================================
+        // NORMALISATION DES QUESTIONS
+        // ==============================================
+        function normalizeQuestions() {
+            const raw = Array.isArray(RAW_QUESTIONS) ? RAW_QUESTIONS : Object.values(RAW_QUESTIONS);
+            return raw.map((q, idx) => {
+                let correctAnswerValues = [];
+                if (ALLOW_MULTIPLE && q.correct_answers) {
+                    correctAnswerValues = q.correct_answers.map(letter => q.answers[letter]);
+                } else if (q.correct_answer) {
+                    correctAnswerValues = [q.answers[q.correct_answer]];
+                }
+
+                return {
+                    id: q.id || idx,
+                    text: q.text || 'Question sans texte',
+                    originalAnswers: { ...(q.answers || {}) },
+                    correctAnswerValues: correctAnswerValues,
+                    explanation: q.explanation || 'Aucune explication disponible.'
+                };
+            });
         }
-    });
 
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('=== PAGE QCM CHARGÉE ===');
-        console.log('QCM ID:', qcmId);
-        console.log('Mode multi-réponses:', allowMultipleCorrect);
+        // ==============================================
+        // MÉLANGE DES RÉPONSES D'UNE QUESTION
+        // ==============================================
+        function shuffleAnswersForQuestion(question) {
+            const entries = Object.entries(question.originalAnswers);
+            const shuffledEntries = fisherYates(entries);
 
-        // Initialiser les boutons de la modal
-        document.getElementById('cancelReloadBtn').addEventListener('click', cancelReload);
-        document.getElementById('confirmReloadBtn').addEventListener('click', confirmReloadAndProceed);
+            const shuffledAnswers = {};
+            const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
-        const form = document.getElementById('qcmForm');
-        const submitBtn = document.getElementById('submitQcmBtn');
-        const answeredCount = document.getElementById('answeredCount');
-        const totalQuestionsElement = document.getElementById('totalQuestions');
-        const totalQuestions = parseInt(totalQuestionsElement.textContent) || 0;
+            shuffledEntries.forEach(([originalLetter, text], index) => {
+                shuffledAnswers[letters[index]] = text;
+            });
 
-        // Sélectionner les inputs selon le type de QCM
-        let inputSelector = allowMultipleCorrect
-            ? 'input[type="checkbox"]'
-            : 'input[type="radio"]';
+            return {
+                ...question,
+                shuffledAnswers: shuffledAnswers
+            };
+        }
 
-        const questions = document.querySelectorAll(inputSelector);
+        // ==============================================
+        // VÉRIFIER SI UNE RÉPONSE EST CORRECTE
+        // ==============================================
+        function isAnswerCorrect(question, selectedTexts) {
+            if (!selectedTexts || (Array.isArray(selectedTexts) && selectedTexts.length === 0)) {
+                return false;
+            }
 
-        console.log('Questions trouvées:', totalQuestions);
-        console.log('Type d\'inputs:', inputSelector);
-        console.log('Timer activé:', {{ $qcm->time_limit_minutes ? 'true' : 'false' }});
+            const correctValues = question.correctAnswerValues;
 
-        // Intercepter les touches de rechargement
-        document.addEventListener('keydown', function(e) {
-            // F5
-            if (e.key === 'F5') {
-                if (hasAnswers && !formSubmitted && !reloadConfirmed) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    showReloadConfirm();
-                    return false;
+            if (ALLOW_MULTIPLE) {
+                const selectedSet = new Set(selectedTexts);
+                const correctSet = new Set(correctValues);
+
+                if (selectedSet.size !== correctSet.size) return false;
+                for (let val of selectedSet) {
+                    if (!correctSet.has(val)) return false;
                 }
-            }
-
-            // Ctrl+R ou Ctrl+Shift+R
-            if ((e.ctrlKey && e.key === 'r') || (e.ctrlKey && e.key === 'R') ||
-                (e.ctrlKey && e.shiftKey && e.key === 'R')) {
-                if (hasAnswers && !formSubmitted && !reloadConfirmed) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    showReloadConfirm();
-                    return false;
-                }
-            }
-
-            // Ctrl+F5
-            if (e.ctrlKey && e.key === 'F5') {
-                if (hasAnswers && !formSubmitted && !reloadConfirmed) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    showReloadConfirm();
-                    return false;
-                }
-            }
-
-            // Cmd+R (Mac)
-            if (e.metaKey && e.key === 'r') {
-                if (hasAnswers && !formSubmitted && !reloadConfirmed) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    showReloadConfirm();
-                    return false;
-                }
-            }
-        });
-
-        // Timer
-        @if($qcm->time_limit_minutes)
-        let timeLeft = {{ $qcm->time_limit_minutes * 60 }};
-        console.log('Timer initialisé avec', timeLeft, 'secondes');
-
-        const timerDisplay = document.getElementById('timerDisplay');
-        const timerElement = document.getElementById('timer');
-
-        function updateTimer() {
-            if (timeLeft <= 0) {
-                console.log('⏰ TEMPS ÉCOULÉ !');
-                clearInterval(timerInterval);
-                timerInterval = null;
-                autoSubmitQcm();
-                return;
-            }
-
-            timeLeft--;
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-
-            const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-            if (timerDisplay) timerDisplay.textContent = timeString;
-            if (timerElement) timerElement.textContent = timeString;
-
-            if (minutes < 1) {
-                if (timerElement) timerElement.style.color = '#ef4444';
-                if (timerDisplay) timerDisplay.style.color = '#ef4444';
-            } else if (minutes < 5) {
-                if (timerElement) timerElement.style.color = '#f59e0b';
-                if (timerDisplay) timerDisplay.style.color = '#f59e0b';
+                return true;
             } else {
-                if (timerElement) timerElement.style.color = '#b89449';
-                if (timerDisplay) timerDisplay.style.color = '#b89449';
+                return selectedTexts === correctValues[0];
             }
         }
 
-        console.log('🚀 Démarrage du timer...');
-        updateTimer();
-        timerInterval = setInterval(updateTimer, 1000);
-        console.log('✅ Timer démarré');
-        @endif
+        // ==============================================
+        // TIMER
+        // ==============================================
+        function startTimer() {
+            if (!HAS_TIME_LIMIT) return;
 
-        // Update answered count
-        function updateAnsweredCount() {
-            let answered;
+            const timerElement = document.getElementById('timer');
+            if (!timerElement) return;
 
-            if (allowMultipleCorrect) {
-                const questionGroups = {};
-                document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
-                    const name = checkbox.name.match(/\[([^\]]+)\]/)[1];
-                    questionGroups[name] = true;
-                });
-                answered = Object.keys(questionGroups).length;
-            } else {
-                answered = document.querySelectorAll('input[type="radio"]:checked').length;
-            }
-
-            answeredCount.textContent = answered;
-            hasAnswers = answered > 0;
-
-            console.log('Réponses:', answered, '/', totalQuestions, 'hasAnswers:', hasAnswers);
-
-            if (answered === totalQuestions) {
-                submitBtn.innerHTML = '<i class="mr-2 fas fa-check"></i> {{ __("qcm.all_questions_answered") }}';
-                submitBtn.style.background = '#10b981';
-            } else {
-                submitBtn.innerHTML = '<i class="mr-2 fas fa-paper-plane"></i> {{ __("qcm.finish_qcm") }}';
-                submitBtn.style.background = '#b89449';
-            }
-        }
-
-        questions.forEach(input => {
-            input.addEventListener('change', updateAnsweredCount);
-        });
-
-        updateAnsweredCount();
-
-        // Submit QCM
-        if (submitBtn) {
-            submitBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Bouton soumettre cliqué');
-
-                const answered = parseInt(answeredCount.textContent);
-                console.log('Questions avec réponses:', answered);
-
-                if (answered === 0) {
-                    alert('{{ __("qcm.alert_no_answers") }}');
+            function updateTimer() {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    if (!formSubmitted) {
+                        alert('⏰ Temps écoulé ! Soumission automatique...');
+                        submitQcm();
+                    }
                     return;
                 }
 
-                if (answered < totalQuestions) {
-                    const confirmMessage = '{{ __("qcm.confirm_submit", ["answered" => "__ANSWERED__", "total" => "__TOTAL__"]) }}'
-                        .replace('__ANSWERED__', answered)
-                        .replace('__TOTAL__', totalQuestions);
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                timerElement.textContent = timeString;
 
-                    if (!confirm(confirmMessage)) {
-                        return;
-                    }
+                if (minutes < 1) {
+                    timerElement.style.color = '#ef4444';
+                } else if (minutes < 5) {
+                    timerElement.style.color = '#f59e0b';
                 }
-
-                submitQcm();
-            });
-        }
-
-        function autoSubmitQcm() {
-            console.log('⏰ autoSubmitQcm appelé');
-            if (!formSubmitted) {
-                formSubmitted = true;
-                submitQcm();
             }
+
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 1000);
         }
 
-        function submitQcm() {
-            console.log('📤 Début de la soumission');
+        // ==============================================
+        // INITIALISATION
+        // ==============================================
+        function init() {
+            console.log('=== INIT QCM Mode Jeu ===');
+            console.log('Questions disponibles:', TOTAL_AVAILABLE);
+            console.log('Mode aléatoire:', TOTAL_AVAILABLE > MAX_QUESTIONS_PER_SESSION);
 
-            if (formSubmitted) {
-                console.log('⚠️ Formulaire déjà soumis, annulation');
+            const normalized = normalizeQuestions();
+            const randomlySelected = selectRandomQuestions(normalized, MAX_QUESTIONS_PER_SESSION);
+
+            activeQuestions = randomlySelected.map(q => shuffleAnswersForQuestion(q));
+            totalQuestions = activeQuestions.length;
+
+            for (let i = 0; i < totalQuestions; i++) {
+                userAnswers[i] = ALLOW_MULTIPLE ? [] : null;
+            }
+
+            container = document.getElementById('qcmApp');
+            startTimer();
+            showQuestion(0);
+        }
+
+        // ==============================================
+        // AFFICHER LA QUESTION COURANTE
+        // ==============================================
+        function showQuestion(globalIndex) {
+            if (isWaitingForNext) return;
+            if (globalIndex >= totalQuestions) {
+                submitQcm();
                 return;
             }
-            formSubmitted = true;
 
-            const answers = {};
+            currentQuestionIndex = globalIndex;
+            currentQuestion = activeQuestions[globalIndex];
+            showExplanation = false;
+            selectedAnswerValues = ALLOW_MULTIPLE ? [] : null;
 
-            if (allowMultipleCorrect) {
-                document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
-                    const name = checkbox.name.match(/\[([^\]]+)\]/)[1];
-                    if (!answers[name]) {
-                        answers[name] = [];
-                    }
-                    answers[name].push(checkbox.value);
-                });
-            } else {
-                document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
-                    const name = radio.name.match(/\[([^\]]+)\]/)[1];
-                    answers[name] = radio.value;
-                });
-            }
-
-            console.log('Réponses collectées:', answers);
-
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="mr-2 fas fa-spinner fa-spin"></i> {{ __("qcm.calculating_score") }}';
-
-            const csrfToken = document.querySelector('input[name="_token"]').value;
-            console.log('CSRF Token:', csrfToken);
-
-            const formData = new FormData();
-            formData.append('_token', csrfToken);
-            formData.append('qcm_id', qcmId);
-            formData.append('allow_multiple_correct', allowMultipleCorrect ? 1 : 0);
-
-            Object.entries(answers).forEach(([questionId, answer]) => {
-                if (allowMultipleCorrect && Array.isArray(answer)) {
-                    answer.forEach(val => {
-                        formData.append(`answers[${questionId}][]`, val);
-                    });
-                } else {
-                    formData.append(`answers[${questionId}]`, answer);
-                }
-            });
-
-            console.log('Données à envoyer (FormData):');
-            for (let [key, value] of formData.entries()) {
-                console.log(key, ':', value);
-            }
-
-            const submitData = async () => {
-                try {
-                    console.log('🔄 Envoi des données au serveur...');
-                    console.log('URL:', '{{ route("elearning.qcm.submit", $qcm->id) }}');
-
-                    const response = await fetch('{{ route("elearning.qcm.submit", $qcm->id) }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken
-                        },
-                        body: formData
-                    });
-
-                    console.log('📨 Réponse reçue, status:', response.status);
-
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        console.error('Texte d\'erreur du serveur:', errorText);
-
-                        if (response.status === 422) {
-                            try {
-                                const errorData = JSON.parse(errorText);
-                                throw new Error(`{{ __("qcm.validation_error") }}: ${JSON.stringify(errorData.errors)}`);
-                            } catch {
-                                throw new Error(`{{ __("qcm.server_error") }} (${response.status}): ${errorText.substring(0, 200)}`);
-                            }
-                        } else if (response.status === 500) {
-                            throw new Error(`{{ __("qcm.server_error") }} (500). {{ __("qcm.check_logs") }}`);
-                        } else {
-                            throw new Error(`Erreur HTTP ${response.status}: ${errorText.substring(0, 200)}`);
-                        }
-                    }
-
-                    const data = await response.json();
-                    console.log('✅ Données JSON reçues:', data);
-
-                    if (data.success) {
-                        showResults(data);
-                    } else {
-                        throw new Error(data.error || data.message || '{{ __("qcm.submit_error") }}');
-                    }
-
-                } catch (error) {
-                    console.error('❌ Erreur complète:', error);
-                    console.error('Stack trace:', error.stack);
-
-                    // Réactiver le bouton
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="mr-2 fas fa-paper-plane"></i> {{ __("qcm.finish_qcm") }}';
-                    formSubmitted = false;
-
-                    let errorMessage = '{{ __("qcm.submit_error") }}\n\n';
-
-                    if (error.message.includes('{{ __("qcm.server_error") }}')) {
-                        errorMessage += '{{ __("qcm.server_error") }}\n';
-                        errorMessage += '{{ __("qcm.check_logs") }}\n\n';
-                        errorMessage += '{{ __("qcm.technical_details") }}: ' + error.message;
-                    } else if (error.message.includes('{{ __("qcm.validation_error") }}')) {
-                        errorMessage += '{{ __("qcm.validation_error") }}\n';
-                        errorMessage += '{{ __("qcm.technical_details") }}: ' + error.message;
-                    } else if (error.message.includes('Failed to fetch')) {
-                        errorMessage += '{{ __("qcm.connection_error") }}\n';
-                        errorMessage += '{{ __("qcm.technical_details") }}: ' + error.message;
-                    } else {
-                        errorMessage += '{{ __("qcm.technical_details") }}: ' + error.message;
-                    }
-
-                    alert(errorMessage);
-
-                    console.log('{{ __("qcm.complete_debug_info") }}');
-                    console.log('URL complète:', window.location.origin + '/elearning/qcm/' + qcmId + '/submit');
-                    console.log('Méthode: POST');
-                    console.log('Headers envoyés:', {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken ? 'présent' : 'absent'
-                    });
-                    console.log('FormData:', Array.from(formData.entries()));
-                }
-            };
-
-            submitData();
+            renderCurrentQuestion();
         }
 
-        // FONCTION showResults CORRIGÉE AVEC REDIRECTION AUTOMATIQUE
-        function showResults(data) {
-            console.log('🎯 Affichage des résultats:', data);
+        // ==============================================
+        // AFFICHAGE HTML
+        // ==============================================
+        function renderCurrentQuestion() {
+            const q = currentQuestion;
+            const globalIdx = currentQuestionIndex;
+            const progressPct = Math.round((globalIdx / totalQuestions) * 100);
+            const isLastQuestion = (globalIdx === totalQuestions - 1);
+            const answers = q.shuffledAnswers;
 
-            const score = Math.round(data.score);
-            const passed = score >= {{ $qcm->passing_score }};
+            let answersHtml = '';
+            for (let [letter, text] of Object.entries(answers)) {
+                const isChecked = !showExplanation && selectedAnswerValues && (
+                    ALLOW_MULTIPLE
+                        ? selectedAnswerValues.includes(text)
+                        : selectedAnswerValues === text
+                );
+                const inputType = ALLOW_MULTIPLE ? 'checkbox' : 'radio';
+                const disabled = showExplanation ? 'disabled' : '';
 
-            document.getElementById('resultScore').textContent = score + '%';
-
-            const resultStatus = document.getElementById('resultStatus');
-            const statusTitle = document.getElementById('statusTitle');
-            const statusMessage = document.getElementById('statusMessage');
-
-            if (passed) {
-                resultStatus.style.background = '#064e3b';
-                resultStatus.style.borderColor = '#047857';
-                statusTitle.textContent = '{{ __("qcm.congratulations") }}';
-                statusMessage.textContent = '{{ __("qcm.success_message", ["score" => ":score"]) }}'.replace(':score', score + '%');
-            } else {
-                resultStatus.style.background = '#7f1d1d';
-                resultStatus.style.borderColor = '#ef4444';
-                statusTitle.textContent = '{{ __("qcm.failure_title") }}';
-                statusMessage.textContent = '{{ __("qcm.failure_message", ["score" => ":score", "required_score" => ":required_score"]) }}'
-                    .replace(':score', score + '%')
-                    .replace(':required_score', '{{ $qcm->passing_score }}%');
+                answersHtml += `
+                    <label class="flex items-start p-3 border border-gray-700 rounded-lg hover:bg-gray-800 cursor-pointer mb-2 transition-all duration-200 ${showExplanation ? 'opacity-75' : ''}">
+                        <input type="${inputType}" name="answer" value="${escapeHtml(text)}" class="answer-input mt-1 mr-3 flex-shrink-0" ${isChecked ? 'checked' : ''} ${disabled}>
+                        <div>
+                            <span class="font-bold text-yellow-500">${escapeHtml(letter)}.</span>
+                            <span class="ml-2 text-gray-300">${escapeHtml(text)}</span>
+                        </div>
+                    </label>
+                `;
             }
 
-            if (data.details) {
-                const detailsContainer = document.getElementById('questionsDetails');
-                detailsContainer.innerHTML = '';
+            let explanationHtml = '';
+            if (showExplanation) {
+                const isCorrect = isAnswerCorrect(q, selectedAnswerValues);
+                const userAnswerDisplay = formatUserAnswerDisplay(selectedAnswerValues);
+                const correctAnswerDisplay = formatCorrectAnswerDisplay(q.correctAnswerValues);
 
-                data.details.forEach((detail, index) => {
-                    const detailDiv = document.createElement('div');
-                    detailDiv.className = 'p-3 rounded';
-                    detailDiv.style.background = detail.correct ? '#064e3b' : '#7f1d1d';
-                    detailDiv.style.border = detail.correct ? '1px solid #047857' : '1px solid #ef4444';
-
-                    const icon = detail.correct ?
-                        '<i class="mr-2 fas fa-check-circle" style="color: #a7f3d0;"></i>' :
-                        '<i class="mr-2 fas fa-times-circle" style="color: #fca5a5;"></i>';
-
-                    const points = detail.points !== undefined ?
-                        ` (${detail.points}/${detail.maxPoints} {{ __("qcm.points") }})` : '';
-
-                    detailDiv.innerHTML = `
+                explanationHtml = `
+                    <div class="mt-6 p-4 rounded-lg ${isCorrect ? 'bg-green-900/30 border border-green-700' : 'bg-red-900/30 border border-red-700'} animate-fadeIn">
                         <div class="flex items-start">
-                            ${icon}
+                            <i class="fas ${isCorrect ? 'fa-check-circle text-green-500' : 'fa-times-circle text-red-500'} text-xl mr-3 mt-0.5"></i>
                             <div class="flex-1">
-                                <div class="mb-1 font-medium text-white">{{ __("qcm.question") }} ${index + 1}: ${detail.correct ? '{{ __("qcm.correct") }}' : '{{ __("qcm.incorrect") }}'}${points}</div>
-                                ${detail.feedback ? `<div class="text-sm text-gray-300">${detail.feedback}</div>` : ''}
+                                <h4 class="font-bold ${isCorrect ? 'text-green-400' : 'text-red-400'} mb-2">
+                                    ${isCorrect ? '✓ Bonne réponse !' : '✗ Mauvaise réponse'}
+                                </h4>
+                                <div class="text-sm text-gray-300 mb-2">
+                                    <p><strong>Votre réponse :</strong> ${userAnswerDisplay}</p>
+                                    <p><strong>Réponse correcte :</strong> ${correctAnswerDisplay}</p>
+                                </div>
+                                <div class="text-gray-400 border-t pt-2 mt-2 ${isCorrect ? 'border-green-700' : 'border-red-700'}">
+                                    <p class="italic">📖 ${escapeHtml(q.explanation)}</p>
+                                </div>
                             </div>
                         </div>
-                    `;
+                    </div>
+                `;
+            }
 
-                    detailsContainer.appendChild(detailDiv);
+            const answeredCount = Object.values(userAnswers).filter(a => {
+                if (a === null) return false;
+                if (Array.isArray(a)) return a.length > 0;
+                return true;
+            }).length;
+
+            // Info sélection aléatoire (si applicable)
+            const randomInfo = (TOTAL_AVAILABLE > MAX_QUESTIONS_PER_SESSION) ? `
+                <div class="mb-4 text-xs text-yellow-500">
+                    <i class="fas fa-random mr-1"></i> ${totalQuestions} questions sélectionnées aléatoirement
+                </div>
+            ` : '';
+
+            const html = `
+                <div id="questionCard" class="p-6 transition-all duration-300" style="opacity:0; transform:translateY(20px);">
+                    <!-- Barre de progression -->
+                    <div class="mb-5">
+                        <div class="flex justify-between text-xs text-gray-500 mb-1">
+                            <span>Question ${globalIdx + 1} / ${totalQuestions}</span>
+                            <span>${progressPct}% complété</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-yellow-500 h-2 rounded-full transition-all duration-500" style="width:${progressPct}%"></div>
+                        </div>
+                    </div>
+
+                    ${randomInfo}
+
+                    <!-- En-tête -->
+                    <div class="flex justify-between items-start mb-6 gap-4">
+                        <div class="flex items-start flex-1">
+                            <div class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center mr-3 flex-shrink-0">
+                                <span class="font-bold text-black text-sm">${globalIdx + 1}</span>
+                            </div>
+                            <h2 class="text-lg font-bold text-white leading-snug">${escapeHtml(q.text)}</h2>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <div class="text-xs text-gray-500 mb-1">Progression</div>
+                            <div class="text-lg font-mono font-bold text-green-400">${answeredCount}/${totalQuestions}</div>
+                        </div>
+                    </div>
+
+                    <!-- Réponses -->
+                    <div class="space-y-2 mb-6">
+                        ${answersHtml}
+                    </div>
+
+                    ${ALLOW_MULTIPLE && !showExplanation ? '<p class="text-sm text-blue-400 mb-4"><i class="fas fa-info-circle mr-1"></i>Vous pouvez sélectionner plusieurs réponses.</p>' : ''}
+
+                    <!-- Explication -->
+                    ${explanationHtml}
+
+                    <!-- Boutons -->
+                    <div class="flex justify-between items-center pt-4 border-t border-gray-800 mt-4">
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                            <span>${answeredCount}</span> répondue(s) sur ${totalQuestions}
+                        </div>
+                        <button id="actionBtn" class="px-6 py-2 bg-yellow-500 text-black rounded-lg hover:bg-yellow-600 transition-colors font-medium shadow-md">
+                            ${!showExplanation ? '<i class="fas fa-check mr-2"></i>Valider ma réponse' : (isLastQuestion ? '<i class="fas fa-flag-checkered mr-2"></i>Terminer le QCM' : '<i class="fas fa-arrow-right mr-2"></i>Question suivante')}
+                        </button>
+                    </div>
+                </div>`;
+
+            container.innerHTML = html;
+
+            setTimeout(() => {
+                const card = document.getElementById('questionCard');
+                if (card) {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }
+            }, 50);
+
+            attachEvents();
+        }
+
+        // ==============================================
+        // ATTACHER LES ÉVÉNEMENTS
+        // ==============================================
+        function attachEvents() {
+            if (!showExplanation) {
+                document.querySelectorAll('.answer-input').forEach(input => {
+                    input.addEventListener('change', () => {
+                        const value = input.value;
+                        if (ALLOW_MULTIPLE) {
+                            if (input.checked) {
+                                if (!selectedAnswerValues.includes(value)) {
+                                    selectedAnswerValues.push(value);
+                                }
+                            } else {
+                                selectedAnswerValues = selectedAnswerValues.filter(v => v !== value);
+                            }
+                        } else {
+                            if (input.checked) {
+                                selectedAnswerValues = value;
+                            }
+                        }
+                    });
                 });
             }
 
-            document.getElementById('resultsModal').classList.remove('hidden');
+            const actionBtn = document.getElementById('actionBtn');
+            if (actionBtn) {
+                actionBtn.addEventListener('click', () => {
+                    if (!showExplanation) {
+                        validateAndShowExplanation();
+                    } else {
+                        moveToNextQuestion();
+                    }
+                });
+            }
+        }
 
-            @if($qcm->time_limit_minutes)
+        // ==============================================
+        // VALIDER ET AFFICHER L'EXPLICATION
+        // ==============================================
+        function validateAndShowExplanation() {
+            if (ALLOW_MULTIPLE) {
+                if (!selectedAnswerValues || selectedAnswerValues.length === 0) {
+                    alert('Veuillez sélectionner au moins une réponse.');
+                    return;
+                }
+            } else {
+                if (!selectedAnswerValues) {
+                    alert('Veuillez sélectionner une réponse.');
+                    return;
+                }
+            }
+
+            userAnswers[currentQuestionIndex] = ALLOW_MULTIPLE ? [...selectedAnswerValues] : selectedAnswerValues;
+            showExplanation = true;
+            renderCurrentQuestion();
+        }
+
+        // ==============================================
+        // PASSER À LA QUESTION SUIVANTE
+        // ==============================================
+        function moveToNextQuestion() {
+            if (isWaitingForNext) return;
+            isWaitingForNext = true;
+
+            const card = document.getElementById('questionCard');
+            if (card) {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    isWaitingForNext = false;
+                    showQuestion(currentQuestionIndex + 1);
+                }, 300);
+            } else {
+                isWaitingForNext = false;
+                showQuestion(currentQuestionIndex + 1);
+            }
+        }
+
+        // ==============================================
+        // FORMATAGE AFFICHAGE
+        // ==============================================
+        function formatUserAnswerDisplay(answerValues) {
+            if (!answerValues) return 'Aucune réponse';
+            if (ALLOW_MULTIPLE) {
+                if (answerValues.length === 0) return 'Aucune réponse sélectionnée';
+                return answerValues.join(', ');
+            }
+            return answerValues;
+        }
+
+        function formatCorrectAnswerDisplay(correctValues) {
+            if (!correctValues || correctValues.length === 0) return 'Aucune';
+            return correctValues.join(', ');
+        }
+
+        // ==============================================
+        // SOUMISSION AU SERVEUR
+        // ==============================================
+        async function submitQcm() {
+            if (isWaitingForNext) return;
+            if (formSubmitted) return;
+
+            formSubmitted = true;
+            isWaitingForNext = true;
+
             if (timerInterval) {
                 clearInterval(timerInterval);
                 timerInterval = null;
             }
-            @endif
 
-            questions.forEach(input => {
-                input.disabled = true;
-            });
+            const formattedAnswers = {};
+            for (let i = 0; i < activeQuestions.length; i++) {
+                const q = activeQuestions[i];
+                const originalId = q.id;
+                let answer = userAnswers[i];
+                formattedAnswers[originalId] = answer;
+            }
 
-            hasAnswers = false;
-            reloadConfirmed = true;
+            console.log('📤 Envoi de', Object.keys(formattedAnswers).length, 'réponses');
 
-            // Nettoyer le sessionStorage après soumission réussie
-            sessionStorage.removeItem('qcm_reload_confirmed_' + qcmId);
+            container.innerHTML = `<div class="text-center py-12"><i class="fas fa-spinner fa-spin text-3xl text-yellow-500 mb-3"></i><p class="text-gray-400">Calcul de votre score...</p></div>`;
 
-            // REDIRECTION AUTOMATIQUE après 3 secondes
-            setTimeout(function() {
-                if (data.redirect) {
-                    window.location.href = data.redirect;
+            try {
+                const csrfToken = document.querySelector('input[name="_token"]')?.value;
+                const response = await fetch("{{ route('elearning.qcm.submit', $qcm->id) }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ answers: formattedAnswers })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showResults(data);
                 } else {
-                    window.location.href = '{{ route("elearning.virtual-room") }}';
+                    alert('Erreur: ' + (data.error || 'Erreur lors de la soumission'));
+                    window.location.reload();
                 }
-            }, 3000); // Redirection après 3 secondes
+            } catch (error) {
+                console.error(error);
+                alert('Erreur réseau. Veuillez réessayer.');
+                window.location.reload();
+            }
         }
 
-        // Empêcher la soumission du formulaire avec Enter
-        form.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
+        // ==============================================
+        // AFFICHAGE DES RÉSULTATS
+        // ==============================================
+        function showResults(data) {
+            const score = Math.round(data.score);
+            const passed = score >= PASSING_SCORE;
+            const correctCount = data.details ? data.details.filter(d => d.correct === true).length : 0;
+
+            let resultHtml = `
+                <div class="text-center mb-6 p-6">
+                    <i class="fas ${passed ? 'fa-trophy text-yellow-500' : 'fa-book-open text-red-500'} text-5xl mb-3"></i>
+                    <h2 class="text-2xl font-bold text-white">Résultats du QCM</h2>
+                    <p class="text-gray-400">${escapeHtml('{{ $qcm->title }}')}</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 px-6">
+                    <div class="p-4 text-center rounded-lg bg-gray-800">
+                        <div class="text-3xl font-bold text-yellow-500">${score}%</div>
+                        <div class="text-sm text-gray-400">Votre score</div>
+                    </div>
+                    <div class="p-4 text-center rounded-lg bg-gray-800">
+                        <div class="text-3xl font-bold text-blue-400">${PASSING_SCORE}%</div>
+                        <div class="text-sm text-gray-400">Score requis</div>
+                    </div>
+                    <div class="p-4 text-center rounded-lg bg-gray-800">
+                        <div class="text-3xl font-bold text-green-400">${correctCount}</div>
+                        <div class="text-sm text-gray-400">Bonnes réponses</div>
+                    </div>
+                    <div class="p-4 text-center rounded-lg bg-gray-800">
+                        <div class="text-3xl font-bold text-gray-300">${totalQuestions}</div>
+                        <div class="text-sm text-gray-400">Questions posées</div>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-lg mb-6 mx-6 ${passed ? 'bg-green-900/50 border border-green-700' : 'bg-red-900/50 border border-red-700'}">
+                    <div class="flex items-center">
+                        <i class="fas ${passed ? 'fa-trophy text-green-400' : 'fa-exclamation-triangle text-red-400'} text-2xl mr-3"></i>
+                        <div>
+                            <h3 class="font-bold ${passed ? 'text-green-400' : 'text-red-400'}">${passed ? 'Félicitations !' : 'Non réussi'}</h3>
+                            <p class="${passed ? 'text-green-300' : 'text-red-300'}">${passed ? `Excellent travail ! Vous avez réussi avec ${score}%` : `Vous avez obtenu ${score}%. Score requis: ${PASSING_SCORE}%`}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 p-6 pt-0">
+                    <a href="{{ route('elearning.qcm.show', $qcm->id) }}" class="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-redo-alt mr-2"></i> Recommencer
+                    </a>
+                    <a href="{{ route('elearning.virtual-room') }}" class="px-6 py-2 bg-yellow-500 text-black rounded-lg hover:bg-yellow-600 transition-colors">
+                        <i class="fas fa-home mr-2"></i> Retour à la salle
+                    </a>
+                </div>
+            `;
+
+            container.innerHTML = resultHtml;
+        }
+
+        // ==============================================
+        // GESTIONNAIRE DE RECHARGEMENT
+        // ==============================================
+        let reloadConfirmed = false;
+
+        function showReloadConfirm() {
+            if (hasAnswers() && !formSubmitted && !reloadConfirmed) {
+                const modal = document.getElementById('reloadConfirmModal');
+                if (modal) modal.classList.remove('hidden');
+                return false;
+            }
+            return true;
+        }
+
+        function hasAnswers() {
+            return Object.values(userAnswers).some(a => {
+                if (a === null) return false;
+                if (Array.isArray(a)) return a.length > 0;
+                return true;
+            });
+        }
+
+        document.getElementById('cancelReloadBtn')?.addEventListener('click', () => {
+            const modal = document.getElementById('reloadConfirmModal');
+            if (modal) modal.classList.add('hidden');
+        });
+
+        document.getElementById('confirmReloadBtn')?.addEventListener('click', () => {
+            reloadConfirmed = true;
+            const modal = document.getElementById('reloadConfirmModal');
+            if (modal) modal.classList.add('hidden');
+            window.location.href = '{{ route("elearning.virtual-room") }}';
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (hasAnswers() && !formSubmitted && !reloadConfirmed) {
                 e.preventDefault();
+                e.returnValue = 'Vous avez des réponses non enregistrées. Êtes-vous sûr de vouloir quitter ?';
+                return e.returnValue;
             }
         });
 
-        console.log('=== SCRIPT QCM COMPLÈTEMENT CHARGÉ ===');
-    });
+        // ==============================================
+        // ÉCHAPPEMENT HTML
+        // ==============================================
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+        }
+
+        // ==============================================
+        // DÉMARRAGE
+        // ==============================================
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
 </script>
+
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+
+    .answer-input {
+        accent-color: #b89449;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .answer-input:checked + div {
+        background-color: rgba(184, 148, 73, 0.1);
+    }
+
+    #actionBtn {
+        transition: all 0.2s ease;
+    }
+
+    #actionBtn:hover {
+        transform: scale(1.02);
+    }
+</style>
 @endsection
