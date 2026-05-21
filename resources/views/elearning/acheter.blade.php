@@ -36,10 +36,18 @@
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-bold text-white">{{ $forfait->name }}</h3>
                             <div class="text-right">
-                                <div class="text-2xl font-bold" style="color: #b89449;">{{ $forfait->formatted_price }}
-                                </div>
+                                <!-- Prix barré et gratuit -->
+                                <div class="text-sm text-gray-500 line-through">{{ $forfait->formatted_price }}</div>
+                                <div class="text-2xl font-bold" style="color: #46b94c;">{{ __('acheter.free') }}</div>
                                 <div class="text-sm text-gray-400">{{ $forfait->duration_days }} {{ __('acheter.access_days') }}</div>
                             </div>
+                        </div>
+
+                        <!-- Badge GRATUIT -->
+                        <div class="mb-4">
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full" style="background: #064e3b; color: #a7f3d0;">
+                                <i class="mr-1 fas fa-gift"></i> {{ __('acheter.free_access_promo') }}
+                            </span>
                         </div>
 
                         <!-- Badge mode de sélection -->
@@ -126,77 +134,112 @@
                     </div>
                 </div>
 
-                <!-- Formulaire SIMPLIFIÉ SANS AJAX -->
+                <!-- Formulaire INSCRIPTION GRATUITE -->
                 <div class="p-6 rounded-lg" style="background: #1a1a1a; border: 1px solid #333;">
                     <h2 class="mb-6 text-xl font-bold text-white">{{ __('acheter.your_information') }}</h2>
 
                     @if($errors->any())
-                    <div class="p-4 mb-6 bg-red-800 border border-red-700 rounded-lg">
-                        <div class="flex items-center">
-                            <i class="mr-3 text-red-300 fas fa-exclamation-triangle"></i>
-                            <div>
-                                <h4 class="mb-1 font-bold text-white">{{ __('acheter.validation_errors') }}</h4>
-                                @foreach($errors->all() as $error)
-                                <p class="text-sm text-red-200">{{ $error }}</p>
-                                @endforeach
+                    <div class="p-4 mb-6 rounded-lg" style="background: #7f1d1d; border: 1px solid #991b1b;">
+                        <div class="flex items-start">
+                            <i class="mr-3 text-red-300 fas fa-exclamation-triangle mt-0.5"></i>
+                            <div class="flex-1">
+                                <h4 class="mb-2 font-bold text-white">{{ __('acheter.validation_errors') }}</h4>
+                                <ul class="space-y-1 text-sm text-red-200">
+                                    @foreach($errors->all() as $error)
+                                    <li class="flex items-start">
+                                        <i class="mr-2 fas fa-times-circle mt-0.5 text-red-300 text-xs"></i>
+                                        <span>{{ $error }}</span>
+                                    </li>
+                                    @endforeach
+                                </ul>
                             </div>
                         </div>
                     </div>
                     @endif
 
-                    <form id="paymentForm" action="{{ route('elearning.process-payment', $forfait->slug) }}" method="POST">
+                    <form id="accessForm" action="{{ route('elearning.process-free-access', $forfait->slug) }}" method="POST">
                         @csrf
 
                         <div class="space-y-6">
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block mb-2 text-sm font-medium" style="color: #ddd;">{{ __('acheter.first_name') }} *</label>
+                                    <label class="block mb-2 text-sm font-medium" style="color: #ddd;">{{ __('acheter.first_name') }} <span class="text-red-400">*</span></label>
                                     <input type="text" name="prenom" required
-                                        class="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                                        style="background: #111; color: white;" value="{{ old('prenom') }}">
+                                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent @error('prenom') border-red-500 @else border-gray-600 @enderror"
+                                        style="background: #111; color: white;"
+                                        value="{{ old('prenom') }}">
+                                    @error('prenom')
+                                    <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
+                                    @enderror
                                 </div>
                                 <div>
-                                    <label class="block mb-2 text-sm font-medium" style="color: #ddd;">{{ __('acheter.last_name') }} *</label>
+                                    <label class="block mb-2 text-sm font-medium" style="color: #ddd;">{{ __('acheter.last_name') }} <span class="text-red-400">*</span></label>
                                     <input type="text" name="nom" required
-                                        class="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                                        style="background: #111; color: white;" value="{{ old('nom') }}">
+                                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent @error('nom') border-red-500 @else border-gray-600 @enderror"
+                                        style="background: #111; color: white;"
+                                        value="{{ old('nom') }}">
+                                    @error('nom')
+                                    <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
+                                    @enderror
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block mb-2 text-sm font-medium" style="color: #ddd;">{{ __('acheter.email') }} *</label>
+                                <label class="block mb-2 text-sm font-medium" style="color: #ddd;">{{ __('acheter.email') }} <span class="text-red-400">*</span></label>
                                 <input type="email" name="email" required
-                                    class="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent @error('email') border-red-500 @else border-gray-600 @enderror"
                                     style="background: #111; color: white;"
-                                    placeholder="{{ __('acheter.email_placeholder') }}" value="{{ old('email') }}">
+                                    placeholder="{{ __('acheter.email_placeholder') }}"
+                                    value="{{ old('email') }}">
+                                @error('email')
+                                <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
+                                @else
                                 <p class="mt-1 text-xs text-gray-500">{{ __('acheter.email_info') }}</p>
+                                @enderror
                             </div>
 
                             <div>
                                 <label class="block mb-2 text-sm font-medium" style="color: #ddd;">{{ __('acheter.phone') }}</label>
                                 <input type="tel" name="telephone"
-                                    class="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent @error('telephone') border-red-500 @else border-gray-600 @enderror"
                                     style="background: #111; color: white;"
-                                    placeholder="{{ __('acheter.phone_placeholder') }}" value="{{ old('telephone') }}">
+                                    placeholder="{{ __('acheter.phone_placeholder') }}"
+                                    value="{{ old('telephone') }}">
+                                @error('telephone')
+                                <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div class="pt-6 border-t border-gray-700">
-                                <div class="flex items-center justify-between mb-6">
-                                    <span class="text-gray-300">{{ __('acheter.total') }}</span>
-                                    <span class="text-2xl font-bold" style="color: #b89449;">{{ $forfait->formatted_price }}</span>
+                                <!-- Affichage du prix gratuit -->
+                                <div class="mb-6">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-gray-400">{{ __('acheter.original_price') }}</span>
+                                        <span class="text-lg text-gray-500 line-through">{{ $forfait->formatted_price }}</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-lg font-semibold" style="color: #46b94c;">{{ __('acheter.your_price') }}</span>
+                                        <span class="text-2xl font-bold" style="color: #46b94c;">{{ __('acheter.free') }}</span>
+                                    </div>
+                                    <div class="mt-3 p-3 rounded text-center" style="background: #064e3b;">
+                                        <p class="text-sm text-green-200">
+                                            <i class="mr-1 fas fa-gift"></i>
+                                            {{ __('acheter.free_access_promo') }}
+                                        </p>
+                                    </div>
                                 </div>
 
                                 <button type="submit" id="submitBtn"
-                                    class="flex items-center justify-center w-full py-3 font-semibold transition-all duration-300 rounded-lg hover:bg-yellow-600"
-                                    style="background: #b89449; color: black;"
+                                    class="flex items-center justify-center w-full py-3 font-semibold transition-all duration-300 rounded-lg hover:bg-green-600"
+                                    style="background: #46b94c; color: white;"
                                     onclick="this.disabled=true; this.innerHTML='<i class=\'fas fa-spinner fa-spin mr-2\'></i>{{ __('acheter.processing') }}'; this.form.submit();">
-                                    <i class="mr-2 fas fa-lock"></i>
-                                    {{ __('acheter.pay_now') }}
+                                    <i class="mr-2 fas fa-download"></i>
+                                    {{ __('acheter.get_free_access') }}
                                 </button>
 
                                 <p class="mt-4 text-xs text-center text-gray-500">
-                                    <i class="mr-1 fas fa-shield-alt"></i>
-                                    {{ __('acheter.secure_payment') }}
+                                    <i class="mr-1 fas fa-envelope"></i>
+                                    {{ __('acheter.no_payment_info') }}
                                 </p>
                             </div>
                         </div>
@@ -235,7 +278,7 @@
 
 @section('scripts')
 <script>
-    document.getElementById('paymentForm').addEventListener('submit', function(e) {
+    document.getElementById('accessForm').addEventListener('submit', function(e) {
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="mr-2 fas fa-spinner fa-spin"></i>{{ __('acheter.processing') }}';

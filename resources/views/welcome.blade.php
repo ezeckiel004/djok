@@ -549,7 +549,8 @@
 
             <!-- Card Datadock - Format horizontal (corrigé) -->
             <div class="mt-8">
-                <a href="{{ route('pdf.arrete-modificatif') }}" target="_blank" class="block no-underline">
+                {{-- <a href="{{ route('pdf.arrete-modificatif') }}" target="_blank" class="block no-underline"> --}}
+                <div target="_blank" class="block no-underline">
                     <div class="p-8 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer flex flex-col md:flex-row items-center gap-6"
                         style="background: #111; border: 1px solid #333;">
                         <div class="w-20 h-20 flex-shrink-0 flex items-center justify-center rounded-full overflow-hidden transition-all duration-300 hover:scale-110 hover:rotate-12"
@@ -562,7 +563,7 @@
                             <p class="text-gray-400 mb-1">{{ __('home.datadock_description') }}</p>
                             <p class="text-sm text-gray-500">{{ __('home.datadock_detail') }}</p>
                         </div>
-                        <div class="flex-shrink-0 text-center">
+                        {{-- <div class="flex-shrink-0 text-center">
                             <div class="text-sm mb-1" style="color: var(--gold);">
                                 <i class="fas fa-file-pdf mr-2"></i>
                                 <span>{{ __('home.view_arrete_pdf') }}</span>
@@ -571,9 +572,9 @@
                                 <i class="fas fa-info-circle mr-1"></i>
                                 {{ __('home.pdf_label') }}
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
-                </a>
+                </div>
             </div>
 
         </div>

@@ -120,11 +120,22 @@
         <div class="grid grid-cols-1 gap-8 max-w-6xl mx-auto md:grid-cols-3">
             @foreach($forfaits as $forfait)
             <div class="overflow-hidden rounded-lg" style="background: #111; border: 1px solid #333;">
+                <!-- Badge GRATUIT en haut de la carte -->
+                <div class="relative">
+                    <div class="absolute top-0 right-0 z-10">
+                        <div class="px-3 py-1 text-xs font-bold rounded-bl-lg" style="background: #46b94c; color: white;">
+                            <i class="mr-1 fas fa-gift"></i> {{ __('index.free') }}
+                        </div>
+                    </div>
+                </div>
+
                 <div class="p-6" style="background: #1a1a1a;">
                     <h3 class="mb-2 text-xl font-bold text-white">{{ $forfait->name }}</h3>
                     <div class="flex items-center">
-                        <span class="text-3xl font-bold" style="color: #b89449;">{{ $forfait->formatted_price }}</span>
-                        <span class="ml-2 text-gray-400">/ {{ $forfait->duration_days }} {{ __('index.days_access') }}</span>
+                        <!-- Prix barré -->
+                        <span class="text-lg text-gray-500 line-through">{{ $forfait->formatted_price }}</span>
+                        <span class="ml-3 text-3xl font-bold" style="color: #46b94c;">{{ __('index.free') }}</span>
+                        <span class="ml-2 text-sm text-gray-400">/ {{ $forfait->duration_days }} {{ __('index.days_access') }}</span>
                     </div>
                 </div>
 
@@ -204,7 +215,7 @@
                     </ul>
 
                     <a href="{{ route('elearning.acheter', $forfait->slug) }}"
-                        class="block w-full py-3 text-center font-semibold transition duration-300"
+                        class="block w-full py-3 text-center font-semibold transition duration-300 rounded-lg"
                         style="background: #b89449; color: black;">
                         {{ __('index.choose_this_package') }}
                     </a>

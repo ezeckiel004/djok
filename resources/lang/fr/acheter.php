@@ -1,21 +1,21 @@
 <?php
 
 return [
-    'title_prefix' => 'Acheter ',
+    'title_prefix' => 'Accéder à ',
     'title_suffix' => ' - DJOK PRESTIGE',
     'back_to_packages' => 'Retour aux forfaits',
-    'finalize_purchase' => 'Finalisez votre achat pour accéder à la formation e-learning',
+    'finalize_purchase' => 'Finalisez votre inscription pour accéder gratuitement à la formation e-learning',
     'your_selection' => 'Votre sélection',
-    'access_days' => 'jours d\'accès',
-    'access_duration' => 'Durée d\'accès',
-    'from_purchase' => 'jours à compter de l\'achat',
+    'access_days' => "jours d'accès",
+    'access_duration' => "Durée d'accès",
+    'from_purchase' => 'jours à compter de l\'inscription',
     'included_content' => 'Contenu inclus',
     'all_content' => 'Tous les cours, QCM et examens blancs',
     'security' => 'Sécurité',
     'single_connection' => '1 seule connexion simultanée autorisée',
     'virtual_room_access' => 'Déjà un accès ? Accéder à la salle virtuelle',
-    'important_note' => 'Important',
-    'access_codes_info' => 'Vous recevrez vos codes d\'accès par email immédiatement après le paiement.',
+    'important_note' => 'Information',
+    'access_codes_info' => 'Vous recevrez vos codes d\'accès par email immédiatement après votre inscription.',
     'your_information' => 'Vos informations',
     'validation_errors' => 'Erreurs de validation',
     'first_name' => 'Prénom',
@@ -28,15 +28,15 @@ return [
     'total' => 'Total',
     'pay_now' => 'Payer maintenant',
     'secure_payment' => 'Paiement sécurisé par Stripe',
-    'immediate_code' => 'Code immédiat',
-    'immediate_code_desc' => 'Code d\'accès envoyé par email après paiement',
+    'immediate_code' => 'Accès immédiat',
+    'immediate_code_desc' => "Code d'accès envoyé par email après inscription",
     'support_included' => 'Support inclus',
     'support_included_desc' => 'Assistance technique par email et téléphone',
     'satisfaction_guarantee' => 'Satisfait ou remboursé',
     'satisfaction_guarantee_desc' => '14 jours pour changer d\'avis',
     'processing' => 'Traitement en cours...',
 
-    // ===== NOUVEAUX BADGES ET TEXTES =====
+    // ===== BADGES ET TEXTES =====
     'all_inclusive' => ' Tout inclus',
     'custom_selection' => ' Sélection personnalisée',
     'all_inclusive_desc' => 'Accès à tout le contenu de la plateforme (tous les cours, QCM et examens)',
@@ -45,4 +45,12 @@ return [
     'courses_selected' => 'cours sélectionnés',
     'qcms_selected' => 'QCM sélectionnés',
     'exams_selected' => 'examens sélectionnés',
+
+    // ===== NOUVEAUX TEXTES POUR LA VERSION GRATUITE =====
+    'original_price' => "Prix d'origine",
+    'your_price' => 'Votre prix',
+    'free' => 'GRATUIT',
+    'free_access_promo' => '🎉 Offre spéciale : Accès totalement gratuit ! 🎉',
+    'get_free_access' => 'Obtenir mon accès gratuit',
+    'no_payment_info' => 'Aucune information bancaire requise - Inscription 100% gratuite',
 ];

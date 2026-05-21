@@ -38,11 +38,15 @@ Route::get('/formation/elearning', [ElearningController::class, 'index'])->name(
 
 // Routes d'achat e-learning
 Route::get('/elearning/forfait/{forfaitSlug}', [ElearningController::class, 'acheter'])->name('elearning.acheter');
-Route::post('/elearning/forfait/{forfaitSlug}/paiement', [ElearningController::class, 'processPayment'])->name('elearning.process-payment');
+
+// ROUTE POUR L'ACCÈS GRATUIT (sans paiement)
+Route::post('/elearning/forfait/{forfaitSlug}/acces-gratuit', [ElearningController::class, 'processFreeAccess'])->name('elearning.process-free-access');
+
+// Ancienne route de paiement - COMMENTÉE POUR LE MOMENT (garde au cas où)
+// Route::post('/elearning/forfait/{forfaitSlug}/paiement', [ElearningController::class, 'processPayment'])->name('elearning.process-payment');
 
 // CORRECTION : Route pour le succès du paiement e-learning (nom de méthode corrigé)
 Route::get('/elearning/paiement/success', [ElearningController::class, 'paymentSuccess'])->name('elearning.payment.success');
-
 
 // Salle virtuelle e-learning
 Route::get('/elearning/salle', [ElearningController::class, 'salle'])->name('elearning.salle');

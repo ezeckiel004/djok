@@ -47,93 +47,7 @@ class ElearningController extends Controller
     }
 
     /**
-     * Traitement de l'accès gratuit (sans paiement)
-     */
-    public function processFreeAccess(Request $request, $forfaitSlug)
-    {
-        Log::info('=== DÉBUT processFreeAccess E-learning ===', [
-            'forfait_slug' => $forfaitSlug,
-            'email' => $request->email,
-            'nom' => $request->nom,
-            'prenom' => $request->prenom
-        ]);
-
-        $request->validate([
-            'email' => 'required|email',
-            'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'telephone' => 'nullable|string|max:20',
-        ]);
-
-        $forfait = ElearningForfait::where('slug', $forfaitSlug)->active()->firstOrFail();
-
-        Log::info('Forfait trouvé pour accès gratuit', [
-            'forfait_id' => $forfait->id,
-            'name' => $forfait->name,
-            'price' => $forfait->price,
-            'slug' => $forfait->slug
-        ]);
-
-        try {
-            // Créer un paiement fictif pour garder la structure
-            $paiement = Paiement::create([
-                'reference' => 'FREE-' . Str::upper(Str::random(10)),
-                'amount' => 0,
-                'currency' => 'eur',
-                'status' => 'paid',
-                'service_type' => 'elearning',
-                'service_details' => [
-                    'forfait_id' => $forfait->id,
-                    'forfait_name' => $forfait->name,
-                    'forfait_slug' => $forfait->slug,
-                    'duration_days' => $forfait->duration_days,
-                    'customer_email' => $request->email,
-                    'customer_nom' => $request->nom,
-                    'customer_prenom' => $request->prenom,
-                    'customer_telephone' => $request->telephone,
-                    'service_type' => 'elearning',
-                    'payment_method' => 'free_access',
-                    'include_all_cours' => $forfait->include_all_cours,
-                    'include_all_qcms' => $forfait->include_all_qcms,
-                    'include_all_examens' => $forfait->include_all_examens,
-                    'selected_cours_ids' => json_encode($forfait->selected_cours_ids ?? []),
-                    'selected_qcms_ids' => json_encode($forfait->selected_qcms_ids ?? []),
-                    'selected_examens_ids' => json_encode($forfait->selected_examens_ids ?? []),
-                ],
-                'customer_info' => [
-                    'email' => $request->email,
-                    'name' => $request->prenom . ' ' . $request->nom,
-                    'phone' => $request->telephone,
-                ],
-                'paid_at' => now(),
-                'elearning_forfait_id' => $forfait->id,
-            ]);
-
-            Log::info('Paiement fictif créé', ['paiement_id' => $paiement->id]);
-
-            // Créer l'accès e-learning directement
-            $acces = $this->createElearningAccessFromPaiement($paiement);
-
-            Log::info('Accès gratuit créé avec succès', ['acces_id' => $acces->id]);
-
-            // Rediriger vers la page de succès
-            return redirect()->route('elearning.payment.success', ['session_id' => 'free_' . $paiement->id])
-                ->with('success', 'Votre accès gratuit a été créé ! Vous allez recevoir vos codes d\'accès par email.');
-
-        } catch (\Exception $e) {
-            Log::error('Erreur création accès gratuit e-learning: ' . $e->getMessage(), [
-                'forfait_slug' => $forfaitSlug,
-                'error' => $e->getTraceAsString()
-            ]);
-
-            return back()
-                ->withInput()
-                ->withErrors(['error' => 'Erreur lors de la création de votre accès: ' . $e->getMessage()]);
-        }
-    }
-
-    /**
-     * Traitement de l'achat (PAIEMENT - Gardé pour compatibilité mais non utilisé actuellement)
+     * Traitement de l'achat
      */
     public function processPayment(Request $request, $forfaitSlug)
     {
@@ -224,7 +138,7 @@ class ElearningController extends Controller
     }
 
     /**
-     * Succès du paiement e-learning (Supporte aussi les accès gratuits)
+     * Succès du paiement e-learning
      */
     public function paymentSuccess(Request $request)
     {
@@ -241,20 +155,9 @@ class ElearningController extends Controller
         }
 
         try {
-            // Pour les accès gratuits, l'ID commence par "free_"
-            if (Str::startsWith($sessionId, 'free_')) {
-                $paiementId = str_replace('free_', '', $sessionId);
-                $paiement = Paiement::find($paiementId);
+            Log::info('Recherche paiement pour session_id', ['session_id' => $sessionId]);
 
-                if (!$paiement) {
-                    Log::warning('Paiement gratuit non trouvé', ['paiement_id' => $paiementId]);
-                    return redirect()->route('elearning.index')
-                        ->with('error', 'Accès non trouvé.');
-                }
-            } else {
-                // Paiement normal Stripe
-                $paiement = Paiement::where('stripe_session_id', $sessionId)->first();
-            }
+            $paiement = Paiement::where('stripe_session_id', $sessionId)->first();
 
             if (!$paiement) {
                 Log::warning('Paiement non trouvé pour session_id', ['session_id' => $sessionId]);
@@ -282,14 +185,14 @@ class ElearningController extends Controller
             Log::info('Accès e-learning récupéré/créé avec succès', ['acces_id' => $acces->id]);
 
             return view('elearning.success', compact('paiement', 'acces'))
-                ->with('success', 'Votre inscription a été confirmée ! Vous recevrez vos codes d\'accès par email.');
+                ->with('success', 'Votre achat a été confirmé ! Vous recevrez vos codes d\'accès par email.');
         } catch (\Exception $e) {
             Log::error('Erreur traitement paiement e-learning: ' . $e->getMessage(), [
                 'session_id' => $sessionId,
                 'trace' => $e->getTraceAsString()
             ]);
             return redirect()->route('elearning.index')
-                ->with('error', 'Erreur lors du traitement de votre inscription.');
+                ->with('error', 'Erreur lors du traitement de votre achat.');
         }
     }
 

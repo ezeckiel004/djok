@@ -43,7 +43,7 @@ return [
     // FAQ
     'faq_title' => 'Questions fréquentes',
     'faq1_question' => 'Ai-je besoin de créer un compte ?',
-    'faq1_answer' => 'Non, tout se fait par email. Vous recevez un code d\'accès unique après paiement que vous utilisez pour accéder à la salle virtuelle.',
+    'faq1_answer' => 'Non, tout se fait par email. Vous recevez un code d\'accès unique après votre inscription gratuite que vous utilisez pour accéder à la salle virtuelle.',
     'faq2_question' => 'Puis-je me connecter sur plusieurs appareils ?',
     'faq2_answer' => 'Pour des raisons de sécurité, un seul appareil peut être connecté à la fois avec votre code. Vous devez vous déconnecter avant de vous connecter sur un autre appareil.',
     'faq3_question' => 'Que se passe-t-il à la fin de mon forfait ?',
@@ -59,7 +59,7 @@ return [
     // Accessibilité
     'scroll_down' => 'Défiler vers le bas',
 
-    // ===== NOUVEAUX BADGES ET TEXTES =====
+    // ===== BADGES ET TEXTES =====
     'all_inclusive' => ' Tout inclus',
     'custom_selection' => ' Sélection personnalisée',
     'all_courses_available' => 'Tous les cours disponibles',
@@ -68,4 +68,7 @@ return [
     'courses_selected' => 'cours sélectionnés',
     'qcms_selected' => 'QCM sélectionnés',
     'exams_selected' => 'examens sélectionnés',
+
+    // ===== NOUVEAUX TEXTES POUR LA VERSION GRATUITE =====
+    'free' => 'GRATUIT',
 ];
