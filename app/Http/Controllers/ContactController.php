@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use App\Mail\ContactConfirmation;
+use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use Illuminate\Support\Facades\Log;
 
 class ContactController extends Controller
@@ -93,6 +94,9 @@ class ContactController extends Controller
             } catch (\Exception $e) {
                 Log::error('Erreur email confirmation:', ['error' => $e->getMessage()]);
             }
+
+            // Envoyer la notification à l'admin (Sirarou@yahoo.fr)
+            AdminContactController::notifyAdmin($contactMessage);
 
             $successMessage = $isFormationRequest
                 ? 'Votre demande d\'information sur la formation a été envoyée avec succès ! Notre équipe formation vous répondra dans les plus brefs délais.'
@@ -196,6 +200,9 @@ class ContactController extends Controller
             } catch (\Exception $e) {
                 Log::error('Erreur email confirmation support:', ['error' => $e->getMessage()]);
             }
+
+            // Envoyer la notification à l'admin (Sirarou@yahoo.fr)
+            AdminContactController::notifyAdmin($contactMessage);
 
             return back()->with('success', 'Votre demande de support a été envoyée avec succès ! Nous vous répondrons dans les plus brefs délais.');
         } catch (\Exception $e) {

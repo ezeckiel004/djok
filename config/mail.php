@@ -114,6 +114,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Admin / Réponse (Réception des formulaires)
+    |--------------------------------------------------------------------------
+    |
+    | Adresse e-mail qui reçoit les notifications des formulaires de contact,
+    | d'information et de support.
+    |
+    */
+
+    'admin_email' => env('MAIL_ADMIN_EMAIL', 'Sirarou@yahoo.fr'),
+
+    'reply_to' => [
+        'address' => env('MAIL_REPLY_TO_ADDRESS', 'Sirarou@yahoo.fr'),
+        'name' => env('MAIL_REPLY_TO_NAME', 'DJOK PRESTIGE'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Markdown Mail Settings
     |--------------------------------------------------------------------------
     |
