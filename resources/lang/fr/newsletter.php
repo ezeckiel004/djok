@@ -2,7 +2,7 @@
 
 return [
     // Titres et descriptions
-    'title' => 'Restez informé de nos actualités',
+    'title' => 'Rester informé de nos actualités',
     'description' => 'Recevez nos dernières conseils, astuces et actualités directement dans votre boîte mail',
 
     // Formulaire

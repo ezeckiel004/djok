@@ -96,6 +96,10 @@ class ContactController extends Controller
             }
 
             // Envoyer la notification à l'admin (Sirarou@yahoo.fr)
+            Log::info('Notification admin - appel depuis ContactController@store', [
+                'contact_id' => $contactMessage->id,
+                'is_formation_request' => $isFormationRequest,
+            ]);
             AdminContactController::notifyAdmin($contactMessage);
 
             $successMessage = $isFormationRequest
@@ -202,6 +206,10 @@ class ContactController extends Controller
             }
 
             // Envoyer la notification à l'admin (Sirarou@yahoo.fr)
+            Log::info('Notification admin - appel depuis ContactController@storeSupport', [
+                'contact_id' => $contactMessage->id,
+                'service_type' => $request->service_type,
+            ]);
             AdminContactController::notifyAdmin($contactMessage);
 
             return back()->with('success', 'Votre demande de support a été envoyée avec succès ! Nous vous répondrons dans les plus brefs délais.');

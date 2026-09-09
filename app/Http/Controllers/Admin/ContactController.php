@@ -126,9 +126,32 @@ class ContactController extends Controller
     {
         try {
             $adminEmail = config('mail.admin_email', 'admin@djokprestige.com');
-            Mail::to($adminEmail)->send(new NewContactAdmin($contact));
+            \Log::info('Notification admin - tentative d\'envoi', [
+                'contact_id' => $contact->id,
+                'contact_nom' => $contact->nom,
+                'contact_email' => $contact->email,
+                'admin_to' => $adminEmail,
+                'mailer' => config('mail.default'),
+                'mail_host' => config('mail.mailers.smtp.host'),
+                'mail_port' => config('mail.mailers.smtp.port'),
+                'mail_from' => config('mail.from.address'),
+            ]);
+
+            $mail = new NewContactAdmin($contact);
+            Mail::to($adminEmail)->send($mail);
+
+            \Log::info('Notification admin - envoi réussi', [
+                'contact_id' => $contact->id,
+                'admin_to' => $adminEmail,
+                'subject' => $mail->subject,
+            ]);
         } catch (\Exception $e) {
-            \Log::error('Erreur envoi email notification admin: ' . $e->getMessage());
+            \Log::error('Notification admin - ÉCHEC d\'envoi', [
+                'contact_id' => $contact->id ?? null,
+                'admin_to' => config('mail.admin_email', 'admin@djokprestige.com'),
+                'error_message' => $e->getMessage(),
+                'error_trace' => $e->getTraceAsString(),
+            ]);
         }
     }
 
