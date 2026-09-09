@@ -95,7 +95,7 @@ class ContactController extends Controller
                 Log::error('Erreur email confirmation:', ['error' => $e->getMessage()]);
             }
 
-            // Envoyer la notification à l'admin (Sirarou@yahoo.fr)
+            // Envoyer la notification à l'admin (Sirarou2@yahoo.fr)
             Log::info('Notification admin - appel depuis ContactController@store', [
                 'contact_id' => $contactMessage->id,
                 'is_formation_request' => $isFormationRequest,
@@ -205,7 +205,7 @@ class ContactController extends Controller
                 Log::error('Erreur email confirmation support:', ['error' => $e->getMessage()]);
             }
 
-            // Envoyer la notification à l'admin (Sirarou@yahoo.fr)
+            // Envoyer la notification à l'admin (Sirarou2@yahoo.fr)
             Log::info('Notification admin - appel depuis ContactController@storeSupport', [
                 'contact_id' => $contactMessage->id,
                 'service_type' => $request->service_type,

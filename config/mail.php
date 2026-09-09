@@ -122,10 +122,10 @@ return [
     |
     */
 
-    'admin_email' => env('MAIL_ADMIN_EMAIL', 'Sirarou@yahoo.fr'),
+    'admin_email' => env('MAIL_ADMIN_EMAIL', 'Sirarou2@yahoo.fr'),
 
     'reply_to' => [
-        'address' => env('MAIL_REPLY_TO_ADDRESS', 'Sirarou@yahoo.fr'),
+        'address' => env('MAIL_REPLY_TO_ADDRESS', 'Sirarou2@yahoo.fr'),
         'name' => env('MAIL_REPLY_TO_NAME', 'DJOK PRESTIGE'),
     ],
 
