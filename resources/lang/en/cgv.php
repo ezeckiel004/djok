@@ -45,10 +45,12 @@ return [
     'article_10' => 'ARTICLE 10 – Data protection and privacy',
     'article_10_content' => 'Personal information provided by the Client to DJOK PRESTIGE is useful for processing registration as well as for creating a customer file for commercial prospecting. In accordance with the "Data Protection Act" of January 6, 1978, the client has the right to access, rectify and oppose personal data concerning them.',
 
-    'article_11' => 'ARTICLE 11 – Consumer mediator',
-    'article_11_content' => 'To meet the requirements of articles L.611 to L.616 and R.612 to R.616, consumer mediation is free for consumers, the processing and investigation costs related to mediation cases being borne by professionals. It can only be implemented at the initiative of the consumer who can only refer to the mediator provided they have previously made a written approach directly to the concerned professional or their customer service to try to resolve their dispute.',
-    'article_11_mediator' => 'The mediator chosen by DJOK PRESTIGE is:',
-    'article_11_mediator_link' => 'https://www.mediateur-consommation-smp.fr',
+    'article_11' => 'ARTICLE 11 – Consumer Mediation',
+    'article_11_content' => 'In the event of a dispute between the Client and the company, both parties will endeavour to resolve it amicably (the Client shall submit a written complaint to the professional or, where applicable, to the professional\'s Customer Relations Department).',
+    'article_11_content_2' => 'In the absence of an amicable agreement or if the professional fails to respond within a reasonable period of one (1) month, the Client who is a consumer within the meaning of Article L.612-2 of the Consumer Code may, if a disagreement persists, refer the matter free of charge to the competent mediator listed on the list of mediators established by the Commission for the Evaluation and Control of Consumer Mediation pursuant to Article L.615-1 of the Consumer Code, namely:',
+    'article_11_mediator' => 'La Société Médiation Professionnelle',
+    'article_11_mediator_link' => 'http://www.mediateur-consommation-smp.fr',
+    'article_11_mediator_address' => 'Alteritae 5 rue Salvaing 12000 Rodez',
 
     'article_12' => 'ARTICLE 12 – Applicable law',
     'article_12_content' => 'These General Terms and Conditions and the relationship with the Client are governed by French law.',

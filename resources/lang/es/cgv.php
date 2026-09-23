@@ -45,10 +45,12 @@ return [
     'article_10' => 'ARTÍCULO 10 – Informática y libertades',
     'article_10_content' => 'La información de carácter personal comunicada por el Cliente a la sociedad DJOK PRESTIGE es útil para el tratamiento de la inscripción así como para la constitución de un fichero de clientela para prospecciones comerciales. Conforme a la ley "informática y libertades" del 6 de enero de 1978, el cliente dispone de un derecho de acceso, rectificación y oposición de los datos personales que le conciernen.',
 
-    'article_11' => 'ARTÍCULO 11 – Mediador del consumo',
-    'article_11_content' => 'Para responder a las exigencias de los artículos L.611 a L.616 y R.612 a R.616, la mediación del consumo es gratuita para los consumidores, siendo los gastos de tratamiento e instrucción relativos a los expedientes de mediación asumidos por los profesionales. Solo puede ponerse en marcha a iniciativa del consumidor, que no puede recurrir al mediador más que a condición de haber efectuado previamente una gestión por escrito directamente al profesional concernido o a su servicio de atención al cliente para intentar resolver su litigio.',
-    'article_11_mediator' => 'El mediador elegido por DJOK PRESTIGE es:',
-    'article_11_mediator_link' => 'https://www.mediateur-consommation-smp.fr',
+    'article_11' => 'ARTÍCULO 11 – Mediación del consumo',
+    'article_11_content' => 'En caso de litigio entre el Cliente y la empresa, ambas partes se esforzarán por resolverlo de manera amistosa (el Cliente enviará una reclamación escrita al profesional o, en su caso, al Servicio de Atención al Cliente del profesional).',
+    'article_11_content_2' => 'A falta de acuerdo amistoso o en ausencia de respuesta del profesional en un plazo razonable de un (1) mes, el Cliente consumidor en el sentido del artículo L.612-2 del código de consumo tendrá la posibilidad de acudir gratuitamente, si persiste un desacuerdo, al mediador competente inscrito en la lista de mediadores establecida por la Comisión de evaluación y control de la mediación del consumo en aplicación del artículo L.615-1 del código de consumo, a saber:',
+    'article_11_mediator' => 'La Société Médiation Professionnelle',
+    'article_11_mediator_link' => 'http://www.mediateur-consommation-smp.fr',
+    'article_11_mediator_address' => 'Alteritae 5 rue Salvaing 12000 Rodez',
 
     'article_12' => 'ARTÍCULO 12 – Ley aplicable',
     'article_12_content' => 'Las presentes Condiciones Generales de Venta y la relación con el Cliente se rigen por la ley francesa.',

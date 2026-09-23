@@ -45,10 +45,12 @@ return [
     'article_10' => 'ARTICLE 10 – Informatique et libertés',
     'article_10_content' => 'Les informations à caractère personnel communiquées par le Client à la société DJOK PRESTIGE sont utiles pour le traitement de l\'inscription ainsi que pour la constitution d\'un fichier clientèle pour des prospections commerciales. Conformément à la loi « informatique et libertés » du 6 janvier 1978, le client dispose d\'un droit d\'accès, de rectification et d\'opposition des données personnelles le concernant.',
 
-    'article_11' => 'ARTICLE 11 – Médiateur de la consommation',
-    'article_11_content' => 'Pour répondre aux exigences des articles L.611 à L.616 et R.612 à R.616, la médiation de la consommation est gratuite pour les consommateurs, les frais de traitement et d\'instruction relatifs aux dossiers de médiation étant pris en charge par les professionnels. Elle ne peut être mise en œuvre qu\'à l\'initiative du consommateur qui ne peut saisir le médiateur qu\'à la condition d\'avoir préalablement fait une démarche par écrit directement auprès du professionnel concerné ou de son service client pour tenter de résoudre son litige.',
-    'article_11_mediator' => 'Le médiateur choisi par DJOK PRESTIGE est :',
-    'article_11_mediator_link' => 'https://www.mediateur-consommation-smp.fr',
+    'article_11' => 'ARTICLE 11 – Médiation de la consommation',
+    'article_11_content' => 'En cas de litige entre le Client et l\'entreprise, ceux-ci s\'efforceront de le résoudre à l\'amiable (le Client adressera une réclamation écrite auprès du professionnel ou, le cas échéant, auprès du Service Relations Clientèle du professionnel).',
+    'article_11_content_2' => 'À défaut d\'accord amiable ou en l\'absence de réponse du professionnel dans un délai raisonnable d\'un (1) mois, le Client consommateur au sens de l\'article L.612-2 du code de la consommation a la possibilité de saisir gratuitement, si un désaccord subsiste, le médiateur compétent inscrit sur la liste des médiateurs établie par la Commission d\'évaluation et de contrôle de la médiation de la consommation en application de l\'article L.615-1 du code de la consommation, à savoir :',
+    'article_11_mediator' => 'La Société Médiation Professionnelle',
+    'article_11_mediator_link' => 'http://www.mediateur-consommation-smp.fr',
+    'article_11_mediator_address' => 'Alteritae 5 rue Salvaing 12000 Rodez',
 
     'article_12' => 'ARTICLE 12 – Loi applicable',
     'article_12_content' => 'Les présentes Conditions Générales de Vente et la relation avec le Client sont régies par la loi française.',
