@@ -116,11 +116,17 @@
                             {{ __('cgv.article_11_content') }}
                         </p>
                         <p class="mt-2 text-gray-700">
+                            {{ __('cgv.article_11_content_2') }}
+                        </p>
+                        <p class="mt-2 text-gray-700 font-semibold">
                             {{ __('cgv.article_11_mediator') }}
+                        </p>
+                        <p class="text-gray-700">
                             <a href="{{ __('cgv.article_11_mediator_link') }}" target="_blank" rel="noopener noreferrer"
                                 class="text-blue-600 hover:underline">
                                 {{ __('cgv.article_11_mediator_link') }}
-                            </a>
+                            </a><br>
+                            {{ __('cgv.article_11_mediator_address') }}
                         </p>
                     </div>
 
